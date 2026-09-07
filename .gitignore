@@ -1,0 +1,83 @@
+# Documentation (local only - do not upload)
+docs/
+*.docx
+
+# Environment and Secret files
+.env
+*.env.*
+.env.local
+.env.development
+.env.production
+credentials/
+*.pem
+*.key
+*.json_credentials
+
+# AI Agent Skills and Configurations
+.skills/
+.agents/
+skills.json
+opencode.json
+opencode.jsonc
+
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flutter / Dart
+.dart_tool/
+.pub-cache/
+.pub/
+.packages
+build/
+flutter_*.png
+*.fgb
+*.apk
+*.aab
+*.app
+*.ipa
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+macOS/flutter/ephemeral/
+
+# IDEs & Editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Docker & OS
+*.log
+docker-data/
+.DS_Store
+Thumbs.db
