@@ -1,31 +1,42 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.database import engine, Base
+from app.rutas import auth, usuarios, materiales, categorias
+
+# Crear tablas en la base de datos
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="BiblioGest API",
-    description="API REST para el Sistema Multiplataforma de Gestión Bibliotecaria BiblioGest",
+    description="API REST para el Sistema Multiplataforma de Gestion Bibliotecaria BiblioGest",
     version="1.0.0",
 )
 
-# Configuración CORS
+# Configuracion CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Registrar rutas
+app.include_router(auth.router)
+app.include_router(usuarios.router)
+app.include_router(materiales.router)
+app.include_router(categorias.router)
 
-@app.get("/", tags=["Health"])
+
+@app.get("/", tags=["Salud"])
 async def root():
     return {
-        "status": "online",
-        "system": "BiblioGest API",
+        "estado": "online",
+        "sistema": "BiblioGest API",
         "version": "1.0.0",
     }
 
 
-@app.get("/health", tags=["Health"])
+@app.get("/health", tags=["Salud"])
 async def health_check():
-    return {"status": "ok"}
+    return {"estado": "ok"}
