@@ -1,0 +1,212 @@
+from typing import List, Optional
+from uuid import UUID
+from datetime import datetime
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from fastapi import HTTPException, status
+from app.modelos.usuario import Usuario
+from app.core.seguridad import hashear_contrasena
+from app.servicios import bitacora_servicio
+
+
+def listar_usuarios(db: Session) -> List[Usuario]:
+    """Listar todos los usuarios (excluyendo eliminados)."""
+    stmt = select(Usuario).where(Usuario.eliminado == False).order_by(Usuario.fecha_creacion.desc())
+    return list(db.execute(stmt).scalars().all())
+
+
+def obtener_usuario_por_id(db: Session, usuario_id: UUID) -> Optional[Usuario]:
+    """Obtener un usuario por ID (excluyendo eliminados)."""
+    stmt = select(Usuario).where(
+        Usuario.id == usuario_id,
+        Usuario.eliminado == False
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def obtener_usuario_por_correo(db: Session, correo_electronico: str) -> Optional[Usuario]:
+    """Obtener un usuario por correo electronico."""
+    stmt = select(Usuario).where(
+        Usuario.correo_electronico == correo_electronico,
+        Usuario.eliminado == False
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def obtener_usuario_por_username(db: Session, username: str) -> Optional[Usuario]:
+    """Obtener un usuario por username."""
+    stmt = select(Usuario).where(
+        Usuario.username == username,
+        Usuario.eliminado == False
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def obtener_usuario_por_documento(db: Session, numero_documento: str) -> Optional[Usuario]:
+    """Obtener un usuario por numero de documento."""
+    stmt = select(Usuario).where(
+        Usuario.numero_documento == numero_documento,
+        Usuario.eliminado == False
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def crear_usuario(
+    db: Session,
+    username: str,
+    correo_electronico: str,
+    contrasena: str,
+    numero_documento: str,
+    nombre: str,
+    apellido: str,
+    rol: str = "estudiante",
+    telefono: Optional[str] = None,
+    usuario_admin: Optional[Usuario] = None,
+) -> Usuario:
+    """Crear un nuevo usuario."""
+    if obtener_usuario_por_username(db, username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El username ya esta en uso"
+        )
+    
+    if obtener_usuario_por_correo(db, correo_electronico):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo electronico ya esta en uso"
+        )
+    
+    if obtener_usuario_por_documento(db, numero_documento):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El numero de documento ya esta registrado"
+        )
+    
+    usuario = Usuario(
+        username=username,
+        correo_electronico=correo_electronico,
+        contrasena_hash=hashear_contrasena(contrasena),
+        numero_documento=numero_documento,
+        nombre=nombre,
+        apellido=apellido,
+        rol=rol,
+        telefono=telefono,
+    )
+    db.add(usuario)
+    db.commit()
+    db.refresh(usuario)
+    
+    bitacora_servicio.registrar_accion(
+        db=db,
+        usuario_id=usuario_admin.id if usuario_admin else None,
+        accion="CREATE",
+        tabla_afectada="usuarios",
+        registro_id=usuario.id,
+        detalles={"correo_electronico": correo_electronico, "rol": rol},
+    )
+    
+    return usuario
+
+
+def actualizar_usuario(
+    db: Session,
+    usuario_id: UUID,
+    correo_electronico: Optional[str] = None,
+    numero_documento: Optional[str] = None,
+    nombre: Optional[str] = None,
+    apellido: Optional[str] = None,
+    rol: Optional[str] = None,
+    telefono: Optional[str] = None,
+    activo: Optional[bool] = None,
+    usuario_admin: Optional[Usuario] = None,
+) -> Usuario:
+    """Actualizar un usuario existente."""
+    usuario = obtener_usuario_por_id(db, usuario_id)
+    if usuario is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    if correo_electronico and correo_electronico != usuario.correo_electronico:
+        if obtener_usuario_por_correo(db, correo_electronico):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El correo electronico ya esta en uso"
+            )
+        usuario.correo_electronico = correo_electronico
+    
+    if numero_documento and numero_documento != usuario.numero_documento:
+        if obtener_usuario_por_documento(db, numero_documento):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El numero de documento ya esta registrado"
+            )
+        usuario.numero_documento = numero_documento
+    
+    if nombre is not None:
+        usuario.nombre = nombre
+    if apellido is not None:
+        usuario.apellido = apellido
+    if rol is not None:
+        usuario.rol = rol
+    if telefono is not None:
+        usuario.telefono = telefono
+    if activo is not None:
+        usuario.activo = activo
+    
+    usuario.fecha_actualizacion = datetime.utcnow()
+    db.commit()
+    db.refresh(usuario)
+    
+    bitacora_servicio.registrar_accion(
+        db=db,
+        usuario_id=usuario_admin.id if usuario_admin else None,
+        accion="UPDATE",
+        tabla_afectada="usuarios",
+        registro_id=usuario.id,
+        detalles={"correo_electronico": usuario.correo_electronico},
+    )
+    
+    return usuario
+
+
+def eliminar_usuario(
+    db: Session,
+    usuario_id: UUID,
+    usuario_admin: Usuario,
+) -> bool:
+    """Eliminar logicamente un usuario."""
+    usuario = obtener_usuario_por_id(db, usuario_id)
+    if usuario is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    if usuario.id == usuario_admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes eliminar tu propia cuenta"
+        )
+    
+    if usuario.rol == "admin" and usuario_admin.rol != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para eliminar a otro administrador"
+        )
+    
+    usuario.eliminado = True
+    usuario.fecha_eliminacion = datetime.utcnow()
+    db.commit()
+    
+    bitacora_servicio.registrar_accion(
+        db=db,
+        usuario_id=usuario_admin.id,
+        accion="DELETE",
+        tabla_afectada="usuarios",
+        registro_id=usuario.id,
+        detalles={"correo_electronico": usuario.correo_electronico},
+    )
+    
+    return True
