@@ -81,3 +81,10 @@ macOS/flutter/ephemeral/
 docker-data/
 .DS_Store
 Thumbs.db
+
+# Flutter metadata
+.metadata
+.pub/
+.packages
+# Credentials
+credenciales.txt
