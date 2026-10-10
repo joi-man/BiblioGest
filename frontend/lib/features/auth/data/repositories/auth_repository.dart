@@ -26,6 +26,28 @@ class AuthRepository {
     return LoginResponse.fromJson(response.data);
   }
 
+  Future<void> solicitarRecuperacion(String correo) async {
+    await _dio.post(
+      '/api/auth/olvide-contrasena',
+      data: {'correo': correo},
+    );
+  }
+
+  Future<void> restablecerContrasena({
+    required String correo,
+    required String codigo,
+    required String nuevaContrasena,
+  }) async {
+    await _dio.post(
+      '/api/auth/restablecer-contrasena',
+      data: {
+        'correo': correo,
+        'codigo': codigo,
+        'nueva_contrasena': nuevaContrasena,
+      },
+    );
+  }
+
   Future<Usuario> getCurrentUser(String token) async {
     final response = await _dio.get(
       '/api/auth/yo',

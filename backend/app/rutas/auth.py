@@ -1,10 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
+from app.core.config import configuracion
 from app.core.database import obtener_db
 from app.core.dependencias import obtener_usuario_actual
-from app.esquemas.auth import LoginRequest, LoginResponse, UsuarioRespuesta
+from app.esquemas.auth import (
+    LoginRequest,
+    LoginResponse,
+    MensajeRespuesta,
+    OlvidoContrasenaRequest,
+    RestablecerContrasenaRequest,
+    UsuarioRespuesta,
+)
 from app.modelos.usuario import Usuario
-from app.servicios import auth_servicio
+from app.servicios import auth_servicio, email_servicio, recuperacion_servicio
 
 router = APIRouter(prefix="/api/auth", tags=["Autenticacion"])
 
@@ -50,6 +58,59 @@ def login(
             activo=usuario.activo,
         ),
     )
+
+
+@router.post("/olvide-contrasena", response_model=MensajeRespuesta)
+def olvide_contrasena(
+    datos: OlvidoContrasenaRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(obtener_db),
+):
+    """Enviar un codigo de recuperacion al correo. Responde igual exista o no el correo."""
+    resultado = recuperacion_servicio.solicitar_codigo(
+        db=db,
+        correo=datos.correo,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+    )
+    if resultado is not None:
+        usuario, codigo = resultado
+        background_tasks.add_task(
+            email_servicio.enviar_correo,
+            usuario.correo_electronico,
+            "Codigo de recuperacion de contrasena - BiblioGest",
+            f"Hola {usuario.nombre},\n\n"
+            f"Tu codigo de recuperacion es: {codigo}\n\n"
+            f"Vence en {configuracion.CODIGO_RESET_EXPIRACION_MINUTOS} minutos. "
+            "Si no lo solicitaste, ignora este correo.",
+        )
+    return MensajeRespuesta(
+        mensaje="Si el correo esta registrado, recibiras un codigo de recuperacion."
+    )
+
+
+@router.post("/restablecer-contrasena", response_model=MensajeRespuesta)
+def restablecer_contrasena(
+    datos: RestablecerContrasenaRequest,
+    request: Request,
+    db: Session = Depends(obtener_db),
+):
+    """Cambiar la contrasena usando el codigo recibido por correo."""
+    ok = recuperacion_servicio.restablecer_contrasena(
+        db=db,
+        correo=datos.correo,
+        codigo=datos.codigo,
+        nueva_contrasena=datos.nueva_contrasena,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Codigo invalido o expirado",
+        )
+    return MensajeRespuesta(mensaje="Contrasena actualizada correctamente")
 
 
 @router.get("/yo", response_model=UsuarioRespuesta)

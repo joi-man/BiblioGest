@@ -6,6 +6,8 @@ class ApiConstants {
 
   // Endpoints
   static const String login = '/api/auth/login';
+  static const String forgotPassword = '/api/auth/olvide-contrasena';
+  static const String resetPassword = '/api/auth/restablecer-contrasena';
   static const String register = '/api/auth/register';
   static const String users = '/api/users';
   static const String materials = '/api/materials';
