@@ -143,6 +143,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               : const Text('Iniciar Sesion'),
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => context.go('/forgot-password'),
+                        child: const Text('¿Olvidaste tu contrasena?'),
+                      ),
                     ],
                   ),
                 ),

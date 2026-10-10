@@ -5,6 +5,8 @@ import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../features/materials/presentation/screens/materials_screen.dart';
 import '../features/loans/presentation/screens/loans_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/usuarios_screen.dart';
 import '../features/categories/presentation/screens/categorias_screen.dart';
 import 'auth_state.dart';
@@ -19,7 +21,10 @@ final appRouter = GoRouter(
   redirect: (context, state) {
     final isAuthenticated = authStateNotifier.isAuthenticated;
     final isOnLogin = state.matchedLocation == '/login';
-    if (!isAuthenticated && !isOnLogin) {
+    final isPublic = isOnLogin ||
+        state.matchedLocation == '/forgot-password' ||
+        state.matchedLocation == '/reset-password';
+    if (!isAuthenticated && !isPublic) {
       return '/login';
     }
     if (isAuthenticated && isOnLogin) {
@@ -32,6 +37,17 @@ final appRouter = GoRouter(
       path: '/login',
       name: 'login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      name: 'forgot-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: '/reset-password',
+      name: 'reset-password',
+      builder: (context, state) =>
+          ResetPasswordScreen(correoInicial: state.extra as String?),
     ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
