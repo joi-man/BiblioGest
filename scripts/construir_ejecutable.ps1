@@ -78,6 +78,15 @@ try {
     Verificar "flutter" "Fallo flutter pub get"
     & $Flutter build windows --release
     if ($LASTEXITCODE -ne 0) {
+        # Una carpeta build a medias de otra version de Flutter suele ser la causa
+        # (por ejemplo "file INSTALL cannot find ...\native_assets\windows"): se limpia y se reintenta.
+        Write-Host "La compilacion fallo; se limpia la carpeta build y se reintenta una vez..." -ForegroundColor Yellow
+        & $Flutter clean
+        & $Flutter pub get
+        Verificar "flutter" "Fallo flutter pub get tras limpiar"
+        & $Flutter build windows --release
+    }
+    if ($LASTEXITCODE -ne 0) {
         throw "Fallo la compilacion de Windows. Si el mensaje habla de 'symlink', activa el Modo desarrollador (start ms-settings:developers). Si dice que no encuentra Visual Studio, instala el componente 'Desarrollo para el escritorio con C++' o usa un Flutter mas nuevo con -Flutter <ruta>\bin\flutter.bat."
     }
 } finally { Pop-Location }
