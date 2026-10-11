@@ -114,6 +114,7 @@ Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
 |---|---|
 | [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
 | [docs/listados-paginados-exportacion.md](docs/listados-paginados-exportacion.md) | Grillas paginadas con búsqueda, filtros y exportación a Excel/PDF |
+| [docs/ejecutable-offline.md](docs/ejecutable-offline.md) | Ejecutable de Windows: modo offline, sincronización, red privada e instalador |
 | [docs/diseno-sistema.md](docs/diseno-sistema.md) | Sistema de diseño (paleta, tipografía, modo oscuro, componentes) |
 | [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md) | Recuperación de contraseña por correo |
 

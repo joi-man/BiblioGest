@@ -74,6 +74,14 @@ def test_modo_solo_local_crea_el_administrador_y_permite_entrar(equipo_nuevo):
     assert login.status_code == 200 and login.json()["usuario"]["rol"] == "admin"
 
 
+def test_sin_servidor_no_se_acumulan_cambios_por_enviar(equipo_nuevo):
+    equipo_nuevo.http.post("/api/local/configurar-solo-local", json=DATOS_ADMIN)
+    sesion = _entrar_como_bibliotecaria(equipo_nuevo)
+    equipo_nuevo.http.post("/api/categorias/", json={"nombre": "Mapas"}, headers=sesion)
+
+    assert equipo_nuevo.http.get("/api/local/estado").json()["pendientes"] == 0
+
+
 def test_no_se_puede_configurar_dos_veces(equipo_nuevo):
     equipo_nuevo.http.post("/api/local/configurar-solo-local", json=DATOS_ADMIN)
 

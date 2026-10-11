@@ -117,8 +117,8 @@ def _guardar_lote(session: Session) -> None:
 
     if not entradas or session.info.get(CLAVE_SILENCIOSO):
         return
-    if not session.info.get(CLAVE_MODO_LOCAL):
-        return
+    if not session.info.get(CLAVE_MODO_LOCAL) or not _hay_servidor_configurado(session):
+        return  # sin servidor al que enviarlos, los lotes solo ocuparian espacio
 
     filas = _filas_del_lote(list(entradas.values()))
     if filas:
@@ -130,6 +130,12 @@ def _guardar_lote(session: Session) -> None:
                 automatico=bool(automatico),
             )
         )
+
+
+def _hay_servidor_configurado(session: Session) -> bool:
+    from app.sync import estado_local
+
+    return estado_local.servidor_url(session) is not None
 
 
 @event.listens_for(Session, "after_rollback")
