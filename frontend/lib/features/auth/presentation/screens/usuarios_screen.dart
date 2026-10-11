@@ -3,16 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/auth/data/repositories/usuario_repository.dart';
 import 'package:frontend/features/auth/data/models/usuario.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/auth/presentation/providers/usuarios_provider.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 import 'package:frontend/features/core/widgets/confirmacion.dart';
-
-final usuariosProvider = FutureProvider<List<Usuario>>((ref) async {
-  final authState = ref.watch(authProvider);
-  final token = authState.value?.accessToken;
-  if (token == null) return [];
-  final repository = ref.read(usuarioRepositoryProvider);
-  return repository.listar(token);
-});
 
 class UsuariosScreen extends ConsumerWidget {
   const UsuariosScreen({super.key});

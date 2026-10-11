@@ -1,131 +1,156 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/features/core/widgets/barra_busqueda.dart';
+import 'package:frontend/features/core/widgets/encabezado_pagina.dart';
+import 'package:frontend/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:frontend/features/loans/data/models/prestamo.dart';
+import 'package:frontend/features/loans/presentation/providers/prestamos_provider.dart';
+import 'package:frontend/features/loans/presentation/widgets/dialogo_prestamo_directo.dart';
+import 'package:frontend/features/loans/presentation/widgets/lista_prestamos.dart';
 
-class LoansScreen extends StatelessWidget {
+/// Una pestaña de la pantalla de préstamos: qué estados muestra y cómo se llama.
+class _Pestana {
+  const _Pestana({
+    required this.titulo,
+    required this.estados,
+    required this.mensajeVacio,
+    this.masAntiguosPrimero = false,
+    this.mostrarBotones = true,
+  });
+
+  final String titulo;
+  final List<EstadoPrestamo> estados;
+  final String mensajeVacio;
+  final bool masAntiguosPrimero;
+  final bool mostrarBotones;
+}
+
+const _pestanas = [
+  _Pestana(
+    titulo: 'Solicitudes',
+    estados: [EstadoPrestamo.pendiente],
+    mensajeVacio: 'No hay solicitudes pendientes',
+    masAntiguosPrimero: true, // la que lleva más tiempo esperando va primero
+  ),
+  _Pestana(
+    titulo: 'Por retirar',
+    estados: [EstadoPrestamo.aprobado],
+    mensajeVacio: 'No hay reservas esperando retiro',
+    masAntiguosPrimero: true,
+  ),
+  _Pestana(
+    titulo: 'En préstamo',
+    estados: [EstadoPrestamo.activo, EstadoPrestamo.vencido],
+    mensajeVacio: 'No hay materiales prestados',
+  ),
+  _Pestana(
+    titulo: 'Historial',
+    estados: [
+      EstadoPrestamo.devuelto,
+      EstadoPrestamo.rechazado,
+      EstadoPrestamo.cancelado,
+    ],
+    mensajeVacio: 'Aún no hay historial',
+    mostrarBotones: false,
+  ),
+];
+
+/// Gestión de solicitudes y préstamos por parte del personal.
+class LoansScreen extends ConsumerStatefulWidget {
   const LoansScreen({super.key});
 
   @override
+  ConsumerState<LoansScreen> createState() => _LoansScreenState();
+}
+
+class _LoansScreenState extends ConsumerState<LoansScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs;
+  String _texto = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = TabController(length: _pestanas.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
+  }
+
+  /// Cantidad de elementos de cada pestaña, tomada del resumen del dashboard.
+  List<int?> _contadores() {
+    final prestamos = ref.watch(resumenDashboardProvider).value?.prestamos;
+    if (prestamos == null) return List.filled(_pestanas.length, null);
+    return [
+      prestamos.solicitudesPendientes,
+      prestamos.porRetirar,
+      prestamos.activos + prestamos.vencidos,
+      null, // el historial no tiene contador
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final contadores = _contadores();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prestamos'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_circle),
-            onPressed: () {},
-          ),
-        ],
-      ),
       body: Column(
         children: [
-          // Filters
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+          EncabezadoPagina(
+            titulo: 'Préstamos',
+            subtitulo: 'Solicitudes de los usuarios y materiales en circulación',
+            acciones: [
+              FilledButton.icon(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (_) => const DialogoPrestamoDirecto(),
+                ),
+                icon: const Icon(Icons.add),
+                label: const Text('Nuevo préstamo'),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            child: BarraBusqueda(
+              sugerencia: 'Buscar por nombre, documento, usuario o material',
+              alCambiar: (texto) => setState(() => _texto = texto),
+            ),
+          ),
+          TabBar(
+            controller: _tabs,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: [
+              for (var i = 0; i < _pestanas.length; i++)
+                Tab(
+                  text: contadores[i] == null
+                      ? _pestanas[i].titulo
+                      : '${_pestanas[i].titulo} (${contadores[i]})',
+                ),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabs,
               children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Buscar por usuario o material...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                for (final pestana in _pestanas)
+                  ListaPrestamos(
+                    filtro: FiltroPrestamos(
+                      estados: pestana.estados,
+                      texto: _texto,
+                      masAntiguosPrimero: pestana.masAntiguosPrimero,
                     ),
+                    mensajeVacio: pestana.mensajeVacio,
+                    mostrarBotones: pestana.mostrarBotones,
                   ),
-                ),
-                const SizedBox(width: 8),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.filter_list),
-                  onSelected: (value) {},
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'all',
-                      child: Text('Todos'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'active',
-                      child: Text('Activos'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'overdue',
-                      child: Text('Vencidos'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'returned',
-                      child: Text('Devueltos'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
-          // Loans List
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: index % 2 == 0
-                          ? Colors.purple.withValues(alpha: 0.1)
-                          : Colors.red.withValues(alpha: 0.1),
-                      child: Icon(
-                        Icons.assignment,
-                        color: index % 2 == 0 ? Colors.purple : Colors.red,
-                      ),
-                    ),
-                    title: Text('Prestamo ${index + 1}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Usuario: Usuario ejemplo'),
-                        Text('Material: Material ejemplo'),
-                        Text(
-                          'Fecha prestamo: ${DateTime.now().subtract(Duration(days: index)).day}/${DateTime.now().month}/${DateTime.now().year}',
-                        ),
-                        Text(
-                          'Devolucion: ${DateTime.now().add(Duration(days: 7 - index)).day}/${DateTime.now().month}/${DateTime.now().year}',
-                          style: TextStyle(
-                            color: index % 2 == 0 ? Colors.green : Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
-                    isThreeLine: true,
-                    trailing: PopupMenuButton<String>(
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'return',
-                          child: Text('Devolver'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'extend',
-                          child: Text('Prorrogar'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'details',
-                          child: Text('Ver detalles'),
-                        ),
-                      ],
-                    ),
-                    onTap: () {},
-                  ),
-                );
-              },
-            ),
-          ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
       ),
     );
   }

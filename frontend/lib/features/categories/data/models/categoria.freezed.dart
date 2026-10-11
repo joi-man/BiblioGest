@@ -25,6 +25,10 @@ mixin _$Categoria {
   String get nombre => throw _privateConstructorUsedError;
   String? get descripcion => throw _privateConstructorUsedError;
 
+  /// Plazo de préstamo por defecto, en horas, para los materiales de la categoría.
+  @JsonKey(name: 'plazo_prestamo_horas')
+  int? get plazoPrestamoHoras => throw _privateConstructorUsedError;
+
   /// Serializes this Categoria to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -40,7 +44,12 @@ abstract class $CategoriaCopyWith<$Res> {
   factory $CategoriaCopyWith(Categoria value, $Res Function(Categoria) then) =
       _$CategoriaCopyWithImpl<$Res, Categoria>;
   @useResult
-  $Res call({String id, String nombre, String? descripcion});
+  $Res call({
+    String id,
+    String nombre,
+    String? descripcion,
+    @JsonKey(name: 'plazo_prestamo_horas') int? plazoPrestamoHoras,
+  });
 }
 
 /// @nodoc
@@ -61,6 +70,7 @@ class _$CategoriaCopyWithImpl<$Res, $Val extends Categoria>
     Object? id = null,
     Object? nombre = null,
     Object? descripcion = freezed,
+    Object? plazoPrestamoHoras = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -76,6 +86,10 @@ class _$CategoriaCopyWithImpl<$Res, $Val extends Categoria>
                 ? _value.descripcion
                 : descripcion // ignore: cast_nullable_to_non_nullable
                       as String?,
+            plazoPrestamoHoras: freezed == plazoPrestamoHoras
+                ? _value.plazoPrestamoHoras
+                : plazoPrestamoHoras // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -91,7 +105,12 @@ abstract class _$$CategoriaImplCopyWith<$Res>
   ) = __$$CategoriaImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String id, String nombre, String? descripcion});
+  $Res call({
+    String id,
+    String nombre,
+    String? descripcion,
+    @JsonKey(name: 'plazo_prestamo_horas') int? plazoPrestamoHoras,
+  });
 }
 
 /// @nodoc
@@ -111,6 +130,7 @@ class __$$CategoriaImplCopyWithImpl<$Res>
     Object? id = null,
     Object? nombre = null,
     Object? descripcion = freezed,
+    Object? plazoPrestamoHoras = freezed,
   }) {
     return _then(
       _$CategoriaImpl(
@@ -126,6 +146,10 @@ class __$$CategoriaImplCopyWithImpl<$Res>
             ? _value.descripcion
             : descripcion // ignore: cast_nullable_to_non_nullable
                   as String?,
+        plazoPrestamoHoras: freezed == plazoPrestamoHoras
+            ? _value.plazoPrestamoHoras
+            : plazoPrestamoHoras // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -138,6 +162,7 @@ class _$CategoriaImpl implements _Categoria {
     required this.id,
     required this.nombre,
     this.descripcion,
+    @JsonKey(name: 'plazo_prestamo_horas') this.plazoPrestamoHoras,
   });
 
   factory _$CategoriaImpl.fromJson(Map<String, dynamic> json) =>
@@ -150,9 +175,14 @@ class _$CategoriaImpl implements _Categoria {
   @override
   final String? descripcion;
 
+  /// Plazo de préstamo por defecto, en horas, para los materiales de la categoría.
+  @override
+  @JsonKey(name: 'plazo_prestamo_horas')
+  final int? plazoPrestamoHoras;
+
   @override
   String toString() {
-    return 'Categoria(id: $id, nombre: $nombre, descripcion: $descripcion)';
+    return 'Categoria(id: $id, nombre: $nombre, descripcion: $descripcion, plazoPrestamoHoras: $plazoPrestamoHoras)';
   }
 
   @override
@@ -163,12 +193,15 @@ class _$CategoriaImpl implements _Categoria {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.nombre, nombre) || other.nombre == nombre) &&
             (identical(other.descripcion, descripcion) ||
-                other.descripcion == descripcion));
+                other.descripcion == descripcion) &&
+            (identical(other.plazoPrestamoHoras, plazoPrestamoHoras) ||
+                other.plazoPrestamoHoras == plazoPrestamoHoras));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, nombre, descripcion);
+  int get hashCode =>
+      Object.hash(runtimeType, id, nombre, descripcion, plazoPrestamoHoras);
 
   /// Create a copy of Categoria
   /// with the given fields replaced by the non-null parameter values.
@@ -189,6 +222,7 @@ abstract class _Categoria implements Categoria {
     required final String id,
     required final String nombre,
     final String? descripcion,
+    @JsonKey(name: 'plazo_prestamo_horas') final int? plazoPrestamoHoras,
   }) = _$CategoriaImpl;
 
   factory _Categoria.fromJson(Map<String, dynamic> json) =
@@ -200,6 +234,11 @@ abstract class _Categoria implements Categoria {
   String get nombre;
   @override
   String? get descripcion;
+
+  /// Plazo de préstamo por defecto, en horas, para los materiales de la categoría.
+  @override
+  @JsonKey(name: 'plazo_prestamo_horas')
+  int? get plazoPrestamoHoras;
 
   /// Create a copy of Categoria
   /// with the given fields replaced by the non-null parameter values.

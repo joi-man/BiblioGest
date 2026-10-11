@@ -8,52 +8,30 @@ final categoriaRepositoryProvider = Provider<CategoriaRepository>((ref) {
   return CategoriaRepository(dioClient.dio);
 });
 
+/// Acceso a la API de categorías. El token lo agrega el cliente HTTP.
 class CategoriaRepository {
-  final Dio _dio;
-
   CategoriaRepository(this._dio);
 
-  Future<List<Categoria>> listar(String token) async {
-    final response = await _dio.get(
-      '/api/categorias/',
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return (response.data as List)
+  final Dio _dio;
+
+  Future<List<Categoria>> listar() async {
+    final respuesta = await _dio.get('/api/categorias/');
+    return (respuesta.data as List)
         .map((json) => Categoria.fromJson(json))
         .toList();
   }
 
-  Future<Categoria> obtenerPorId(String id, String token) async {
-    final response = await _dio.get(
-      '/api/categorias/$id',
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return Categoria.fromJson(response.data);
+  Future<Categoria> crear(Map<String, dynamic> datos) async {
+    final respuesta = await _dio.post('/api/categorias/', data: datos);
+    return Categoria.fromJson(respuesta.data);
   }
 
-  Future<Categoria> crear(Map<String, dynamic> datos, String token) async {
-    final response = await _dio.post(
-      '/api/categorias/',
-      data: datos,
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return Categoria.fromJson(response.data);
+  Future<Categoria> actualizar(String id, Map<String, dynamic> datos) async {
+    final respuesta = await _dio.put('/api/categorias/$id', data: datos);
+    return Categoria.fromJson(respuesta.data);
   }
 
-  Future<Categoria> actualizar(String id, Map<String, dynamic> datos,
-      String token) async {
-    final response = await _dio.put(
-      '/api/categorias/$id',
-      data: datos,
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    return Categoria.fromJson(response.data);
-  }
-
-  Future<void> eliminar(String id, String token) async {
-    await _dio.delete(
-      '/api/categorias/$id',
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
+  Future<void> eliminar(String id) async {
+    await _dio.delete('/api/categorias/$id');
   }
 }

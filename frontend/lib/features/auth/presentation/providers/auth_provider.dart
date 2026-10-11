@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/auth_state.dart';
+import 'package:frontend/core/network/dio_client.dart';
 import 'package:frontend/features/auth/data/models/login_request.dart';
 import 'package:frontend/features/auth/data/models/login_response.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
@@ -7,6 +8,14 @@ import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
 final authProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<LoginResponse?>>((ref) {
   return AuthNotifier(ref);
+});
+
+/// Token de la sesión actual, o `null` si no hay sesión.
+///
+/// Los proveedores de datos lo observan para volver a cargar cuando cambia
+/// la persona que usa la aplicación.
+final tokenSesionProvider = Provider<String?>((ref) {
+  return ref.watch(authProvider).value?.accessToken;
 });
 
 class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
@@ -26,15 +35,19 @@ class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
           contrasena: contrasena,
         ),
       );
+      // Desde aquí todas las peticiones llevan el token sin que cada
+      // repositorio tenga que pasarlo.
+      _ref.read(dioClientProvider).setToken(loginResponse.accessToken);
       state = AsyncValue.data(loginResponse);
-      authStateNotifier.setAuthenticated(true);
+      authStateNotifier.iniciarSesion(loginResponse.usuario.rol);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
   void logout() {
+    _ref.read(dioClientProvider).clearToken();
     state = const AsyncValue.data(null);
-    authStateNotifier.setAuthenticated(false);
+    authStateNotifier.cerrarSesion();
   }
 }
