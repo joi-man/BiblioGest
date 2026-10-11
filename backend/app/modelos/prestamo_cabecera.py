@@ -6,9 +6,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.modelos.sincronizable import Sincronizable
 
 
-class PrestamoCabecera(Base):
+class PrestamoCabecera(Sincronizable, Base):
     """Solicitud o prestamo de uno o varios materiales para un usuario.
 
     Es un unico registro con una maquina de estados (ver
@@ -47,7 +48,7 @@ class PrestamoCabecera(Base):
 
     # Timestamps
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
-    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
 
     # Relaciones
     usuario = relationship("Usuario", back_populates="prestamos", foreign_keys=[usuario_id])

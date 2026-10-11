@@ -35,6 +35,16 @@ class Configuracion(BaseSettings):
     MULTA_DANO_MENOR: float = 0.0
     MULTA_DANO_MAYOR: float = 0.0
 
+    # Modo de ejecucion: "central" (servidor con PostgreSQL) o "local" (ejecutable
+    # de escritorio con SQLite que se sincroniza con un servidor central).
+    MODO_APLICACION: str = "central"
+
+    # Sincronizacion (solo modo local)
+    SYNC_INTERVALO_SEGUNDOS: int = 30  # cada cuanto intenta sincronizar si hay servidor configurado
+    SYNC_SOLAPAMIENTO_MINUTOS: int = 5  # margen al pedir cambios para no perder escrituras en vuelo
+    SYNC_LOTES_POR_ENVIO: int = 20
+    SYNC_FILAS_POR_PAGINA: int = 500
+
     # Aplicacion
     NOMBRE_APLICACION: str = "BiblioGest API"
     VERSION: str = "1.0.0"

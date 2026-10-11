@@ -4,9 +4,10 @@ from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from app.modelos.sincronizable import Sincronizable
 
 
-class Categoria(Base):
+class Categoria(Sincronizable, Base):
     __tablename__ = "categorias"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -23,6 +24,7 @@ class Categoria(Base):
     
     # Timestamps
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
 
     # Relaciones
     materiales = relationship("Material", back_populates="categoria")

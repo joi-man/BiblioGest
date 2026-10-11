@@ -15,8 +15,15 @@ def hashear_contrasena(contrasena: str) -> str:
 
 
 def verificar_contrasena(contrasena_plana: str, contrasena_hasheada: str) -> bool:
-    """Verificar una contrasena contra su hash."""
-    return pwd_context.verify(contrasena_plana, contrasena_hasheada)
+    """Verificar una contrasena contra su hash.
+
+    Un hash que no es valido (por ejemplo el marcador "!" de quienes no usan el
+    ejecutable) nunca coincide.
+    """
+    try:
+        return pwd_context.verify(contrasena_plana, contrasena_hasheada)
+    except ValueError:
+        return False
 
 
 def crear_token_acceso(datos: dict, tiempo_expiracion: Optional[timedelta] = None) -> str:

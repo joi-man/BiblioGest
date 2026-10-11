@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core import reloj
+from app.sync import captura
 from app.core.constantes_prestamo import PRESTAMO_ACTIVO, PRESTAMO_APROBADO, PRESTAMO_CANCELADO
 from app.modelos.prestamo_cabecera import PrestamoCabecera
 from app.servicios.prestamos import (
@@ -68,5 +69,7 @@ def actualizar_vencimientos(db: Session) -> int:
     ahora = reloj.ahora_utc()
     cambios = _expirar_reservas(db, ahora) + _marcar_vencidos(db, ahora)
     if cambios:
+        # Lo decide el reloj, no una persona: si hay conflicto al sincronizar se descarta.
+        captura.marcar_como_automatico(db)
         db.commit()
     return cambios

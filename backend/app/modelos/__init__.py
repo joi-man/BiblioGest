@@ -6,8 +6,12 @@ from .prestamo_detalle import PrestamoDetalle
 from .devolucion import Devolucion
 from .bitacora import BitacoraAccion
 from .codigo_recuperacion import CodigoRecuperacion
+from .sincronizacion import ConfiguracionLocal, SyncLote, SyncLoteRecibido
 
 __all__ = [
+    "ConfiguracionLocal",
+    "SyncLote",
+    "SyncLoteRecibido",
     "CodigoRecuperacion",
     "Usuario",
     "Categoria",
@@ -17,3 +21,6 @@ __all__ = [
     "Devolucion",
     "BitacoraAccion",
 ]
+
+# Registra los enganches de SQLAlchemy que versionan y capturan los cambios.
+from app.sync import captura  # noqa: E402,F401
