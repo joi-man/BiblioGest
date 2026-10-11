@@ -10,6 +10,13 @@ class OlvidoContrasenaRequest(BaseModel):
     correo: EmailStr
 
 
+class CodigoExternoRequest(BaseModel):
+    """Codigo que un equipo con el ejecutable pide enviar por correo desde el servidor."""
+
+    correo: EmailStr
+    codigo: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
 class RestablecerContrasenaRequest(BaseModel):
     correo: EmailStr
     codigo: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")

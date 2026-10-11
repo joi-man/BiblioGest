@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/core/network/mensaje_error.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
 import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
@@ -36,9 +38,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       context.mostrarInfo(
           'Si el correo esta registrado, recibiras un codigo de 6 digitos');
       context.go('/reset-password', extra: correo);
-    } catch (_) {
+    } catch (error) {
       if (mounted) {
-        context.mostrarError('No se pudo enviar la solicitud. Intenta de nuevo');
+        // 503: el ejecutable no pudo llegar al servidor que envía el código.
+        final sinServidor = error is DioException && error.response?.statusCode == 503;
+        context.mostrarError(sinServidor
+            ? mensajeDeError(error)
+            : 'No se pudo enviar la solicitud. Intenta de nuevo');
       }
     } finally {
       if (mounted) setState(() => _cargando = false);

@@ -121,7 +121,15 @@ curl -X POST http://localhost:8000/api/auth/restablecer-contrasena \
 
 ## Cuenta de envío
 
-El correo sale de `systembibliogest@gmail.com` (usuario y remitente por defecto en `backend/app/core/config.py`). Solo la **contraseña de aplicación** es secreta y no está en el código:
+El correo sale de `systembibliogest@gmail.com` (usuario y remitente por defecto en `backend/app/core/config.py`). Solo la **contraseña de aplicación** es secreta y no está en el código: variable `SMTP_CLAVE` (en Render, *Environment*; en local, `backend/.env`).
 
-- **Servidor (Render) y desarrollo:** variable `SMTP_CLAVE` (en Render, *Environment*; en local, `backend/.env`).
-- **Ejecutable de Windows:** el instalador es público, así que no lleva la clave. En cada equipo que deba enviar el código, crear `%LOCALAPPDATA%\BiblioGest\correo.env` con la línea `SMTP_CLAVE=<contraseña de aplicación sin espacios>` y reiniciar la aplicación. Sin ese archivo, el código no se envía.
+## Ejecutable de Windows
+
+El instalador es público, así que **no lleva la clave del correo**. El equipo genera y guarda el código (hasheado) en su base local y le pide al servidor central que lo envíe:
+
+1. `POST /api/auth/olvide-contrasena` (local): comprueba que el servidor responde; si no, devuelve `503` ("necesitas conexión a internet"). Esto se decide antes de buscar el correo, para no revelar si existe.
+2. El equipo llama a `POST /api/auth/codigo-externo` en el servidor con `{correo, codigo}`.
+3. El servidor, solo si la cuenta existe y está activa, envía un correo con texto fijo. Responde igual exista o no. Límites: 3 envíos por correo cada 15 min y 60 por hora en total. En un equipo local este endpoint responde 404.
+4. El usuario escribe el código en el equipo, que lo valida contra su base local.
+
+Requiere que la cuenta exista también en el servidor (equipos sincronizados). Un equipo con `SMTP_CLAVE` propia (variable de entorno o `%LOCALAPPDATA%\BiblioGest\correo.env`) envía el correo directamente y no necesita internet.

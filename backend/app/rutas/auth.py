@@ -1,9 +1,12 @@
+import logging
+
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import configuracion
 from app.core.database import es_modo_local, obtener_db
 from app.core.dependencias import obtener_usuario_actual
 from app.esquemas.auth import (
+    CodigoExternoRequest,
     LoginRequest,
     LoginResponse,
     MensajeRespuesta,
@@ -13,11 +16,45 @@ from app.esquemas.auth import (
 )
 from app.modelos.usuario import Usuario
 from app.servicios import auth_servicio, email_servicio, recuperacion_servicio
+from app.servicios.limitador import LimitadorPorClave
+from app.servicios.usuario_servicio import obtener_usuario_por_correo
+from app.sync import estado_local
+from app.sync.cliente_central import ClienteCentral
 from app.sync import servicio_local
 from app.sync.instancia import obtener_motor
 from app.sync.motor import MotorSincronizacion
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/auth", tags=["Autenticacion"])
+
+# Limites del envio de codigos pedidos por equipos con el ejecutable: por correo y en total.
+_limite_por_correo = LimitadorPorClave(maximo=3, segundos=15 * 60)
+_limite_global = LimitadorPorClave(maximo=60, segundos=60 * 60)
+
+MENSAJE_CODIGO = "Si el correo esta registrado, recibiras un codigo de recuperacion."
+
+
+def _enviar_codigo(usuario: Usuario, codigo: str) -> bool:
+    return email_servicio.enviar_correo(
+        usuario.correo_electronico,
+        "Codigo de recuperacion de contrasena - BiblioGest",
+        f"Hola {usuario.nombre},\n\n"
+        f"Tu codigo de recuperacion es: {codigo}\n\n"
+        f"Vence en {configuracion.CODIGO_RESET_EXPIRACION_MINUTOS} minutos. "
+        "Si no lo solicitaste, ignora este correo.",
+    )
+
+
+def _enviar_codigo_por_servidor(url: str, correo: str, codigo: str) -> None:
+    """Pide al servidor central que envie el codigo (el equipo local no guarda la clave del correo)."""
+    cliente = ClienteCentral(url)
+    try:
+        cliente.enviar_codigo_recuperacion(correo, codigo)
+    except Exception:
+        logger.exception("No se pudo pedir al servidor el envio del codigo")
+    finally:
+        cliente.cerrar()
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -77,7 +114,28 @@ def olvide_contrasena(
     background_tasks: BackgroundTasks,
     db: Session = Depends(obtener_db),
 ):
-    """Enviar un codigo de recuperacion al correo. Responde igual exista o no el correo."""
+    """Enviar un codigo de recuperacion al correo. Responde igual exista o no el correo.
+
+    En el ejecutable de escritorio el codigo se genera en el equipo y el correo lo
+    envia el servidor central (el instalador no lleva la clave del correo); eso
+    requiere conexion a internet, salvo que el equipo tenga su propia clave.
+    """
+    url_servidor = None
+    if es_modo_local() and not configuracion.SMTP_CLAVE:
+        url_servidor = estado_local.servidor_url(db)
+        cliente = ClienteCentral(url_servidor) if url_servidor else None
+        try:
+            hay_servidor = cliente is not None and cliente.hay_conexion()
+        finally:
+            if cliente is not None:
+                cliente.cerrar()
+        if not hay_servidor:
+            # Se avisa antes de generar nada, asi no depende de que el correo exista.
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Para recibir el codigo necesitas conexion a internet con el servidor.",
+            )
+
     resultado = recuperacion_servicio.solicitar_codigo(
         db=db,
         correo=datos.correo,
@@ -86,18 +144,38 @@ def olvide_contrasena(
     )
     if resultado is not None:
         usuario, codigo = resultado
-        background_tasks.add_task(
-            email_servicio.enviar_correo,
-            usuario.correo_electronico,
-            "Codigo de recuperacion de contrasena - BiblioGest",
-            f"Hola {usuario.nombre},\n\n"
-            f"Tu codigo de recuperacion es: {codigo}\n\n"
-            f"Vence en {configuracion.CODIGO_RESET_EXPIRACION_MINUTOS} minutos. "
-            "Si no lo solicitaste, ignora este correo.",
+        if url_servidor:
+            background_tasks.add_task(
+                _enviar_codigo_por_servidor, url_servidor, usuario.correo_electronico, codigo
+            )
+        else:
+            background_tasks.add_task(_enviar_codigo, usuario, codigo)
+    return MensajeRespuesta(mensaje=MENSAJE_CODIGO)
+
+
+@router.post("/codigo-externo", response_model=MensajeRespuesta)
+def enviar_codigo_externo(
+    datos: CodigoExternoRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(obtener_db),
+):
+    """Enviar por correo un codigo generado por un equipo con el ejecutable.
+
+    Solo existe en el servidor central, solo escribe a cuentas activas registradas,
+    con un texto fijo y con limites de envio. Responde igual exista o no el correo.
+    """
+    if es_modo_local():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No disponible")
+    correo = datos.correo.lower()
+    if not _limite_global.permitir("global") or not _limite_por_correo.permitir(correo):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Demasiadas solicitudes. Intenta de nuevo en unos minutos.",
         )
-    return MensajeRespuesta(
-        mensaje="Si el correo esta registrado, recibiras un codigo de recuperacion."
-    )
+    usuario = obtener_usuario_por_correo(db, correo)
+    if usuario is not None and usuario.activo:
+        background_tasks.add_task(_enviar_codigo, usuario, datos.codigo)
+    return MensajeRespuesta(mensaje=MENSAJE_CODIGO)
 
 
 @router.post("/restablecer-contrasena", response_model=MensajeRespuesta)
