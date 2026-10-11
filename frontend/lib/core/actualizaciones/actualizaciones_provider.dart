@@ -185,11 +185,12 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       if (decision.instalarSola && decision.urgencia != Urgencia.ninguna) {
         await descargarEInstalar(automatica: true);
       }
-    } on SinConexionActualizaciones {
+    } on SinConexionActualizaciones catch (error) {
       state = manual
           ? anterior.copyWith(
               fase: FaseActualizacion.error,
-              mensaje: 'No se pudo conectar. Revisa tu conexión a internet.',
+              mensaje: 'No se pudo conectar. Revisa tu conexión a internet.'
+                  '${error.detalle.isEmpty ? '' : ' (${error.detalle})'}',
             )
           : anterior;
     } on ErrorManifiesto {
