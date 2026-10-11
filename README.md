@@ -24,7 +24,7 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
 - **Base de Datos:** PostgreSQL `16.6`
 
 ### Frontend Multiplataforma
-- **Framework:** Flutter SDK `3.27.x` (Web, Windows, Android)
+- **Framework:** Flutter SDK `3.47.x` (Web, Windows, Android)
 - **Gestión de Estado:** `flutter_riverpod` `2.6.1`
 - **Navegación:** `go_router` `14.7.0`
 - **Cliente HTTP:** `dio` `5.7.0`
@@ -105,6 +105,14 @@ flutter test                          # 35 pruebas
 
 Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
 `flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true`.
+
+### 5. Ejecutable de Windows
+
+```powershell
+.\scripts\construir_ejecutable.ps1 -Version 0.9.0    # -> build\instalador\BiblioGest-Setup-0.9.0.exe
+```
+
+Funciona sin internet, solo en el equipo o conectado a un servidor (internet o red privada). Requisitos y funcionamiento en [docs/ejecutable-offline.md](docs/ejecutable-offline.md).
 
 ---
 

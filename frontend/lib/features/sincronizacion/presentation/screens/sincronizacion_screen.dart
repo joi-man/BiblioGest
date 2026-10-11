@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/core/network/mensaje_error.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
@@ -119,6 +121,15 @@ class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
     );
   }
 
+  /// Los datos de este equipo se reemplazaron por los del servidor, así que la
+  /// persona que estaba conectada (un usuario local) ya no existe: debe entrar de nuevo.
+  void _alConectarConServidor() {
+    authStateNotifier.avisoAlLogin =
+        'Equipo conectado al servidor. Inicia sesión con tu cuenta del servidor.';
+    ref.read(authProvider.notifier).logout();
+    context.go('/login');
+  }
+
   /// Conectar con un servidor o dejar de usarlo (solo administradores).
   Widget _seccionServidor(EstadoLocal estado) {
     final textos = Theme.of(context).textTheme;
@@ -143,8 +154,7 @@ class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
             else
               FormularioServidor(
                 hayDatosLocales: true,
-                alConectar: () => context
-                    .mostrarExito('Conectado. Los datos del servidor se descargaron.'),
+                alConectar: _alConectarConServidor,
               ),
           ],
         ),

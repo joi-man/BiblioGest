@@ -21,7 +21,16 @@ final tokenSesionProvider = Provider<String?>((ref) {
 class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
   final Ref _ref;
 
-  AuthNotifier(this._ref) : super(const AsyncValue.data(null));
+  AuthNotifier(this._ref) : super(const AsyncValue.data(null)) {
+    _ref.read(dioClientProvider).alSesionExpirada = _alSesionExpirada;
+  }
+
+  /// El servidor ya no acepta la sesión: se cierra y se avisa en el login.
+  void _alSesionExpirada() {
+    if (state.value == null) return;
+    authStateNotifier.avisoAlLogin = 'Tu sesión terminó. Inicia sesión de nuevo.';
+    logout();
+  }
 
   String? get token => state.value?.accessToken;
 

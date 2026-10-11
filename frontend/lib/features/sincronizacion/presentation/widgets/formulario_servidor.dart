@@ -67,7 +67,8 @@ class _FormularioServidorState extends ConsumerState<FormularioServidor> {
       context,
       titulo: 'Reemplazar los datos de este equipo',
       mensaje: 'Este equipo ya tiene información propia. Al conectarlo con el '
-          'servidor se reemplazará por la del servidor. ¿Continuar?',
+          'servidor se reemplazará por la del servidor y tendrás que iniciar sesión de nuevo '
+          'con una cuenta del servidor. ¿Continuar?',
       etiquetaConfirmar: 'Reemplazar',
     );
   }

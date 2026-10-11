@@ -6,6 +6,10 @@ import 'package:flutter/foundation.dart';
 /// vez que alguien inicia o cierra sesión.
 class AuthState extends ChangeNotifier {
   bool _autenticado = false;
+
+  /// Mensaje que debe mostrar la pantalla de acceso (por ejemplo, "tu sesión terminó").
+  /// Quien lo muestra debe dejarlo en null.
+  String? avisoAlLogin;
   String? _rol;
 
   bool get isAuthenticated => _autenticado;

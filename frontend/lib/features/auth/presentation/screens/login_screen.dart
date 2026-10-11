@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
@@ -18,6 +19,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   bool _ocultarContrasena = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Si se llegó aquí porque la sesión terminó, se explica el motivo una sola vez.
+    final aviso = authStateNotifier.avisoAlLogin;
+    if (aviso != null) {
+      authStateNotifier.avisoAlLogin = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.mostrarInfo(aviso);
+      });
+    }
+  }
 
   @override
   void dispose() {
