@@ -1,0 +1,147 @@
+# Préstamos, devoluciones e inventario
+
+Cómo funciona el módulo central de BiblioGest: qué se presta, cómo se pide, quién lo gestiona y cómo se devuelve.
+
+## Qué se presta
+
+Cada **unidad física** es una fila del inventario (`materiales`), con su propio código. Dos proyectores iguales son dos filas, cada una con su serie, su condición y su historial. Así se sabe cuál se dañó o quién la tiene.
+
+| Grupo | Tipos | Campos propios |
+|---|---|---|
+| Bibliográfico | `libro`, `revista` | autor, ISBN, editorial, año, páginas |
+| Medios | `dvd`, `cd` | formato, duración |
+| Equipos | `proyector`, `alargador`, `laptop`, `tablet`, `parlante`, `microfono`, `camara`, `adaptador`, `otro` | marca, modelo, número de serie, accesorios |
+
+Campos comunes a toda unidad: `codigo`, `titulo`, `categoria`, `ubicacion`, `condicion` (`nuevo`, `bueno`, `regular`, `malo`), `valor_referencial` (para reposición si se pierde), `es_prestable` (falso = solo consulta en sala) y `plazo_prestamo_horas` (propio, opcional).
+
+**Estados de una unidad:** `disponible` → `reservado` → `prestado` → (`vencido`) → `disponible` o `fuera_de_servicio`.
+
+## Plazo de devolución
+
+Cada item tiene su propia fecha y hora límite. Se calcula al entregar, en este orden:
+
+1. Plazo propio del material (`plazo_prestamo_horas`).
+2. Plazo de su categoría.
+3. Plazo general (`PLAZO_PRESTAMO_HORAS_DEFECTO`, 168 h = 7 días).
+
+Ejemplo: libros 168 h, proyectores 4 h, laptops 6 h. Un mismo préstamo puede mezclar materiales con plazos distintos.
+
+## Flujo de un préstamo
+
+```
+pendiente --aprobar--> aprobado --entregar--> activo <--> vencido --> devuelto
+    |                     |
+ rechazar              cancelar (o expira)
+ cancelar
+```
+
+| Estado | Significado | Quién lo provoca |
+|---|---|---|
+| `pendiente` | El estudiante solicitó; espera revisión | Estudiante (app móvil) |
+| `aprobado` | Reservado; las unidades pasan a `reservado` y hay un plazo para retirarlas (`HORAS_RETIRO_RESERVA`, 24 h) | Personal |
+| `rechazado` | No se concedió; guarda el motivo | Personal |
+| `cancelado` | Cancelado por el usuario, el personal, o porque la reserva no se retiró a tiempo | Cualquiera / sistema |
+| `activo` | Material entregado y dentro de plazo | Personal |
+| `vencido` | Entregado y pasado de plazo | Sistema |
+| `devuelto` | Todos los items fueron devueltos | Personal |
+
+### Atajos para el mostrador
+
+- **Entregar ahora** sobre una solicitud `pendiente` la aprueba y entrega en un solo paso.
+- **Préstamo directo**: el personal registra un préstamo sin solicitud previa. Puede fijar otra fecha límite o saltarse las validaciones de la persona (queda en la bitácora).
+
+### Devoluciones
+
+Solo las registra el personal, desde la pantalla **Devoluciones** (separada de Préstamos). Se devuelve por item, así que una devolución puede ser parcial. Cada item se recibe con una condición:
+
+| Condición | Efecto en la unidad |
+|---|---|
+| `bueno` | Vuelve a `disponible` |
+| `dano_menor` | `disponible`, condición pasa a `regular` |
+| `dano_mayor` | `fuera_de_servicio`, condición `malo` |
+| `perdido` | `fuera_de_servicio`, condición `malo` |
+
+El préstamo pasa a `devuelto` cuando ya no quedan items pendientes. Los días de retraso se cuentan como días completos: cualquier fracción pasada del plazo cuenta como un día.
+
+## Reglas
+
+Se validan al solicitar o registrar un préstamo directo (configurables, ver abajo):
+
+- La persona debe estar activa.
+- No puede tener préstamos vencidos (`BLOQUEAR_SI_HAY_VENCIDOS`).
+- No puede superar `MAX_PRESTAMOS_ACTIVOS` items entre pendientes, reservados y entregados.
+- Cada material debe ser prestable y estar disponible.
+
+Dos personas no pueden reservar la misma unidad: al aprobar se bloquea la fila del material (en PostgreSQL) y se verifica que siga disponible.
+
+## Multas (opcionales)
+
+Están **desactivadas por defecto** (`MULTAS_HABILITADAS=False`). Con ellas apagadas el sistema nunca calcula ni muestra multas. Si se activan, cada devolución suma:
+
+- `MULTA_POR_DIA_RETRASO` × días de retraso.
+- `MULTA_DANO_MENOR` o `MULTA_DANO_MAYOR` según la condición.
+- El `valor_referencial` del material si se perdió.
+
+## Configuración
+
+Variables de entorno (en `backend/.env`):
+
+| Variable | Defecto | Descripción |
+|---|---|---|
+| `PLAZO_PRESTAMO_HORAS_DEFECTO` | `168` | Plazo si ni material ni categoría lo definen |
+| `MAX_PRESTAMOS_ACTIVOS` | `3` | Items simultáneos por persona |
+| `BLOQUEAR_SI_HAY_VENCIDOS` | `True` | Impide nuevas solicitudes con préstamos vencidos |
+| `HORAS_RETIRO_RESERVA` | `24` | Tiempo para retirar una reserva aprobada |
+| `MULTAS_HABILITADAS` | `False` | Activa el cálculo de multas |
+| `MULTA_POR_DIA_RETRASO` | `0` | Tarifa por día de retraso |
+| `MULTA_DANO_MENOR` / `MULTA_DANO_MAYOR` | `0` | Cargo fijo por daño |
+
+## API
+
+Todas las rutas requieren sesión. Las de personal exigen rol `admin` o `bibliotecario`.
+
+| Método y ruta | Quién | Qué hace |
+|---|---|---|
+| `POST /api/solicitudes/` | Cualquier usuario | Solicita uno o varios materiales |
+| `GET /api/solicitudes/mias` | Cualquier usuario | Sus solicitudes y préstamos |
+| `POST /api/solicitudes/{id}/cancelar` | Dueño o personal | Cancela una solicitud pendiente o reserva |
+| `GET /api/prestamos/` | Personal | Lista con filtros: `estado` (repetible), `usuario_id`, `q`, `mas_antiguos_primero` |
+| `GET /api/prestamos/{id}` | Personal | Detalle |
+| `POST /api/prestamos/directo` | Personal | Préstamo en mostrador, ya entregado |
+| `POST /api/prestamos/{id}/aprobar` | Personal | Aprueba y reserva |
+| `POST /api/prestamos/{id}/rechazar` | Personal | Rechaza con `motivo` |
+| `POST /api/prestamos/{id}/entregar` | Personal | Entrega (aprueba antes si estaba pendiente) |
+| `POST /api/prestamos/{id}/cancelar` | Personal | Cancela |
+| `GET /api/devoluciones/pendientes` | Personal | Préstamos con material por recibir (`q` opcional) |
+| `POST /api/devoluciones/{prestamo_id}` | Personal | Registra la devolución de uno o más items |
+| `GET /api/dashboard/resumen` | Personal | Métricas del inicio |
+| `GET /api/materiales/` | Cualquier usuario | Inventario: `q`, `tipo`, `estado`, `disponible` |
+
+La documentación interactiva está en `http://localhost:8000/docs`.
+
+## Pantallas
+
+**Personal (web y escritorio):** Inicio (métricas), Materiales, **Préstamos** (Solicitudes · Por retirar · En préstamo · Historial), **Devoluciones**, Usuarios y Categorías.
+
+**Estudiante (solo móvil):** Catálogo con búsqueda, filtros y selección de varios materiales; Mis solicitudes (con cancelación); Perfil con modo oscuro. En web o escritorio un estudiante ve un aviso para usar la app móvil. Para probar su vista en el navegador durante el desarrollo:
+
+```bash
+flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true
+```
+
+## Decisiones de diseño
+
+- **Un solo agregado con máquina de estados.** Una solicitud y un préstamo son el mismo registro (`prestamos_cabecera`) en distintos estados; las transiciones válidas están en `servicios/prestamos/maquina_estados.py`.
+- **Vencimientos perezosos.** No hay tareas programadas: antes de cada consulta de préstamos se expiran las reservas y se marcan los vencidos (`vencimiento_servicio`). El estado siempre está al día cuando alguien lo mira.
+- **Una transacción por operación.** El cambio de datos y su registro en la bitácora se confirman juntos.
+- **Fechas en UTC.** La base guarda UTC sin zona; la API las entrega con sufijo `Z` y el cliente las muestra en hora local.
+- **Una responsabilidad por módulo.** `servicios/prestamos/` tiene un archivo por tarea (solicitud, aprobación, entrega, devolución, vencimiento, multas, reglas, plazos, consultas).
+
+## Pruebas
+
+```bash
+cd backend && .venv\Scripts\python -m pytest      # 56 pruebas, sin Docker (SQLite en memoria)
+cd frontend && flutter test                        # 25 pruebas
+```
+
+Las pruebas del backend usan SQLite, que no soporta el bloqueo de filas; ese comportamiento solo se verifica contra PostgreSQL.
