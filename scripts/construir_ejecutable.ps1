@@ -78,7 +78,7 @@ try {
     Verificar "flutter" "Fallo flutter pub get"
     & $Flutter build windows --release
     if ($LASTEXITCODE -ne 0) {
-        throw "Fallo la compilacion de Windows. Si el mensaje habla de 'symlink', activa el Modo desarrollador (start ms-settings:developers). Si dice que no encuentra Visual Studio, instala el componente 'Desarrollo para el escritorio con C++' o usa un Flutter mas nuevo con -Flutter <ruta>inlutter.bat."
+        throw "Fallo la compilacion de Windows. Si el mensaje habla de 'symlink', activa el Modo desarrollador (start ms-settings:developers). Si dice que no encuentra Visual Studio, instala el componente 'Desarrollo para el escritorio con C++' o usa un Flutter mas nuevo con -Flutter <ruta>\bin\flutter.bat."
     }
 } finally { Pop-Location }
 
