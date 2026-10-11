@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
+import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 
+/// Segundo paso de la recuperación: código recibido y nueva contraseña.
 class ResetPasswordScreen extends ConsumerStatefulWidget {
-  final String? correoInicial;
-
   const ResetPasswordScreen({super.key, this.correoInicial});
+
+  /// Correo ya escrito en el paso anterior, para no pedirlo otra vez.
+  final String? correoInicial;
 
   @override
   ConsumerState<ResetPasswordScreen> createState() =>
@@ -22,7 +25,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _codigoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   final _confirmarController = TextEditingController();
-  bool _obscure = true;
+  bool _ocultar = true;
   bool _cargando = false;
 
   @override
@@ -40,6 +43,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     super.dispose();
   }
 
+  /// Envía el código y la nueva contraseña al backend.
   Future<void> _restablecer() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _cargando = true);
@@ -68,142 +72,96 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return PanelAutenticacion(
+      titulo: 'Nueva contrasena',
+      subtitulo: 'Ingresa el código que recibiste por correo (vence en 15 minutos).',
+      hijo: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _correoController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Correo electronico',
+                prefixIcon: Icon(Icons.mail_outline),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.password, size: 64, color: Colors.blue),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Nueva contrasena',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Ingresa el codigo que recibiste por correo (vence en 15 minutos).',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _correoController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Correo electronico',
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          final v = value?.trim() ?? '';
-                          if (v.isEmpty) return 'El correo es obligatorio';
-                          if (!v.contains('@') || !v.contains('.')) {
-                            return 'Ingresa un correo valido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _codigoController,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: 'Codigo de 6 digitos',
-                          prefixIcon: Icon(Icons.pin),
-                          border: OutlineInputBorder(),
-                          counterText: '',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.length != 6) {
-                            return 'El codigo debe tener 6 digitos';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _contrasenaController,
-                        obscureText: _obscure,
-                        decoration: InputDecoration(
-                          labelText: 'Nueva contrasena',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscure
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.length < 6) {
-                            return 'Minimo 6 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _confirmarController,
-                        obscureText: _obscure,
-                        decoration: const InputDecoration(
-                          labelText: 'Confirmar contrasena',
-                          prefixIcon: Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value != _contrasenaController.text) {
-                            return 'Las contrasenas no coinciden';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: FilledButton(
-                          onPressed: _cargando ? null : _restablecer,
-                          child: _cargando
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text('Cambiar contrasena'),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => context.go('/forgot-password'),
-                        child: const Text('Reenviar codigo'),
-                      ),
-                      TextButton(
-                        onPressed: () => context.go('/login'),
-                        child: const Text('Volver al inicio de sesion'),
-                      ),
-                    ],
-                  ),
+              validator: (valor) {
+                final texto = valor?.trim() ?? '';
+                if (texto.isEmpty) return 'El correo es obligatorio';
+                if (!texto.contains('@') || !texto.contains('.')) {
+                  return 'Ingresa un correo valido';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _codigoController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                labelText: 'Codigo de 6 digitos',
+                prefixIcon: Icon(Icons.pin_outlined),
+                counterText: '',
+              ),
+              validator: (valor) => (valor == null || valor.length != 6)
+                  ? 'El codigo debe tener 6 digitos'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _contrasenaController,
+              obscureText: _ocultar,
+              decoration: InputDecoration(
+                labelText: 'Nueva contrasena',
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(_ocultar
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined),
+                  onPressed: () => setState(() => _ocultar = !_ocultar),
                 ),
               ),
+              validator: (valor) => (valor == null || valor.length < 6)
+                  ? 'Minimo 6 caracteres'
+                  : null,
             ),
-          ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _confirmarController,
+              obscureText: _ocultar,
+              decoration: const InputDecoration(
+                labelText: 'Confirmar contrasena',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
+              validator: (valor) => valor != _contrasenaController.text
+                  ? 'Las contrasenas no coinciden'
+                  : null,
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _cargando ? null : _restablecer,
+              child: _cargando
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Cambiar contrasena'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/forgot-password'),
+              child: const Text('Reenviar codigo'),
+            ),
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Volver al inicio de sesion'),
+            ),
+          ],
         ),
       ),
     );

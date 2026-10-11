@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
+import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 
+/// Primer paso de la recuperación: pide el correo y envía el código.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -23,6 +25,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  /// Solicita el código al backend y pasa a la pantalla de restablecimiento.
   Future<void> _enviar() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _cargando = true);
@@ -44,78 +47,47 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return PanelAutenticacion(
+      titulo: 'Recuperar contrasena',
+      subtitulo: 'Ingresa tu correo y te enviaremos un código de 6 dígitos.',
+      hijo: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _correoController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Correo electronico',
+                prefixIcon: Icon(Icons.mail_outline),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.lock_reset, size: 64, color: Colors.blue),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Recuperar contrasena',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Ingresa tu correo y te enviaremos un codigo de 6 digitos.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _correoController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Correo electronico',
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          final v = value?.trim() ?? '';
-                          if (v.isEmpty) return 'El correo es obligatorio';
-                          if (!v.contains('@') || !v.contains('.')) {
-                            return 'Ingresa un correo valido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: FilledButton(
-                          onPressed: _cargando ? null : _enviar,
-                          child: _cargando
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text('Enviar codigo'),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => context.go('/login'),
-                        child: const Text('Volver al inicio de sesion'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              validator: (valor) {
+                final texto = valor?.trim() ?? '';
+                if (texto.isEmpty) return 'El correo es obligatorio';
+                if (!texto.contains('@') || !texto.contains('.')) {
+                  return 'Ingresa un correo valido';
+                }
+                return null;
+              },
             ),
-          ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _cargando ? null : _enviar,
+              child: _cargando
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Enviar codigo'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Volver al inicio de sesion'),
+            ),
+          ],
         ),
       ),
     );

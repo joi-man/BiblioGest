@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/theme/modo_tema_provider.dart';
+import '../core/theme/tema_app.dart';
 import 'router.dart';
-import 'theme.dart';
 
-class BiblioGestApp extends StatelessWidget {
+/// Raíz de la aplicación: conecta el router, el tema y la localización.
+class BiblioGestApp extends ConsumerWidget {
   const BiblioGestApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final modoTema = ref.watch(modoTemaProvider);
+
     return MaterialApp.router(
       title: 'BiblioGest',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light,
+      theme: TemaApp.claro,
+      darkTheme: TemaApp.oscuro,
+      themeMode: modoTema,
       routerConfig: appRouter,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
