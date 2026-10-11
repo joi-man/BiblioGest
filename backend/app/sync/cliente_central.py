@@ -60,6 +60,10 @@ class ClienteCentral:
         except (ErrorSinConexion, ErrorServidor):
             return False
 
+    def enviar_codigo_recuperacion(self, correo: str, codigo: str) -> None:
+        """Pide al servidor que envie por correo un codigo de recuperacion (no requiere sesion)."""
+        self._llamar("POST", "/api/auth/codigo-externo", json={"correo": correo, "codigo": codigo})
+
     def iniciar_sesion(self, usuario: str, contrasena: str) -> Dict[str, Any]:
         """Inicia sesion y guarda el token. Devuelve los datos del usuario."""
         respuesta = self._llamar(
