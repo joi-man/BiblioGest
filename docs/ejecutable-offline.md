@@ -61,15 +61,15 @@ Requisitos, **una sola vez**:
 
 1. **Modo desarrollador de Windows** activado: `start ms-settings:developers` (Flutter lo necesita para enlazar los plugins).
 2. **Visual Studio Build Tools** con la carga de trabajo *Desarrollo para el escritorio con C++* (Visual Studio Installer → Modificar). Se comprueba con `flutter doctor`.
-   - **Visual Studio 2026 necesita Flutter 3.4x o más nuevo** (`flutter upgrade`). Con Flutter 3.32 falla con `Generator Visual Studio 16 2019 could not find any instance of Visual Studio`. Si aparece `Does not match the generator used previously`, borra `frontenduild\windows`.
-   - Si no puedes actualizar tu Flutter global, usa uno aparte (`git clone --depth 1 -b stable https://github.com/flutter/flutter.git C:lutter_bibliogest`) y pasa `-Flutter C:lutter_bibliogestinlutter.bat` al script.
+   - **Visual Studio 2026 necesita Flutter 3.4x o más nuevo** (`flutter upgrade`). Con Flutter 3.32 falla con `Generator Visual Studio 16 2019 could not find any instance of Visual Studio`. Si aparece `Does not match the generator used previously`, borra `frontend\build\windows`.
+   - Si no puedes actualizar tu Flutter global, usa uno aparte (`git clone --depth 1 -b stable https://github.com/flutter/flutter.git C:\flutter_bibliogest`) y pasa `-Flutter C:\flutter_bibliogest\bin\flutter.bat` al script.
 3. **Inno Setup 6**: `winget install JRSoftware.InnoSetup`.
 4. Entorno del backend: `cd backend; python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt`.
 
 Luego:
 
 ```powershell
-.\scripts\construir_ejecutable.ps1 -Version 0.9.0 [-Flutter C:lutter_bibliogestinlutter.bat]
+.\scripts\construir_ejecutable.ps1 -Version 0.9.0 [-Flutter C:\flutter_bibliogest\bin\flutter.bat]
 # -> build\instalador\BiblioGest-Setup-0.9.0.exe
 ```
 
