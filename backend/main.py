@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import configuracion
 from app.core.database import SesionLocal, engine, Base, es_modo_local
 from app.rutas import (
     auth,
@@ -44,7 +45,7 @@ app = FastAPI(
 # Configuracion CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in configuracion.ORIGENES_PERMITIDOS.split(",") if o.strip()],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

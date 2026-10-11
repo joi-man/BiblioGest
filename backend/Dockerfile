@@ -17,4 +17,6 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render define $PORT (en local queda 8000). Las migraciones solo corren si
+# EJECUTAR_MIGRACIONES=1 (produccion); en local no cambia nada.
+CMD ["sh", "-c", "if [ \"$EJECUTAR_MIGRACIONES\" = \"1\" ]; then alembic upgrade head; fi && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

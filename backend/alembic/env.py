@@ -24,8 +24,8 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Override sqlalchemy.url with environment variable if available
-database_url = os.getenv(
-    "DATABASE_URL",
+database_url = os.getenv("DATABASE_URL") or os.getenv(
+    "BASE_DATOS_URL",
     "postgresql+psycopg://bibliogest_user:bibliogest_password@localhost:5432/bibliogest_db"
 )
 config.set_main_option("sqlalchemy.url", database_url)

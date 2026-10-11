@@ -7,6 +7,10 @@ class Configuracion(BaseSettings):
     BASE_DATOS_URL: str = "postgresql+psycopg://bibliogest_user:bibliogest_password@db:5432/bibliogest_db"
     BASE_DATOS_URL_LOCAL: str = "postgresql+psycopg://bibliogest_user:bibliogest_password@localhost:5433/bibliogest_db"
     
+    # CORS: origenes permitidos separados por coma ("*" = todos). En produccion,
+    # el dominio de la web, por ejemplo https://bibliogest.vercel.app
+    ORIGENES_PERMITIDOS: str = "*"
+
     # JWT
     SECRETO_JWT: str = "tu-secreto-super-seguro-cambiar-en-produccion"
     ALGORITMO_JWT: str = "HS256"
