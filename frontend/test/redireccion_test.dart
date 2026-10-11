@@ -6,13 +6,14 @@ import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/app/router.dart';
 import 'package:frontend/core/theme/modo_tema_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ayudas/sin_actualizaciones.dart';
 
 /// Arranca la app con las preferencias simuladas.
 Future<void> _abrirApp(WidgetTester tester) async {
   SharedPreferences.setMockInitialValues({});
   final preferencias = await SharedPreferences.getInstance();
   await tester.pumpWidget(ProviderScope(
-    overrides: [preferenciasProvider.overrideWithValue(preferencias)],
+    overrides: [preferenciasProvider.overrideWithValue(preferencias), ...sinActualizaciones],
     child: const BiblioGestApp(),
   ));
   await tester.pumpAndSettle();

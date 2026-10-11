@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app/app.dart';
 import 'app/arranque.dart';
 import 'app/pantalla_arranque.dart';
+import 'core/actualizaciones/actualizaciones_provider.dart';
 import 'core/local/modo_local.dart';
 import 'core/theme/modo_tema_provider.dart';
 
@@ -14,12 +16,13 @@ Future<void> main() async {
   // funcionen desde el primer cuadro.
   await initializeDateFormatting('es');
   final preferencias = await SharedPreferences.getInstance();
-  await _arrancar(preferencias);
+  final version = (await PackageInfo.fromPlatform()).version;
+  await _arrancar(preferencias, version);
 }
 
 /// Muestra la pantalla de arranque mientras se prepara la aplicación y luego
 /// la reemplaza por la aplicación real. Si falla, ofrece reintentar.
-Future<void> _arrancar(SharedPreferences preferencias) async {
+Future<void> _arrancar(SharedPreferences preferencias, String version) async {
   runApp(const PantallaArranque());
   try {
     final arranque = await prepararArranque();
@@ -28,6 +31,9 @@ Future<void> _arrancar(SharedPreferences preferencias) async {
         overrides: [
           preferenciasProvider.overrideWithValue(preferencias),
           urlApiProvider.overrideWithValue(arranque.urlApi),
+          versionAppProvider.overrideWithValue(version),
+          // El instalador necesita cerrar el backend local para reemplazar sus archivos.
+          cerrarBackendProvider.overrideWithValue(() async => arranque.backend?.detener()),
         ],
         child: const BiblioGestApp(),
       ),
@@ -36,7 +42,7 @@ Future<void> _arrancar(SharedPreferences preferencias) async {
     runApp(
       PantallaArranque(
         error: '$error',
-        alReintentar: () => _arrancar(preferencias),
+        alReintentar: () => _arrancar(preferencias, version),
       ),
     );
   }

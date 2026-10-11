@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/modo_tema_provider.dart';
+import '../features/actualizaciones/presentation/widgets/guardia_actualizacion.dart';
 import '../core/theme/tema_app.dart';
 import 'router.dart';
 
@@ -20,6 +21,7 @@ class BiblioGestApp extends ConsumerWidget {
       darkTheme: TemaApp.oscuro,
       themeMode: modoTema,
       routerConfig: appRouter,
+      builder: (context, child) => GuardiaActualizacion(child: child ?? const SizedBox.shrink()),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

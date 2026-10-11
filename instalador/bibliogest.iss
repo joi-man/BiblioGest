@@ -7,16 +7,24 @@
 ; Se instala para el usuario actual (sin permisos de administrador) en
 ; %LOCALAPPDATA%\Programs\BiblioGest. Los datos de la biblioteca viven aparte, en
 ; %LOCALAPPDATA%\BiblioGest, y NO se borran al desinstalar ni al actualizar.
+;
+; Actualizaciones: la aplicacion descarga una version nueva y ejecuta este mismo
+; instalador sobre la instalacion existente (mismo AppId) con
+;   /SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RELANZAR=1
 
 #ifndef Version
   #define Version "1.0.0"
+#endif
+#ifndef IdApp
+  ; Solo las pruebas lo cambian, para no pisar una instalacion real.
+  #define IdApp "{{6F1B8C52-4E0A-4B2D-9C47-5B3E0D7A91C4}"
 #endif
 #ifndef Origen
   #error Falta /DOrigen=<carpeta del programa compilado>
 #endif
 
 [Setup]
-AppId={{6F1B8C52-4E0A-4B2D-9C47-5B3E0D7A91C4}
+AppId={#IdApp}
 AppName=BiblioGest
 AppVersion={#Version}
 AppPublisher=BiblioGest
@@ -51,3 +59,12 @@ Name: "{autodesktop}\BiblioGest"; Filename: "{app}\BiblioGest.exe"; Tasks: icono
 
 [Run]
 Filename: "{app}\BiblioGest.exe"; Description: "Abrir BiblioGest"; Flags: nowait postinstall skipifsilent
+; Cuando la propia aplicacion se actualiza (instalacion silenciosa con /RELANZAR=1)
+; vuelve a abrirse sola al terminar.
+Filename: "{app}\BiblioGest.exe"; Flags: nowait; Check: RelanzarAlTerminar
+
+[Code]
+function RelanzarAlTerminar: Boolean;
+begin
+  Result := ExpandConstant('{param:RELANZAR|0}') = '1';
+end;
