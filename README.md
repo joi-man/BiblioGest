@@ -59,13 +59,65 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
 
 ---
 
-## 💻 Inicio Rápido Backend
+## 💻 Inicio Rápido
+
+### 1. Configuración
+
+```bash
+cp backend/.env.example backend/.env    # luego edita backend/.env con tus valores
+```
+
+`backend/.env` **nunca se sube a git**. Para el envío de correos (recuperación de contraseña) se necesita una cuenta Gmail con una *contraseña de aplicación*; ver [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md).
+
+### 2. Backend y base de datos (Docker)
+
+```bash
+docker compose up -d --build          # PostgreSQL, pgAdmin y API en http://localhost:8000
+docker compose exec backend python -m alembic upgrade head   # aplica las migraciones
+python backend/scripts/crear_datos_prueba.py                 # categorías, libros y equipos de ejemplo
+```
+
+La documentación interactiva de la API está en <http://localhost:8000/docs>.
+
+> **Puerto 5433:** PostgreSQL de Docker se publica en el puerto `5433`. Si tienes otro PostgreSQL instalado en Windows que use ese mismo puerto, las herramientas que se conecten a `localhost:5433` hablarán con *ese* servidor y rechazarán la clave. Cambia el puerto publicado en `docker-compose.yml` (por ejemplo `5434:5432`) o detén el otro servicio.
+
+> **Migraciones:** el backend ejecuta `create_all` al arrancar, que crea tablas nuevas pero **no** agrega columnas a tablas existentes. Tras actualizar el código ejecuta siempre `alembic upgrade head`. Si Alembic dice que una tabla ya existe, márcala como aplicada con `alembic stamp head`.
+
+### 3. Backend sin Docker (solo desarrollo y pruebas)
 
 ```bash
 cd backend
 python -m venv .venv
-# En Windows PowerShell:
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1          # Windows PowerShell
 pip install -r requirements.txt
-uvicorn main:app --reload
+python -m pytest                      # 56 pruebas, no necesitan base de datos
 ```
+
+### 4. Frontend
+
+```bash
+cd frontend
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs   # modelos Freezed
+flutter run -d chrome                 # personal de la biblioteca (web)
+flutter test                          # 25 pruebas
+```
+
+Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
+`flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true`.
+
+---
+
+## 📖 Documentación
+
+| Documento | Contenido |
+|---|---|
+| [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
+| [docs/diseno-sistema.md](docs/diseno-sistema.md) | Sistema de diseño (paleta, tipografía, modo oscuro, componentes) |
+| [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md) | Recuperación de contraseña por correo |
+
+## 🏗️ Principios de código
+
+- **Responsabilidad única:** cada archivo, clase y función hace una sola cosa (por ejemplo, `backend/app/servicios/prestamos/` tiene un módulo por tarea).
+- **Comentarios y documentación en español**, y nombres que se entienden sin explicación.
+- **Migraciones de base de datos con Alembic** para todo cambio de esquema.
