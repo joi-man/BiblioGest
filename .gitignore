@@ -1,5 +1,9 @@
 ﻿# Documentation (local only - do not upload)
-docs/
+# docs/progreso.md contiene credenciales de prueba, por eso docs/ es local.
+# Solo se versionan los documentos tecnicos sin datos sensibles.
+docs/*
+!docs/diseno-sistema.md
+!docs/prestamos-devoluciones.md
 *.docx
 
 # Environment and Secret files

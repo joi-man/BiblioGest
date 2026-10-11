@@ -10,24 +10,31 @@ import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/usuarios_screen.dart';
 import '../features/categories/presentation/screens/categorias_screen.dart';
 import 'auth_state.dart';
+import 'shell_navegacion.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+/// Rutas que se pueden visitar sin haber iniciado sesión.
+const _rutasPublicas = {'/login', '/forgot-password', '/reset-password'};
+
+/// Página sin animación de transición, usada dentro del marco de navegación.
+Page<void> _paginaSinTransicion(Widget pantalla) {
+  return NoTransitionPage(child: pantalla);
+}
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/login',
   refreshListenable: authStateNotifier,
   redirect: (context, state) {
-    final isAuthenticated = authStateNotifier.isAuthenticated;
-    final isOnLogin = state.matchedLocation == '/login';
-    final isPublic = isOnLogin ||
-        state.matchedLocation == '/forgot-password' ||
-        state.matchedLocation == '/reset-password';
-    if (!isAuthenticated && !isPublic) {
+    final autenticado = authStateNotifier.isAuthenticated;
+    final ubicacion = state.matchedLocation;
+
+    if (!autenticado && !_rutasPublicas.contains(ubicacion)) {
       return '/login';
     }
-    if (isAuthenticated && isOnLogin) {
+    if (autenticado && ubicacion == '/login') {
       return '/';
     }
     return null;
@@ -51,176 +58,39 @@ final appRouter = GoRouter(
     ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
-      builder: (context, state, child) => _ScaffoldWithNavBar(child: child),
+      builder: (context, state, child) => ShellNavegacion(hijo: child),
       routes: [
         GoRoute(
           path: '/',
           name: 'dashboard',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: DashboardScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const DashboardScreen()),
         ),
         GoRoute(
           path: '/materials',
           name: 'materials',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: MaterialsScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const MaterialsScreen()),
         ),
         GoRoute(
           path: '/loans',
           name: 'loans',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: LoansScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const LoansScreen()),
         ),
         GoRoute(
           path: '/users',
           name: 'users',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: UsuariosScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const UsuariosScreen()),
         ),
         GoRoute(
           path: '/categories',
           name: 'categories',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: CategoriasScreen(),
-          ),
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const CategoriasScreen()),
         ),
       ],
     ),
   ],
 );
-
-class _ScaffoldWithNavBar extends StatelessWidget {
-  final Widget child;
-
-  const _ScaffoldWithNavBar({required this.child});
-
-  int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/materials')) return 1;
-    if (location.startsWith('/loans')) return 2;
-    if (location.startsWith('/users')) return 3;
-    if (location.startsWith('/categories')) return 4;
-    return 0;
-  }
-
-  void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go('/');
-        break;
-      case 1:
-        context.go('/materials');
-        break;
-      case 2:
-        context.go('/loans');
-        break;
-      case 3:
-        context.go('/users');
-        break;
-      case 4:
-        context.go('/categories');
-        break;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedIndex = _calculateSelectedIndex(context);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth >= 900) {
-          // Desktop/Tablet: NavigationRail
-          return Scaffold(
-            body: Row(
-              children: [
-                NavigationRail(
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (index) => _onItemTapped(index, context),
-                  labelType: NavigationRailLabelType.all,
-                  leading: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Icon(
-                      Icons.menu_book,
-                      size: 32,
-                      color: Color(0xFF2B6CB0),
-                    ),
-                  ),
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.dashboard_outlined),
-                      selectedIcon: Icon(Icons.dashboard),
-                      label: Text('Dashboard'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.menu_book_outlined),
-                      selectedIcon: Icon(Icons.menu_book),
-                      label: Text('Materiales'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.assignment_outlined),
-                      selectedIcon: Icon(Icons.assignment),
-                      label: Text('Prestamos'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.people_outlined),
-                      selectedIcon: Icon(Icons.people),
-                      label: Text('Usuarios'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.category_outlined),
-                      selectedIcon: Icon(Icons.category),
-                      label: Text('Categorias'),
-                    ),
-                  ],
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(child: child),
-              ],
-            ),
-          );
-        } else {
-          // Mobile: BottomNavigationBar
-          return Scaffold(
-            body: child,
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) => _onItemTapped(index, context),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard),
-                  label: 'Dashboard',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.menu_book_outlined),
-                  selectedIcon: Icon(Icons.menu_book),
-                  label: 'Materiales',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.assignment_outlined),
-                  selectedIcon: Icon(Icons.assignment),
-                  label: 'Prestamos',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.people_outlined),
-                  selectedIcon: Icon(Icons.people),
-                  label: 'Usuarios',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.category_outlined),
-                  selectedIcon: Icon(Icons.category),
-                  label: 'Categorias',
-                ),
-              ],
-            ),
-          );
-        }
-      },
-    );
-  }
-}

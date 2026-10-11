@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 
+/// Pantalla de inicio de sesión con correo o nombre de usuario.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,7 +17,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
-  bool _obscurePassword = true;
+  bool _ocultarContrasena = true;
 
   @override
   void dispose() {
@@ -24,7 +26,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
+  /// Valida el formulario e intenta iniciar sesión.
+  Future<void> _iniciarSesion() async {
     if (!_formKey.currentState!.validate()) return;
 
     await ref.read(authProvider.notifier).login(
@@ -32,128 +35,75 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _contrasenaController.text,
         );
 
-    final authState = ref.read(authProvider);
-    if (authState.hasValue && authState.value != null) {
-      if (mounted) {
-        context.mostrarExito('Bienvenido ${authState.value!.usuario.nombre}');
-        context.go('/');
-      }
-    } else if (authState.hasError) {
-      if (mounted) {
-        context.mostrarError('Credenciales incorrectas');
-      }
+    final estado = ref.read(authProvider);
+    if (!mounted) return;
+    if (estado.hasValue && estado.value != null) {
+      context.mostrarExito('Bienvenido ${estado.value!.usuario.nombre}');
+      context.go('/');
+    } else if (estado.hasError) {
+      context.mostrarError('Credenciales incorrectas');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    final cargando = ref.watch(authProvider).isLoading;
 
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return PanelAutenticacion(
+      titulo: 'Iniciar sesión',
+      subtitulo: 'Ingresa con tu correo o nombre de usuario.',
+      hijo: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _correoController,
+              decoration: const InputDecoration(
+                labelText: 'Correo o usuario',
+                prefixIcon: Icon(Icons.person_outline),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.library_books,
-                        size: 80,
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'BiblioGest',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Sistema de Gestion Bibliotecaria',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      TextFormField(
-                        controller: _correoController,
-                        decoration: const InputDecoration(
-                          labelText: 'Correo o usuario',
-                          prefixIcon: Icon(Icons.person),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'El correo o usuario es obligatorio';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _contrasenaController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          labelText: 'Contrasena',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'La contrasena es obligatoria';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: FilledButton(
-                          onPressed: authState.isLoading ? null : _login,
-                          child: authState.isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text('Iniciar Sesion'),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => context.go('/forgot-password'),
-                        child: const Text('¿Olvidaste tu contrasena?'),
-                      ),
-                    ],
-                  ),
+              validator: (valor) => (valor == null || valor.isEmpty)
+                  ? 'El correo o usuario es obligatorio'
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _contrasenaController,
+              obscureText: _ocultarContrasena,
+              onFieldSubmitted: (_) => _iniciarSesion(),
+              decoration: InputDecoration(
+                labelText: 'Contrasena',
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(_ocultarContrasena
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined),
+                  onPressed: () =>
+                      setState(() => _ocultarContrasena = !_ocultarContrasena),
                 ),
               ),
+              validator: (valor) => (valor == null || valor.isEmpty)
+                  ? 'La contrasena es obligatoria'
+                  : null,
             ),
-          ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: cargando ? null : _iniciarSesion,
+              child: cargando
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Iniciar Sesion'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go('/forgot-password'),
+              child: const Text('¿Olvidaste tu contrasena?'),
+            ),
+          ],
         ),
       ),
     );
