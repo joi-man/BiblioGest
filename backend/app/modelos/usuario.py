@@ -29,7 +29,12 @@ class Usuario(Base):
     fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relaciones
-    prestamos = relationship("PrestamoCabecera", back_populates="usuario")
+    # Prestamos donde este usuario es quien recibe el material (no el personal que lo gestiona)
+    prestamos = relationship(
+        "PrestamoCabecera",
+        back_populates="usuario",
+        foreign_keys="PrestamoCabecera.usuario_id",
+    )
 
     def __repr__(self):
         return f"<Usuario {self.nombre} {self.apellido}>"

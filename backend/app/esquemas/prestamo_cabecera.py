@@ -1,42 +1,96 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
-from datetime import date, datetime
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.esquemas.devolucion import DevolucionRespuesta
+from app.esquemas.tipos import FechaUTC
 
 
-class PrestamoCabeceraBase(BaseModel):
-    usuario_id: UUID
-    fecha_prestamo: date = Field(default_factory=date.today)
-    fecha_devolucion_esperada: date
-    observaciones: Optional[str] = None
+# ---------------------------------------------------------------------------
+# Resumenes que se incrustan dentro de un prestamo
+# ---------------------------------------------------------------------------
+class UsuarioResumen(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-
-class PrestamoCabeceraCrear(PrestamoCabeceraBase):
-    materiales_ids: List[UUID]  # Lista de IDs de materiales a prestar
-
-
-class PrestamoCabeceraActualizar(BaseModel):
-    fecha_devolucion_esperada: Optional[date] = None
-    estado: Optional[str] = None
-    observaciones: Optional[str] = None
-
-
-class PrestamoDetalleRespuesta(BaseModel):
     id: UUID
-    material_id: UUID
-    fecha_creacion: datetime
+    username: str
+    nombre: str
+    apellido: str
+    numero_documento: str
+    correo_electronico: str
 
-    class Config:
-        from_attributes = True
 
+class MaterialResumen(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-class PrestamoCabeceraRespuesta(PrestamoCabeceraBase):
     id: UUID
-    fecha_devolucion_real: Optional[date]
+    codigo: str
+    titulo: str
+    tipo_material: str
     estado: str
-    fecha_creacion: datetime
-    fecha_actualizacion: datetime
-    detalles: List[PrestamoDetalleRespuesta]
+    ubicacion: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+
+# ---------------------------------------------------------------------------
+# Respuestas
+# ---------------------------------------------------------------------------
+class PrestamoDetalleRespuesta(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    material: MaterialResumen
+    fecha_devolucion_esperada: Optional[FechaUTC] = None
+    devuelto: bool
+    devolucion: Optional[DevolucionRespuesta] = None
+
+
+class PrestamoRespuesta(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    estado: str
+    usuario: UsuarioResumen
+    detalles: List[PrestamoDetalleRespuesta]
+    fecha_solicitud: FechaUTC
+    fecha_retiro_limite: Optional[FechaUTC] = None
+    fecha_prestamo: Optional[FechaUTC] = None
+    fecha_devolucion_esperada: Optional[FechaUTC] = None
+    fecha_devolucion_real: Optional[FechaUTC] = None
+    aprobado_por: Optional[UsuarioResumen] = None
+    entregado_por: Optional[UsuarioResumen] = None
+    observaciones: Optional[str] = None
+    motivo_rechazo: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Peticiones
+# ---------------------------------------------------------------------------
+class SolicitudCrear(BaseModel):
+    """Solicitud de prestamo o reserva hecha por un usuario para si mismo."""
+
+    material_ids: List[UUID] = Field(..., min_length=1, max_length=10)
+    observaciones: Optional[str] = Field(None, max_length=500)
+
+
+class PrestamoDirectoCrear(BaseModel):
+    """Prestamo registrado por el personal en el mostrador, sin solicitud previa."""
+
+    usuario_id: UUID
+    material_ids: List[UUID] = Field(..., min_length=1, max_length=10)
+    observaciones: Optional[str] = Field(None, max_length=500)
+    # Si se indica, reemplaza el plazo calculado de todos los items.
+    fecha_devolucion_esperada: Optional[FechaUTC] = None
+    # Permite al personal saltarse el limite de items y el bloqueo por vencidos.
+    omitir_validaciones_usuario: bool = False
+
+
+class RechazoPeticion(BaseModel):
+    motivo: str = Field(..., min_length=3, max_length=500)
+
+
+class EntregaPeticion(BaseModel):
+    """Datos opcionales al entregar una solicitud aprobada."""
+
+    # Si se indica, reemplaza el plazo calculado de todos los items.
+    fecha_devolucion_esperada: Optional[FechaUTC] = None

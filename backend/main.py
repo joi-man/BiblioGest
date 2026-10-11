@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base
-from app.rutas import auth, usuarios, materiales, categorias
+from app.rutas import (
+    auth,
+    categorias,
+    dashboard,
+    devoluciones,
+    materiales,
+    prestamos,
+    solicitudes,
+    usuarios,
+)
 
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -26,6 +35,10 @@ app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(materiales.router)
 app.include_router(categorias.router)
+app.include_router(solicitudes.router)
+app.include_router(prestamos.router)
+app.include_router(devoluciones.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/", tags=["Salud"])
