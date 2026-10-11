@@ -4,6 +4,7 @@
 docs/*
 !docs/diseno-sistema.md
 !docs/prestamos-devoluciones.md
+!docs/listados-paginados-exportacion.md
 *.docx
 
 # Environment and Secret files

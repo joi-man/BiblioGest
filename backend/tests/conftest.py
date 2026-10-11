@@ -19,7 +19,7 @@ from app.core import reloj
 from app.core.database import Base, obtener_db
 from app.core.seguridad import crear_token_acceso, hashear_contrasena
 from app.modelos import Categoria, Material, Usuario  # noqa: F401  (registra todos los modelos)
-from app.rutas import auth, categorias, dashboard, devoluciones, materiales, prestamos, solicitudes
+from app.rutas import auth, categorias, dashboard, devoluciones, materiales, prestamos, solicitudes, usuarios
 
 
 @compiles(JSONB, "sqlite")
@@ -71,7 +71,7 @@ def db():
 def cliente(db, reloj_prueba):
     """Cliente HTTP contra una app con todas las rutas, usando la base de prueba."""
     app = FastAPI()
-    for modulo in (auth, categorias, dashboard, devoluciones, materiales, prestamos, solicitudes):
+    for modulo in (auth, categorias, dashboard, devoluciones, materiales, prestamos, solicitudes, usuarios):
         app.include_router(modulo.router)
     app.dependency_overrides[obtener_db] = lambda: db
     return TestClient(app)

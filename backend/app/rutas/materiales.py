@@ -7,8 +7,19 @@ from sqlalchemy.orm import Session
 from app.core.database import obtener_db
 from app.core.dependencias import obtener_usuario_actual, require_role
 from app.esquemas.material import MaterialActualizar, MaterialCrear, MaterialRespuesta
+from app.esquemas.paginacion import Pagina
+from app.modelos.categoria import Categoria
+from app.rutas.dependencias_listados import (
+    ParametrosPagina,
+    armar_pagina,
+    parametros_pagina,
+    respuesta_de_descarga,
+)
 from app.modelos.usuario import Usuario
 from app.servicios import material_servicio
+from app.servicios.exportacion.exportador import exportar
+from app.servicios.exportacion.materiales_exportacion import tabla_de_materiales
+from app.servicios.exportacion.tabla_exportable import MAX_FILAS_EXPORTACION
 
 router = APIRouter(prefix="/api/materiales", tags=["Materiales"])
 
@@ -26,6 +37,61 @@ def listar_materiales(
     return material_servicio.listar_materiales(
         db, texto=q, tipo=tipo, estado=estado, solo_disponibles=disponible
     )
+
+
+@router.get("/buscar", response_model=Pagina[MaterialRespuesta])
+def buscar_materiales(
+    q: Optional[str] = Query(None, description="Texto a buscar en titulo, codigo, autor, marca, modelo o serie"),
+    tipo: Optional[str] = Query(None),
+    estado: Optional[str] = Query(None),
+    categoria_id: Optional[UUID] = Query(None),
+    paginacion: ParametrosPagina = Depends(parametros_pagina),
+    db: Session = Depends(obtener_db),
+    usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
+):
+    """Una pagina del inventario con busqueda y filtros."""
+    materiales, total = material_servicio.buscar_materiales(
+        db,
+        paginacion.pagina,
+        paginacion.tamano,
+        texto=q,
+        tipo=tipo,
+        estado=estado,
+        categoria_id=categoria_id,
+    )
+    return armar_pagina(
+        [MaterialRespuesta.model_validate(m) for m in materiales], total, paginacion
+    )
+
+
+@router.get("/exportar")
+def exportar_materiales(
+    formato: str = Query("xlsx", description="xlsx o pdf"),
+    q: Optional[str] = Query(None),
+    tipo: Optional[str] = Query(None),
+    estado: Optional[str] = Query(None),
+    categoria_id: Optional[UUID] = Query(None),
+    db: Session = Depends(obtener_db),
+    usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
+):
+    """Descarga todo el inventario que cumple el filtro (no solo una pagina)."""
+    materiales = material_servicio.listar_materiales(
+        db,
+        texto=q,
+        tipo=tipo,
+        estado=estado,
+        categoria_id=categoria_id,
+        limite=MAX_FILAS_EXPORTACION,
+    )
+    categoria = db.get(Categoria, categoria_id) if categoria_id else None
+    tabla = tabla_de_materiales(
+        materiales,
+        busqueda=q,
+        tipo=tipo,
+        estado=estado,
+        categoria=categoria.nombre if categoria else None,
+    )
+    return respuesta_de_descarga(exportar(tabla, formato, "materiales"))
 
 
 @router.get("/{material_id}", response_model=MaterialRespuesta)
