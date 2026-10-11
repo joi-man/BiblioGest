@@ -21,6 +21,9 @@
 #>
 param(
     [string]$Version = "1.0.0",
+    # Flutter a usar. Hace falta una version que reconozca tu Visual Studio
+    # (Visual Studio 2026 necesita Flutter 3.4x o mas nuevo).
+    [string]$Flutter = "flutter",
     # Solo empaqueta el backend (util para probarlo sin compilar Flutter).
     [switch]$SoloBackend
 )
@@ -71,11 +74,11 @@ if ($SoloBackend) { return }
 Paso "Compilando la aplicacion para Windows (Flutter)"
 Push-Location $frontend
 try {
-    flutter pub get
+    & $Flutter pub get
     Verificar "flutter" "Fallo flutter pub get"
-    flutter build windows --release
+    & $Flutter build windows --release
     if ($LASTEXITCODE -ne 0) {
-        throw "Fallo la compilacion de Windows. Si el mensaje habla de 'symlink', activa el Modo desarrollador (start ms-settings:developers). Si habla de Visual Studio, instala el componente 'Desarrollo para el escritorio con C++'."
+        throw "Fallo la compilacion de Windows. Si el mensaje habla de 'symlink', activa el Modo desarrollador (start ms-settings:developers). Si dice que no encuentra Visual Studio, instala el componente 'Desarrollo para el escritorio con C++' o usa un Flutter mas nuevo con -Flutter <ruta>inlutter.bat."
     }
 } finally { Pop-Location }
 
