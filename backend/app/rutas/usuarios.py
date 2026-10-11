@@ -1,12 +1,22 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.core.database import obtener_db
 from app.core.dependencias import obtener_usuario_actual, require_role
+from app.esquemas.paginacion import Pagina
 from app.esquemas.usuario import UsuarioCrear, UsuarioActualizar, UsuarioRespuesta
 from app.modelos.usuario import Usuario
+from app.rutas.dependencias_listados import (
+    ParametrosPagina,
+    armar_pagina,
+    parametros_pagina,
+    respuesta_de_descarga,
+)
 from app.servicios import usuario_servicio
+from app.servicios.exportacion.exportador import exportar
+from app.servicios.exportacion.tabla_exportable import MAX_FILAS_EXPORTACION
+from app.servicios.exportacion.usuarios_exportacion import tabla_de_usuarios
 
 router = APIRouter(prefix="/api/usuarios", tags=["Usuarios"])
 
@@ -29,6 +39,41 @@ def listar_usuarios(
         telefono=u.telefono,
         activo=u.activo,
     ) for u in usuarios]
+
+
+@router.get("/buscar", response_model=Pagina[UsuarioRespuesta])
+def buscar_usuarios(
+    q: Optional[str] = Query(None, description="Texto a buscar en nombre, usuario, correo o documento"),
+    rol: Optional[str] = Query(None, description="admin, bibliotecario o estudiante"),
+    activo: Optional[bool] = Query(None, description="Filtra por usuarios activos o inactivos"),
+    paginacion: ParametrosPagina = Depends(parametros_pagina),
+    db: Session = Depends(obtener_db),
+    usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
+):
+    """Una pagina de usuarios con busqueda y filtros."""
+    usuarios, total = usuario_servicio.buscar_usuarios(
+        db, paginacion.pagina, paginacion.tamano, texto=q, rol=rol, activo=activo
+    )
+    return armar_pagina(
+        [UsuarioRespuesta.model_validate(u) for u in usuarios], total, paginacion
+    )
+
+
+@router.get("/exportar")
+def exportar_usuarios(
+    formato: str = Query("xlsx", description="xlsx o pdf"),
+    q: Optional[str] = Query(None),
+    rol: Optional[str] = Query(None),
+    activo: Optional[bool] = Query(None),
+    db: Session = Depends(obtener_db),
+    usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
+):
+    """Descarga todos los usuarios que cumplen el filtro (no solo una pagina)."""
+    usuarios = usuario_servicio.listar_usuarios(
+        db, texto=q, rol=rol, activo=activo, limite=MAX_FILAS_EXPORTACION
+    )
+    tabla = tabla_de_usuarios(usuarios, busqueda=q, rol=rol, activo=activo)
+    return respuesta_de_descarga(exportar(tabla, formato, "usuarios"))
 
 
 @router.get("/{usuario_id}", response_model=UsuarioRespuesta)

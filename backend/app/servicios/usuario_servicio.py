@@ -1,18 +1,71 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from uuid import UUID
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import or_, select
+from sqlalchemy.sql import Select
+from app.core.paginacion import paginar
 from fastapi import HTTPException, status
 from app.modelos.usuario import Usuario
 from app.core.seguridad import hashear_contrasena
 from app.servicios import bitacora_servicio
 
 
-def listar_usuarios(db: Session) -> List[Usuario]:
-    """Listar todos los usuarios (excluyendo eliminados)."""
-    stmt = select(Usuario).where(Usuario.eliminado == False).order_by(Usuario.fecha_creacion.desc())
-    return list(db.execute(stmt).scalars().all())
+def _consulta_usuarios(
+    texto: Optional[str] = None,
+    rol: Optional[str] = None,
+    activo: Optional[bool] = None,
+) -> Select:
+    """Arma la consulta de usuarios no eliminados con los filtros indicados.
+
+    - `texto`: busca en nombre completo, username, correo y documento.
+    - `rol`: rol exacto (admin, bibliotecario o estudiante).
+    - `activo`: True/False para filtrar por estado; None no filtra.
+    """
+    consulta = select(Usuario).where(Usuario.eliminado == False)  # noqa: E712
+
+    if texto and texto.strip():
+        patron = f"%{texto.strip()}%"
+        consulta = consulta.where(
+            or_(
+                (Usuario.nombre + " " + Usuario.apellido).ilike(patron),
+                Usuario.username.ilike(patron),
+                Usuario.correo_electronico.ilike(patron),
+                Usuario.numero_documento.ilike(patron),
+            )
+        )
+    if rol:
+        consulta = consulta.where(Usuario.rol == rol)
+    if activo is not None:
+        consulta = consulta.where(Usuario.activo == activo)
+
+    return consulta.order_by(Usuario.fecha_creacion.desc(), Usuario.id)
+
+
+def listar_usuarios(
+    db: Session,
+    texto: Optional[str] = None,
+    rol: Optional[str] = None,
+    activo: Optional[bool] = None,
+    limite: Optional[int] = None,
+) -> List[Usuario]:
+    """Lista usuarios (excluyendo eliminados), con filtros y tope opcionales."""
+    consulta = _consulta_usuarios(texto, rol, activo)
+    if limite is not None:
+        consulta = consulta.limit(limite)
+    return list(db.execute(consulta).scalars().all())
+
+
+def buscar_usuarios(
+    db: Session,
+    pagina: int,
+    tamano: int,
+    texto: Optional[str] = None,
+    rol: Optional[str] = None,
+    activo: Optional[bool] = None,
+) -> Tuple[List[Usuario], int]:
+    """Una pagina de usuarios y el total que cumple el filtro."""
+    return paginar(db, _consulta_usuarios(texto, rol, activo), pagina, tamano)
 
 
 def obtener_usuario_por_id(db: Session, usuario_id: UUID) -> Optional[Usuario]:

@@ -90,7 +90,7 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1          # Windows PowerShell
 pip install -r requirements.txt
-python -m pytest                      # 56 pruebas, no necesitan base de datos
+python -m pytest                      # 70 pruebas, no necesitan base de datos
 ```
 
 ### 4. Frontend
@@ -100,7 +100,7 @@ cd frontend
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs   # modelos Freezed
 flutter run -d chrome                 # personal de la biblioteca (web)
-flutter test                          # 25 pruebas
+flutter test                          # 35 pruebas
 ```
 
 Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
@@ -113,6 +113,7 @@ Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
 | Documento | Contenido |
 |---|---|
 | [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
+| [docs/listados-paginados-exportacion.md](docs/listados-paginados-exportacion.md) | Grillas paginadas con búsqueda, filtros y exportación a Excel/PDF |
 | [docs/diseno-sistema.md](docs/diseno-sistema.md) | Sistema de diseño (paleta, tipografía, modo oscuro, componentes) |
 | [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md) | Recuperación de contraseña por correo |
 

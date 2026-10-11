@@ -1,488 +1,243 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend/features/auth/data/repositories/usuario_repository.dart';
+import 'package:frontend/core/modelos/pagina_resultado.dart';
+import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/features/auth/data/models/usuario.dart';
+import 'package:frontend/features/auth/data/repositories/usuario_repository.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/auth/presentation/providers/usuarios_paginados_provider.dart';
 import 'package:frontend/features/auth/presentation/providers/usuarios_provider.dart';
-import 'package:frontend/features/core/widgets/alertas.dart';
+import 'package:frontend/features/auth/presentation/widgets/dialogo_usuario.dart';
+import 'package:frontend/features/auth/presentation/widgets/filtros_usuarios.dart';
+import 'package:frontend/features/core/widgets/boton_exportar.dart';
 import 'package:frontend/features/core/widgets/confirmacion.dart';
+import 'package:frontend/features/core/widgets/controles_paginacion.dart';
+import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
+import 'package:frontend/features/core/widgets/encabezado_pagina.dart';
+import 'package:frontend/features/core/widgets/estado_vacio.dart';
+import 'package:frontend/features/core/widgets/grilla_datos.dart';
+import 'package:frontend/features/core/widgets/valor_asincrono.dart';
 
-class UsuariosScreen extends ConsumerWidget {
+enum _AccionUsuario { editar, eliminar }
+
+/// Administración de usuarios: grilla paginada con búsqueda, filtros y
+/// exportación a Excel y PDF.
+class UsuariosScreen extends ConsumerStatefulWidget {
   const UsuariosScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final usuariosAsync = ref.watch(usuariosProvider);
+  ConsumerState<UsuariosScreen> createState() => _UsuariosScreenState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Usuarios'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _mostrarFormulario(context, ref),
-          ),
-        ],
-      ),
-      body: usuariosAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $error'),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => ref.invalidate(usuariosProvider),
-                child: const Text('Reintentar'),
-              ),
-            ],
-          ),
-        ),
-        data: (usuarios) {
-          if (usuarios.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.people, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No hay usuarios registrados'),
-                ],
-              ),
-            );
-          }
+class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
+  ConsultaUsuarios _consulta = const ConsultaUsuarios();
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: usuarios.length,
-            itemBuilder: (context, index) {
-              final usuario = usuarios[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(
-                      '${usuario.nombre[0]}${usuario.apellido[0]}',
-                    ),
-                  ),
-                  title: Text('${usuario.nombre} ${usuario.apellido}'),
-                  subtitle: Text(
-                      '${usuario.username} - ${usuario.correoElectronico}'),
-                  trailing: PopupMenuButton(
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'editar',
-                        child: ListTile(
-                          leading: Icon(Icons.edit),
-                          title: Text('Editar'),
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'eliminar',
-                        child: ListTile(
-                          leading: Icon(Icons.delete, color: Colors.red),
-                          title: Text('Eliminar'),
-                        ),
-                      ),
-                    ],
-                    onSelected: (value) async {
-                      if (value == 'editar') {
-                        _mostrarFormulario(context, ref,
-                            usuario: usuario);
-                      } else if (value == 'eliminar') {
-                        final confirmado = await confirmarEliminar(
-                          context,
-                          titulo: 'Eliminar usuario',
-                          mensaje:
-                              'Estas seguro de eliminar a "${usuario.nombre} ${usuario.apellido}"?',
-                        );
-                        if (confirmado && context.mounted) {
-                          final token = ref
-                              .read(authProvider)
-                              .value
-                              ?.accessToken;
-                          if (token != null) {
-                            final repo =
-                                ref.read(usuarioRepositoryProvider);
-                            await repo.eliminar(usuario.id, token);
-                            ref.invalidate(usuariosProvider);
-                            if (context.mounted) {
-                              context
-                                  .mostrarExito('Usuario eliminado');
-                            }
-                          }
-                        }
-                      }
-                    },
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+  /// Vuelve a pedir los datos: el listado paginado y el que usan otros formularios.
+  void _recargar() {
+    ref.invalidate(usuariosPaginadosProvider);
+    ref.invalidate(usuariosProvider);
   }
 
-  void _mostrarFormulario(BuildContext context, WidgetRef ref,
-      {Usuario? usuario}) {
+  void _abrirFormulario([Usuario? usuario]) {
     showDialog(
       context: context,
-      builder: (context) => _DialogUsuario(
-        usuario: usuario,
-        onGuardado: () => ref.invalidate(usuariosProvider),
-      ),
+      builder: (_) => DialogoUsuario(usuario: usuario, onGuardado: _recargar),
     );
   }
-}
 
-class _DialogUsuario extends ConsumerStatefulWidget {
-  final Usuario? usuario;
-  final VoidCallback onGuardado;
+  Future<void> _eliminar(Usuario usuario) async {
+    final confirmado = await confirmarEliminar(
+      context,
+      titulo: 'Eliminar usuario',
+      mensaje: '¿Eliminar a "${usuario.nombre} ${usuario.apellido}"?',
+    );
+    final token = ref.read(tokenSesionProvider);
+    if (!confirmado || !mounted || token == null) return;
 
-  const _DialogUsuario({this.usuario, required this.onGuardado});
-
-  @override
-  ConsumerState<_DialogUsuario> createState() => _DialogUsuarioState();
-}
-
-class _DialogUsuarioState extends ConsumerState<_DialogUsuario> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _usernameController;
-  late TextEditingController _correoController;
-  late TextEditingController _nombreController;
-  late TextEditingController _apellidoController;
-  late TextEditingController _documentoController;
-  late TextEditingController _telefonoController;
-  late TextEditingController _contrasenaController;
-  late TextEditingController _confirmarContrasenaController;
-  String _rol = 'estudiante';
-  bool _guardando = false;
-  bool _mostrarContrasena = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _usernameController = TextEditingController(
-        text: widget.usuario?.username ?? '');
-    _correoController = TextEditingController(
-        text: widget.usuario?.correoElectronico ?? '');
-    _nombreController = TextEditingController(
-        text: widget.usuario?.nombre ?? '');
-    _apellidoController = TextEditingController(
-        text: widget.usuario?.apellido ?? '');
-    _documentoController = TextEditingController(
-        text: widget.usuario?.numeroDocumento ?? '');
-    _telefonoController = TextEditingController(
-        text: widget.usuario?.telefono ?? '');
-    _contrasenaController = TextEditingController();
-    _confirmarContrasenaController = TextEditingController();
-    if (widget.usuario != null) {
-      _rol = widget.usuario!.rol;
-    }
+    await ejecutarAccion(
+      context,
+      () async {
+        await ref.read(usuarioRepositoryProvider).eliminar(usuario.id, token);
+        _recargar();
+      },
+      exito: 'Usuario eliminado',
+    );
   }
 
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _correoController.dispose();
-    _nombreController.dispose();
-    _apellidoController.dispose();
-    _documentoController.dispose();
-    _telefonoController.dispose();
-    _contrasenaController.dispose();
-    _confirmarContrasenaController.dispose();
-    super.dispose();
+  /// Si la página actual quedó vacía (se borró su último usuario), retrocede.
+  void _corregirPaginaVacia(PaginaResultado<Usuario> pagina) {
+    if (pagina.paginaValida == _consulta.pagina) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _consulta = _consulta.enPagina(pagina.paginaValida));
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final esEdicion = widget.usuario != null;
+    final usuarios = ref.watch(usuariosPaginadosProvider(_consulta));
 
-    return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  esEdicion ? 'Editar Usuario' : 'Nuevo Usuario',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _usernameController,
-                  maxLength: 50,
-                  enabled: !esEdicion,
-                  decoration: const InputDecoration(
-                    labelText: 'Username *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El username es obligatorio';
-                    }
-                    if (value.length < 3) {
-                      return 'Minimo 3 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _correoController,
-                  maxLength: 255,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo electronico *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El correo es obligatorio';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Correo invalido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _nombreController,
-                  maxLength: 100,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El nombre es obligatorio';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _apellidoController,
-                  maxLength: 100,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Apellido *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El apellido es obligatorio';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _documentoController,
-                  maxLength: 20,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Numero de documento *',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'El documento es obligatorio';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _telefonoController,
-                  maxLength: 20,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Telefono',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _rol,
-                  decoration: const InputDecoration(
-                    labelText: 'Rol *',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'estudiante', child: Text('Estudiante')),
-                    DropdownMenuItem(
-                        value: 'bibliotecario',
-                        child: Text('Bibliotecario')),
-                    DropdownMenuItem(
-                        value: 'admin', child: Text('Administrador')),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _rol = value ?? 'estudiante';
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 12),
-                Text(
-                  esEdicion
-                      ? 'Dejar vacio para no cambiar contrasena'
-                      : 'Contrasena *',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _contrasenaController,
-                  obscureText: !_mostrarContrasena,
-                  decoration: InputDecoration(
-                    labelText: esEdicion
-                        ? 'Nueva contrasena (opcional)'
-                        : 'Contrasena',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _mostrarContrasena
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _mostrarContrasena = !_mostrarContrasena;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (!esEdicion &&
-                        (value == null || value.isEmpty)) {
-                      return 'La contrasena es obligatoria';
-                    }
-                    if (value != null &&
-                        value.isNotEmpty &&
-                        value.length < 6) {
-                      return 'Minimo 6 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmarContrasenaController,
-                  obscureText: !_mostrarContrasena,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirmar contrasena',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (!esEdicion &&
-                        (value == null || value.isEmpty)) {
-                      return 'Confirma la contrasena';
-                    }
-                    if (_contrasenaController.text.isNotEmpty &&
-                        value != _contrasenaController.text) {
-                      return 'Las contrasenas no coinciden';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed:
-                          _guardando ? null : () => Navigator.pop(context),
-                      child: const Text('Cancelar'),
-                    ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: _guardando ? null : _guardar,
-                      child: _guardando
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2),
-                            )
-                          : const Text('Guardar'),
-                    ),
-                  ],
-                ),
-              ],
+    return Scaffold(
+      body: Column(
+        children: [
+          EncabezadoPagina(
+            titulo: 'Usuarios',
+            subtitulo: usuarios.whenOrNull(
+              data: (pagina) => '${pagina.total} usuarios',
+            ),
+            acciones: [
+              BotonExportar(
+                nombreBase: 'usuarios',
+                obtenerArchivo: (formato) =>
+                    ref.read(usuarioRepositoryProvider).exportar(
+                          formato,
+                          texto: _consulta.texto,
+                          rol: _consulta.rol,
+                          activo: _consulta.activo,
+                        ),
+              ),
+              FilledButton.icon(
+                onPressed: _abrirFormulario,
+                icon: const Icon(Icons.add),
+                label: const Text('Nuevo usuario'),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+            child: FiltrosUsuarios(
+              consulta: _consulta,
+              alCambiar: (nueva) => setState(() => _consulta = nueva),
             ),
           ),
-        ),
+          Expanded(
+            child: ValorAsincrono(
+              valor: usuarios,
+              alReintentar: _recargar,
+              construir: _grilla,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _guardar() async {
-    if (!_formKey.currentState!.validate()) return;
+  Widget _grilla(PaginaResultado<Usuario> pagina) {
+    _corregirPaginaVacia(pagina);
 
-    setState(() => _guardando = true);
-
-    try {
-      final token = ref.read(authProvider).value?.accessToken;
-      if (token == null) return;
-
-      final repo = ref.read(usuarioRepositoryProvider);
-      final esEdicion = widget.usuario != null;
-
-      if (!esEdicion) {
-        await repo.crear(
-          {
-            'username': _usernameController.text.trim(),
-            'correo_electronico': _correoController.text.trim(),
-            'contrasena': _contrasenaController.text,
-            'numero_documento': _documentoController.text.trim(),
-            'nombre': _nombreController.text.trim(),
-            'apellido': _apellidoController.text.trim(),
-            'rol': _rol,
-            'telefono': _telefonoController.text.trim().isEmpty
-                ? null
-                : _telefonoController.text.trim(),
-          },
-          token,
-        );
-      } else {
-        final datos = {
-          'correo_electronico': _correoController.text.trim(),
-          'nombre': _nombreController.text.trim(),
-          'apellido': _apellidoController.text.trim(),
-          'rol': _rol,
-          'telefono': _telefonoController.text.trim().isEmpty
-              ? null
-              : _telefonoController.text.trim(),
-        };
-        await repo.actualizar(widget.usuario!.id, datos, token);
-      }
-
-      widget.onGuardado();
-      if (mounted) Navigator.pop(context);
-      if (mounted) {
-        context.mostrarExito(
-            esEdicion ? 'Usuario actualizado' : 'Usuario creado');
-      }
-    } catch (e) {
-      if (mounted) context.mostrarError('Error: $e');
-    } finally {
-      if (mounted) setState(() => _guardando = false);
+    if (pagina.items.isEmpty) {
+      return const EstadoVacio(
+        titulo: 'No hay usuarios',
+        detalle: 'Prueba con otro filtro o registra un usuario nuevo.',
+        icono: Icons.people_outline,
+      );
     }
+
+    return Column(
+      children: [
+        Expanded(
+          child: GrillaDatos<Usuario>(
+            filas: pagina.items,
+            columnas: [
+              ColumnaGrilla(titulo: 'Nombre', celda: _celdaNombre),
+              ColumnaGrilla(
+                titulo: 'Documento',
+                celda: (u) => Text(u.numeroDocumento),
+              ),
+              ColumnaGrilla(
+                titulo: 'Correo',
+                celda: (u) => Text(u.correoElectronico),
+              ),
+              ColumnaGrilla(
+                titulo: 'Teléfono',
+                celda: (u) => Text(u.telefono ?? '—'),
+              ),
+              ColumnaGrilla(
+                titulo: 'Rol',
+                celda: (u) => Text(rolesUsuario[u.rol] ?? u.rol),
+              ),
+              ColumnaGrilla(titulo: 'Estado', celda: _celdaEstado),
+            ],
+            acciones: _menuDeFila,
+          ),
+        ),
+        ControlesPaginacion(
+          pagina: pagina,
+          alCambiarPagina: (numero) =>
+              setState(() => _consulta = _consulta.enPagina(numero)),
+          alCambiarTamano: (tamano) =>
+              setState(() => _consulta = _consulta.conTamano(tamano)),
+        ),
+      ],
+    );
+  }
+
+  Widget _celdaNombre(Usuario usuario) {
+    final colores = context.colores;
+    final textos = Theme.of(context).textTheme;
+    final iniciales = '${_inicial(usuario.nombre)}${_inicial(usuario.apellido)}';
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: colores.acentoSuave,
+          child: Text(
+            iniciales,
+            style: textos.labelMedium?.copyWith(color: colores.acento),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${usuario.nombre} ${usuario.apellido}',
+                style: textos.titleSmall),
+            Text(
+              '@${usuario.username}',
+              style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _inicial(String texto) =>
+      texto.isEmpty ? '' : texto.substring(0, 1).toUpperCase();
+
+  Widget _celdaEstado(Usuario usuario) {
+    final colores = context.colores;
+    final color = usuario.activo ? colores.disponible : colores.fueraDeServicio;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(usuario.activo ? 'Activo' : 'Inactivo'),
+      ],
+    );
+  }
+
+  Widget _menuDeFila(Usuario usuario) {
+    return PopupMenuButton<_AccionUsuario>(
+      tooltip: 'Más acciones',
+      onSelected: (accion) => switch (accion) {
+        _AccionUsuario.editar => _abrirFormulario(usuario),
+        _AccionUsuario.eliminar => _eliminar(usuario),
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: _AccionUsuario.editar, child: Text('Editar')),
+        PopupMenuItem(value: _AccionUsuario.eliminar, child: Text('Eliminar')),
+      ],
+    );
   }
 }
