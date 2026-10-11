@@ -1,4 +1,4 @@
-# Documentation (local only - do not upload)
+﻿# Documentation (local only - do not upload)
 docs/
 *.docx
 
@@ -34,7 +34,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+/backend/lib/
 lib64/
 parts/
 sdist/
