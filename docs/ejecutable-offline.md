@@ -69,8 +69,8 @@ Requisitos, **una sola vez**:
 Luego:
 
 ```powershell
-.\scripts\construir_ejecutable.ps1 -Version 0.9.0 [-Flutter C:\flutter_bibliogest\bin\flutter.bat]
-# -> build\instalador\BiblioGest-Setup-0.9.0.exe
+.\scripts\construir_ejecutable.ps1 [-Flutter C:\flutter_bibliogest\bin\flutter.bat]
+# -> build\instalador\BiblioGest-Setup-<version>.exe (la version sale de frontend/pubspec.yaml)
 ```
 
 El script empaqueta el backend con PyInstaller, compila Flutter para Windows, copia el backend dentro de la aplicación y genera el instalador (`instalador\bibliogest.iss`). El instalador no pide permisos de administrador: instala en `%LOCALAPPDATA%\Programs\BiblioGest`.
@@ -82,6 +82,10 @@ Para probar el backend empaquetado sin compilar Flutter: `.\scripts\construir_ej
 - `flutter run -d windows` **sin** `backend\bibliogest-backend.exe` usa el servidor de `ApiConstants.baseUrl`, como la web.
 - Para usar el backend empaquetado: `--dart-define=BACKEND_LOCAL_EXE=C:\ruta\bibliogest-backend.exe`.
 - Backend local a mano: `cd backend; python local_main.py --datos C:\temp\datos --puerto 8766 --sin-vigilar-padre`.
+
+## Actualizaciones
+
+El ejecutable se instala una vez y luego se actualiza solo desde la propia aplicación (aviso opcional, actualización obligatoria y actualización automática). Cómo funciona y cómo publicar una versión: [actualizaciones.md](actualizaciones.md). Las versiones anteriores a la 0.10.0 no traen el actualizador y hay que reemplazarlas a mano una vez.
 
 ## Servidor central
 

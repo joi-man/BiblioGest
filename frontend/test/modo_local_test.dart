@@ -10,6 +10,7 @@ import 'package:frontend/features/sincronizacion/data/models/estado_local.dart';
 import 'package:frontend/features/sincronizacion/presentation/providers/estado_local_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ayudas/sin_actualizaciones.dart';
 
 EstadoLocal _estado({
   String? servidor = 'http://192.168.1.10:8000',
@@ -41,6 +42,7 @@ Future<void> _abrirApp(
   await tester.pumpWidget(ProviderScope(
     overrides: [
       preferenciasProvider.overrideWithValue(preferencias),
+      ...sinActualizaciones,
       if (estado != null) estadoLocalProvider.overrideWith((ref) => Stream.value(estado)),
       conflictosProvider.overrideWith((ref) async => conflictos),
     ],

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/core/network/mensaje_error.dart';
+import 'package:frontend/features/actualizaciones/presentation/widgets/tarjeta_actualizaciones.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 import 'package:frontend/features/core/widgets/confirmacion.dart';
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
@@ -109,6 +110,8 @@ class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         TarjetaEstadoSincronizacion(estado: estado),
+        const SizedBox(height: 24),
+        const TarjetaActualizaciones(),
         if (conflictos.isNotEmpty) ...[
           const SizedBox(height: 24),
           ListaConflictos(conflictos: conflictos),

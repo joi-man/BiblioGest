@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/app.dart';
 import 'package:frontend/core/theme/modo_tema_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ayudas/sin_actualizaciones.dart';
 
 void main() {
   testWidgets('La app muestra la pantalla de inicio de sesion',
@@ -13,7 +14,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [preferenciasProvider.overrideWithValue(preferencias)],
+        overrides: [preferenciasProvider.overrideWithValue(preferencias), ...sinActualizaciones],
         child: const BiblioGestApp(),
       ),
     );
@@ -29,7 +30,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'modo_tema': 'oscuro'});
     final preferencias = await SharedPreferences.getInstance();
     final contenedor = ProviderContainer(
-      overrides: [preferenciasProvider.overrideWithValue(preferencias)],
+      overrides: [preferenciasProvider.overrideWithValue(preferencias), ...sinActualizaciones],
     );
     addTearDown(contenedor.dispose);
 

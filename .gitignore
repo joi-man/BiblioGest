@@ -6,6 +6,7 @@ docs/*
 !docs/prestamos-devoluciones.md
 !docs/listados-paginados-exportacion.md
 !docs/ejecutable-offline.md
+!docs/actualizaciones.md
 *.docx
 
 # Environment and Secret files
