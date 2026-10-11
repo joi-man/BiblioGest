@@ -21,7 +21,10 @@ class ManifiestoDescargado {
 
 /// No se pudo consultar el servidor de actualizaciones (sin internet, caído...).
 class SinConexionActualizaciones implements Exception {
-  const SinConexionActualizaciones();
+  const SinConexionActualizaciones([this.detalle = '']);
+
+  /// Motivo técnico (tipo de error de red), útil para diagnosticar.
+  final String detalle;
 
   @override
   String toString() => 'No se pudo conectar para buscar actualizaciones';
@@ -41,8 +44,8 @@ class ClienteActualizaciones {
 
   static final _opciones = Options(
     responseType: ResponseType.bytes,
-    sendTimeout: const Duration(seconds: 8),
-    receiveTimeout: const Duration(seconds: 8),
+    sendTimeout: const Duration(seconds: 20),
+    receiveTimeout: const Duration(seconds: 20),
   );
 
   /// Lanza [SinConexionActualizaciones] si no hay red y [ErrorManifiesto] si el
@@ -53,8 +56,9 @@ class ClienteActualizaciones {
     try {
       contenido = await _descargar(urlManifiesto);
       firma = utf8.decode(await _descargar('$urlManifiesto.sig'));
-    } on DioException {
-      throw const SinConexionActualizaciones();
+    } on DioException catch (error) {
+      final causa = error.error ?? error.message ?? '';
+      throw SinConexionActualizaciones('${error.type.name}: $causa');
     }
 
     final manifiesto = await verificarManifiesto(
