@@ -10,6 +10,10 @@ final dioClientProvider = Provider<DioClient>((ref) {
 class DioClient {
   late final Dio _dio;
 
+  /// Se invoca cuando el servidor rechaza la sesión actual (token vencido o de
+  /// un usuario que ya no existe). Quien lo asigna debe volver al inicio de sesión.
+  void Function()? alSesionExpirada;
+
   /// [baseUrl] es la dirección de la API (el backend local o el servidor).
   DioClient(String baseUrl) {
     _dio = Dio(
@@ -25,7 +29,7 @@ class DioClient {
     );
 
     _dio.interceptors.addAll([
-      _AuthInterceptor(),
+      _AuthInterceptor(() => alSesionExpirada),
       _LogInterceptor(),
     ]);
   }
@@ -42,6 +46,10 @@ class DioClient {
 }
 
 class _AuthInterceptor extends Interceptor {
+  _AuthInterceptor(this._obtenerAlSesionExpirada);
+
+  final void Function()? Function() _obtenerAlSesionExpirada;
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Add token from storage if available
@@ -50,8 +58,12 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response?.statusCode == 401) {
-      // Handle unauthorized - redirect to login
+    // Un 401 con sesión iniciada significa que el token ya no vale. Los de
+    // /api/auth son intentos de acceso con credenciales incorrectas.
+    final habiaSesion = err.requestOptions.headers['Authorization'] != null;
+    final esDeAutenticacion = err.requestOptions.path.startsWith('/api/auth/');
+    if (err.response?.statusCode == 401 && habiaSesion && !esDeAutenticacion) {
+      _obtenerAlSesionExpirada()?.call();
     }
     handler.next(err);
   }

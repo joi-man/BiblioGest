@@ -12,7 +12,9 @@ BiblioGest para Windows es casi la misma aplicación que la web, pero **no depen
 
 El servidor es el mismo backend de siempre (FastAPI + PostgreSQL, ver README). En una LAN se instala en una PC con Docker y los equipos apuntan a su IP.
 
-Un administrador puede cambiar de modo después desde **Sincronización** (menú lateral). Al unir un equipo que ya tiene datos propios a un servidor, esos datos se **reemplazan** por los del servidor (se pide confirmación).
+Un administrador puede cambiar de modo después desde **Sincronización** (menú lateral). Al unir un equipo que ya tiene datos propios a un servidor, esos datos se **reemplazan** por los del servidor (se pide confirmación) y la aplicación **cierra la sesión**: hay que volver a entrar con una cuenta del servidor, porque los usuarios locales ya no existen.
+
+Si en cualquier momento el servidor rechaza la sesión (token vencido o usuario inexistente), la aplicación vuelve sola al inicio de sesión con un aviso, en vez de quedarse con pantallas que no cargan.
 
 ## Cómo funciona
 
@@ -59,7 +61,8 @@ Requisitos, **una sola vez**:
 
 1. **Modo desarrollador de Windows** activado: `start ms-settings:developers` (Flutter lo necesita para enlazar los plugins).
 2. **Visual Studio Build Tools** con la carga de trabajo *Desarrollo para el escritorio con C++* (Visual Studio Installer → Modificar). Se comprueba con `flutter doctor`.
-   - **Visual Studio 2026 necesita Flutter 3.4x o más nuevo.** Con Flutter 3.32 falla con `Generator Visual Studio 16 2019 could not find any instance of Visual Studio`. Solución sin tocar tu Flutter global: `git clone --depth 1 -b stable https://github.com/flutter/flutter.git C:lutter_bibliogest` y pasar `-Flutter C:lutter_bibliogestinlutter.bat` al script. Si el error `Does not match the generator used previously` aparece, borra `frontenduild\windows`.
+   - **Visual Studio 2026 necesita Flutter 3.4x o más nuevo** (`flutter upgrade`). Con Flutter 3.32 falla con `Generator Visual Studio 16 2019 could not find any instance of Visual Studio`. Si aparece `Does not match the generator used previously`, borra `frontenduild\windows`.
+   - Si no puedes actualizar tu Flutter global, usa uno aparte (`git clone --depth 1 -b stable https://github.com/flutter/flutter.git C:lutter_bibliogest`) y pasa `-Flutter C:lutter_bibliogestinlutter.bat` al script.
 3. **Inno Setup 6**: `winget install JRSoftware.InnoSetup`.
 4. Entorno del backend: `cd backend; python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt`.
 

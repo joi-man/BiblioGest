@@ -5,6 +5,10 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "**/l10n/**"
+    - build/**
+    - android/**
+    - web/**
+    - windows/**
 
 linter:
   rules:
