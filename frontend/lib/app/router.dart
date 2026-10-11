@@ -20,6 +20,9 @@ import 'auth_state.dart';
 import 'shell_navegacion.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+/// Navegador raíz: permite mostrar diálogos desde fuera del árbol de pantallas.
+GlobalKey<NavigatorState> get navegadorRaizKey => _rootNavigatorKey;
+
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Rutas que se pueden visitar sin haber iniciado sesión.

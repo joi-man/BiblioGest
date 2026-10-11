@@ -16,12 +16,13 @@ class Configuracion(BaseSettings):
     ALGORITMO_JWT: str = "HS256"
     EXPIRACION_TOKEN_MINUTOS: int = 60
     
-    # Correo (SMTP) - para Gmail usar una "contrasena de aplicacion"
+    # Correo (SMTP) - para Gmail usar una "contrasena de aplicacion".
+    # SMTP_CLAVE es secreta: nunca va en el codigo, solo en .env o en las variables del servidor.
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PUERTO: int = 587
-    SMTP_USUARIO: str = ""
+    SMTP_USUARIO: str = "systembibliogest@gmail.com"
     SMTP_CLAVE: str = ""
-    SMTP_REMITENTE: str = ""
+    SMTP_REMITENTE: str = "systembibliogest@gmail.com"
 
     # Recuperacion de contrasena
     CODIGO_RESET_EXPIRACION_MINUTOS: int = 15

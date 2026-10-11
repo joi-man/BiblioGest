@@ -118,3 +118,10 @@ curl -X POST http://localhost:8000/api/auth/restablecer-contrasena \
 
 - No hay tests automatizados de pytest para este flujo (los modelos usan tipos de PostgreSQL, así que requieren una base real).
 - Mejora posible: limitar la frecuencia de solicitudes por correo/IP para evitar spam de correos.
+
+## Cuenta de envío
+
+El correo sale de `systembibliogest@gmail.com` (usuario y remitente por defecto en `backend/app/core/config.py`). Solo la **contraseña de aplicación** es secreta y no está en el código:
+
+- **Servidor (Render) y desarrollo:** variable `SMTP_CLAVE` (en Render, *Environment*; en local, `backend/.env`).
+- **Ejecutable de Windows:** el instalador es público, así que no lleva la clave. En cada equipo que deba enviar el código, crear `%LOCALAPPDATA%\BiblioGest\correo.env` con la línea `SMTP_CLAVE=<contraseña de aplicación sin espacios>` y reiniciar la aplicación. Sin ese archivo, el código no se envía.

@@ -8,6 +8,9 @@ import 'app/arranque.dart';
 import 'app/pantalla_arranque.dart';
 import 'core/actualizaciones/actualizaciones_provider.dart';
 import 'core/local/modo_local.dart';
+import 'core/sesion/sesion_guardada.dart';
+import 'features/auth/presentation/providers/auth_provider.dart';
+import 'app/auth_state.dart';
 import 'core/theme/modo_tema_provider.dart';
 
 Future<void> main() async {
@@ -26,12 +29,20 @@ Future<void> _arrancar(SharedPreferences preferencias, String version) async {
   runApp(const PantallaArranque());
   try {
     final arranque = await prepararArranque();
+    // Si se cerró la ventana sin cerrar sesión hace poco, se retoma donde quedó.
+    final sesion = await SesionGuardada(preferencias).restaurar();
+    if (sesion != null && !modoLocalNotifier.requiereConfiguracion) {
+      authStateNotifier.iniciarSesion(sesion.usuario.rol);
+    }
     runApp(
       ProviderScope(
         overrides: [
           preferenciasProvider.overrideWithValue(preferencias),
           urlApiProvider.overrideWithValue(arranque.urlApi),
           versionAppProvider.overrideWithValue(version),
+          sesionRestauradaProvider.overrideWithValue(
+            authStateNotifier.isAuthenticated ? sesion : null,
+          ),
           // El instalador necesita cerrar el backend local para reemplazar sus archivos.
           cerrarBackendProvider.overrideWithValue(() async => arranque.backend?.detener()),
         ],

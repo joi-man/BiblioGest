@@ -1,9 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:frontend/core/sesion/sesion_guardada.dart';
+import 'package:frontend/core/theme/modo_tema_provider.dart';
 import 'package:frontend/features/auth/data/models/login_request.dart';
 import 'package:frontend/features/auth/data/models/login_response.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
+
+/// Sesión recuperada al abrir la aplicación (ver [SesionGuardada]); `main` la fija.
+final sesionRestauradaProvider = Provider<LoginResponse?>((ref) => null);
+
+/// Sesión que se conserva al cerrar la ventana sin cerrar sesión.
+final sesionGuardadaProvider = Provider<SesionGuardada>((ref) {
+  return SesionGuardada(ref.watch(preferenciasProvider));
+});
 
 final authProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<LoginResponse?>>((ref) {
@@ -21,8 +31,11 @@ final tokenSesionProvider = Provider<String?>((ref) {
 class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
   final Ref _ref;
 
-  AuthNotifier(this._ref) : super(const AsyncValue.data(null)) {
-    _ref.read(dioClientProvider).alSesionExpirada = _alSesionExpirada;
+  AuthNotifier(this._ref) : super(AsyncValue.data(_ref.read(sesionRestauradaProvider))) {
+    final cliente = _ref.read(dioClientProvider);
+    cliente.alSesionExpirada = _alSesionExpirada;
+    final restaurada = state.value;
+    if (restaurada != null) cliente.setToken(restaurada.accessToken);
   }
 
   /// El servidor ya no acepta la sesión: se cierra y se avisa en el login.

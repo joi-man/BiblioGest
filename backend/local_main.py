@@ -35,6 +35,21 @@ def secreto_de_sesion(carpeta: Path) -> str:
     return archivo.read_text(encoding="utf-8").strip()
 
 
+def cargar_correo(carpeta: Path) -> None:
+    """Lee la clave del correo de `correo.env` (carpeta de datos), si existe.
+
+    La clave no viaja dentro del instalador: se coloca en cada equipo que deba
+    enviar el codigo de recuperacion. Formato: lineas `NOMBRE=valor` (SMTP_CLAVE, ...).
+    """
+    archivo = carpeta / "correo.env"
+    if not archivo.exists():
+        return
+    for linea in archivo.read_text(encoding="utf-8").splitlines():
+        nombre, separador, valor = linea.strip().partition("=")
+        if separador and nombre.startswith("SMTP_"):
+            os.environ.setdefault(nombre.strip(), valor.strip())
+
+
 def _vigilar_padre() -> None:
     """Termina este proceso cuando la aplicacion que lo inicio se cierra.
 
@@ -59,6 +74,7 @@ def main() -> None:
     os.environ["MODO_APLICACION"] = "local"
     os.environ["BASE_DATOS_URL"] = f"sqlite:///{(carpeta / 'bibliogest.db').as_posix()}"
     os.environ["SECRETO_JWT"] = secreto_de_sesion(carpeta)
+    cargar_correo(carpeta)
 
     if not argumentos.sin_vigilar_padre:
         threading.Thread(target=_vigilar_padre, daemon=True).start()
