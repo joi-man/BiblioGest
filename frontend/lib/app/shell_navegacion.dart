@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme/colores_app.dart';
+import '../features/core/widgets/boton_cerrar_sesion.dart';
 import '../features/core/widgets/boton_modo_tema.dart';
 
 /// Un destino del menú principal del personal de la biblioteca.
@@ -37,6 +38,12 @@ const List<DestinoNavegacion> destinosPersonal = [
     etiqueta: 'Préstamos',
     icono: Icons.assignment_outlined,
     iconoActivo: Icons.assignment,
+  ),
+  DestinoNavegacion(
+    ruta: '/returns',
+    etiqueta: 'Devoluciones',
+    icono: Icons.assignment_return_outlined,
+    iconoActivo: Icons.assignment_return,
   ),
   DestinoNavegacion(
     ruta: '/users',
@@ -114,7 +121,13 @@ class ShellNavegacion extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 16),
-                  child: BotonModoTema(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BotonModoTema(),
+                      BotonCerrarSesion(),
+                    ],
+                  ),
                 ),
               ),
             ),
