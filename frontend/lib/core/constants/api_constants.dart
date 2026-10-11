@@ -1,8 +1,11 @@
 class ApiConstants {
   ApiConstants._();
 
-  // Base URL - change for production
-  static const String baseUrl = 'http://localhost:8000';
+  // URL de la API. En produccion: --dart-define=API_URL=https://tu-api.onrender.com
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://localhost:8000',
+  );
 
   // Endpoints
   static const String login = '/api/auth/login';
