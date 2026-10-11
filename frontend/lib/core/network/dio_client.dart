@@ -1,18 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/api_constants.dart';
+import '../local/modo_local.dart';
 
 final dioClientProvider = Provider<DioClient>((ref) {
-  return DioClient();
+  return DioClient(ref.watch(urlApiProvider));
 });
 
 class DioClient {
   late final Dio _dio;
 
-  DioClient() {
+  /// [baseUrl] es la dirección de la API (el backend local o el servidor).
+  DioClient(String baseUrl) {
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
+        baseUrl: baseUrl,
         connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
         receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
         headers: {

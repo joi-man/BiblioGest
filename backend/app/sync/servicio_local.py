@@ -121,6 +121,9 @@ def desconectar_servidor(db: Session, motor: MotorSincronizacion) -> None:
     """El equipo pasa a trabajar solo. Los cambios pendientes dejan de enviarse."""
     estado_local.escribir(db, estado_local.CLAVE_SERVIDOR_URL, None)
     estado_local.escribir(db, estado_local.CLAVE_ULTIMO_ERROR, None)
+    db.execute(delete(SyncLote))  # ya no hay a donde enviarlos
+    db.commit()
+    estado_local.borrar_cursores(db)
     motor.credenciales.olvidar()
     motor.conectado = None
 

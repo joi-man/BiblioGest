@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/local/modo_local.dart';
 import '../core/platform/plataforma.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../features/materials/presentation/screens/materials_screen.dart';
@@ -11,6 +12,8 @@ import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/usuarios_screen.dart';
 import '../features/categories/presentation/screens/categorias_screen.dart';
+import '../features/sincronizacion/presentation/screens/configuracion_inicial_screen.dart';
+import '../features/sincronizacion/presentation/screens/sincronizacion_screen.dart';
 import '../features/student/presentation/screens/shell_estudiante.dart';
 import '../features/student/presentation/screens/solo_movil_screen.dart';
 import 'auth_state.dart';
@@ -26,6 +29,8 @@ const _rutasPublicas = {'/login', '/forgot-password', '/reset-password'};
 const _inicioPersonal = '/';
 const _inicioEstudiante = '/estudiante';
 const _rutaSoloMovil = '/solo-movil';
+const _rutaConfiguracionInicial = '/configuracion-inicial';
+const _rutaSincronizacion = '/sync';
 
 /// Página sin animación de transición, usada dentro del marco de navegación.
 Page<void> _paginaSinTransicion(Widget pantalla) {
@@ -34,6 +39,7 @@ Page<void> _paginaSinTransicion(Widget pantalla) {
 
 /// Decide a dónde debe ir cada persona según su sesión y rol.
 ///
+/// - Equipo de escritorio sin configurar: solo la pantalla de configuración inicial.
 /// - Sin sesión: solo rutas públicas.
 /// - Estudiante: únicamente su sección, y solo en móvil.
 /// - Personal: todo menos la sección del estudiante.
@@ -42,6 +48,14 @@ Page<void> _paginaSinTransicion(Widget pantalla) {
 String? _redireccionar(BuildContext context, GoRouterState state) {
   final ubicacion = state.matchedLocation;
   final esPublica = _rutasPublicas.contains(ubicacion);
+
+  // Un equipo recién instalado debe configurarse antes de poder iniciar sesión.
+  if (modoLocalNotifier.requiereConfiguracion) {
+    return ubicacion == _rutaConfiguracionInicial ? null : _rutaConfiguracionInicial;
+  }
+  if (ubicacion == _rutaConfiguracionInicial) return '/login';
+  // La sincronización existe solo en el ejecutable de escritorio.
+  if (ubicacion == _rutaSincronizacion && !modoLocalNotifier.activo) return _inicioPersonal;
 
   if (!authStateNotifier.isAuthenticated) {
     return esPublica ? null : '/login';
@@ -63,13 +77,18 @@ String? _redireccionar(BuildContext context, GoRouterState state) {
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/login',
-  refreshListenable: authStateNotifier,
+  refreshListenable: Listenable.merge([authStateNotifier, modoLocalNotifier]),
   redirect: _redireccionar,
   routes: [
     GoRoute(
       path: '/login',
       name: 'login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: _rutaConfiguracionInicial,
+      name: 'configuracion-inicial',
+      builder: (context, state) => const ConfiguracionInicialScreen(),
     ),
     GoRoute(
       path: '/forgot-password',
@@ -130,6 +149,12 @@ final appRouter = GoRouter(
           name: 'users',
           pageBuilder: (context, state) =>
               _paginaSinTransicion(const UsuariosScreen()),
+        ),
+        GoRoute(
+          path: _rutaSincronizacion,
+          name: 'sync',
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const SincronizacionScreen()),
         ),
         GoRoute(
           path: '/categories',

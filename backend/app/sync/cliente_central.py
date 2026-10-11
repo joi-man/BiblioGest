@@ -20,10 +20,14 @@ class ErrorServidor(Exception):
 class ClienteCentral:
     """Operaciones del servidor central que necesita la sincronizacion."""
 
-    def __init__(self, url: str, http: Optional[httpx.Client] = None, timeout: float = 15.0):
+    def __init__(self, url: str, http: Optional[httpx.Client] = None):
         # `http` permite inyectar otro cliente (las pruebas usan uno que habla con una app en memoria).
         self._es_propio = http is None
-        self._http = http or httpx.Client(base_url=url.rstrip("/"), timeout=timeout)
+        # Conectar debe fallar rapido para detectar que no hay red; una vez conectado se
+        # espera mas porque el servidor puede tardar en aplicar un lote grande.
+        self._http = http or httpx.Client(
+            base_url=url.rstrip("/"), timeout=httpx.Timeout(60.0, connect=4.0)
+        )
         self._token: Optional[str] = None
 
     def cerrar(self) -> None:

@@ -5,6 +5,7 @@ docs/*
 !docs/diseno-sistema.md
 !docs/prestamos-devoluciones.md
 !docs/listados-paginados-exportacion.md
+!docs/ejecutable-offline.md
 *.docx
 
 # Environment and Secret files
@@ -94,3 +95,6 @@ Thumbs.db
 .packages
 # Credentials
 credenciales.txt
+
+# Salida de la construccion del ejecutable (scripts/construir_ejecutable.ps1)
+/build/
