@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -27,10 +28,16 @@ def obtener_usuario_actual(
     usuario_id: Optional[str] = payload.get("sub")
     if usuario_id is None:
         raise credenciales_exception
-    
+
+    # El ID viaja como texto en el token; la columna es UUID.
+    try:
+        usuario_uuid = UUID(usuario_id)
+    except ValueError:
+        raise credenciales_exception
+
     # Buscar usuario en la base de datos
     from sqlalchemy import select
-    stmt = select(Usuario).where(Usuario.id == usuario_id)
+    stmt = select(Usuario).where(Usuario.id == usuario_uuid)
     usuario = db.execute(stmt).scalar_one_or_none()
     
     if usuario is None:

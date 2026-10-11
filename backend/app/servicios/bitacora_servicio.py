@@ -13,8 +13,14 @@ def registrar_accion(
     detalles: Optional[Dict[str, Any]] = None,
     ip_address: Optional[str] = None,
     user_agent: Optional[str] = None,
+    confirmar: bool = True,
 ) -> BitacoraAccion:
-    """Registrar una accion en la bitacora de auditoria."""
+    """Registrar una accion en la bitacora de auditoria.
+
+    Con `confirmar=False` solo agrega el registro a la sesion (flush) y deja el
+    commit al llamador, para que la accion y su auditoria queden en una unica
+    transaccion.
+    """
     bitacora = BitacoraAccion(
         usuario_id=usuario_id,
         accion=accion,
@@ -25,8 +31,11 @@ def registrar_accion(
         user_agent=user_agent,
     )
     db.add(bitacora)
-    db.commit()
-    db.refresh(bitacora)
+    if confirmar:
+        db.commit()
+        db.refresh(bitacora)
+    else:
+        db.flush()
     return bitacora
 
 

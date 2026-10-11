@@ -23,6 +23,10 @@ class PrestamoDetalle(Base):
         nullable=False
     )
     
+    # Fecha limite de devolucion de este item (cada material tiene su propio plazo).
+    # Es nula mientras la solicitud no se haya entregado.
+    fecha_devolucion_esperada = Column(DateTime, nullable=True)
+
     # Eliminacion logica
     eliminado = Column(Boolean, default=False, nullable=False)
     fecha_eliminacion = Column(DateTime, nullable=True)
@@ -34,6 +38,11 @@ class PrestamoDetalle(Base):
     prestamo_cabecera = relationship("PrestamoCabecera", back_populates="detalles")
     material = relationship("Material", back_populates="detalles_prestamo")
     devolucion = relationship("Devolucion", back_populates="prestamo_detalle", uselist=False)
+
+    @property
+    def devuelto(self) -> bool:
+        """Indica si este item ya fue devuelto (tiene una devolucion registrada)."""
+        return self.devolucion is not None
 
     def __repr__(self):
         return f"<PrestamoDetalle {self.id}>"

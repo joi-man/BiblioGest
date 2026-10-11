@@ -2,15 +2,17 @@ from .usuario import UsuarioCrear, UsuarioActualizar, UsuarioRespuesta
 from .categoria import CategoriaCrear, CategoriaActualizar, CategoriaRespuesta
 from .material import MaterialCrear, MaterialActualizar, MaterialRespuesta
 from .prestamo_cabecera import (
-    PrestamoCabeceraCrear, 
-    PrestamoCabeceraActualizar, 
-    PrestamoCabeceraRespuesta
+    PrestamoRespuesta,
+    SolicitudCrear,
+    PrestamoDirectoCrear,
+    RechazoPeticion,
+    EntregaPeticion,
 )
-from .devolucion import DevolucionCrear, DevolucionRespuesta
+from .devolucion import DevolverItemsPeticion, DevolucionRespuesta
 
 __all__ = [
     "UsuarioCrear",
-    "UsuarioActualizar", 
+    "UsuarioActualizar",
     "UsuarioRespuesta",
     "CategoriaCrear",
     "CategoriaActualizar",
@@ -18,9 +20,11 @@ __all__ = [
     "MaterialCrear",
     "MaterialActualizar",
     "MaterialRespuesta",
-    "PrestamoCabeceraCrear",
-    "PrestamoCabeceraActualizar",
-    "PrestamoCabeceraRespuesta",
-    "DevolucionCrear",
+    "PrestamoRespuesta",
+    "SolicitudCrear",
+    "PrestamoDirectoCrear",
+    "RechazoPeticion",
+    "EntregaPeticion",
+    "DevolverItemsPeticion",
     "DevolucionRespuesta",
 ]

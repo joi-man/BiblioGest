@@ -4,6 +4,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from fastapi import HTTPException, status
+from app.core.utilidades_modelo import aplicar_cambios
+from app.esquemas.categoria import CategoriaActualizar, CategoriaCrear
 from app.modelos.categoria import Categoria
 from app.modelos.usuario import Usuario
 from app.servicios import bitacora_servicio
@@ -35,27 +37,23 @@ def obtener_categoria_por_nombre(db: Session, nombre: str) -> Optional[Categoria
 
 def crear_categoria(
     db: Session,
-    nombre: str,
-    descripcion: Optional[str] = None,
+    datos: CategoriaCrear,
     usuario_admin: Optional[Usuario] = None,
 ) -> Categoria:
     """Crear una nueva categoria."""
     # Verificar que el nombre no este en uso
-    if obtener_categoria_por_nombre(db, nombre):
+    if obtener_categoria_por_nombre(db, datos.nombre):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ya existe una categoria con ese nombre"
         )
-    
+
     # Crear categoria
-    categoria = Categoria(
-        nombre=nombre,
-        descripcion=descripcion,
-    )
+    categoria = Categoria(**datos.model_dump())
     db.add(categoria)
     db.commit()
     db.refresh(categoria)
-    
+
     # Registrar en bitacora
     bitacora_servicio.registrar_accion(
         db=db,
@@ -63,39 +61,40 @@ def crear_categoria(
         accion="CREATE",
         tabla_afectada="categorias",
         registro_id=categoria.id,
-        detalles={"nombre": nombre},
+        detalles={"nombre": categoria.nombre},
     )
-    
+
     return categoria
 
 
 def actualizar_categoria(
     db: Session,
     categoria_id: UUID,
-    nombre: Optional[str] = None,
-    descripcion: Optional[str] = None,
+    datos: CategoriaActualizar,
     usuario_admin: Optional[Usuario] = None,
 ) -> Categoria:
-    """Actualizar una categoria existente."""
+    """Actualizar una categoria existente (solo los campos enviados)."""
     categoria = obtener_categoria_por_id(db, categoria_id)
     if categoria is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Categoria no encontrada"
         )
-    
+
     # Verificar nombre unico si se esta cambiando
-    if nombre and nombre != categoria.nombre:
-        if obtener_categoria_por_nombre(db, nombre):
+    if datos.nombre and datos.nombre != categoria.nombre:
+        if obtener_categoria_por_nombre(db, datos.nombre):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ya existe una categoria con ese nombre"
             )
-        categoria.nombre = nombre
-    
-    if descripcion is not None:
-        categoria.descripcion = descripcion
-    
+
+    aplicar_cambios(
+        categoria,
+        datos.model_dump(exclude_unset=True),
+        campos_obligatorios=("nombre",),
+    )
+
     db.commit()
     db.refresh(categoria)
     
