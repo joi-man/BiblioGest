@@ -4,9 +4,10 @@ from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from app.modelos.sincronizable import Sincronizable
 
 
-class Usuario(Base):
+class Usuario(Sincronizable, Base):
     __tablename__ = "usuarios"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -26,7 +27,7 @@ class Usuario(Base):
     
     # Timestamps
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
-    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
 
     # Relaciones
     # Prestamos donde este usuario es quien recibe el material (no el personal que lo gestiona)

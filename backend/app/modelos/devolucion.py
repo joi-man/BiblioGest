@@ -4,9 +4,10 @@ from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text, Inte
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
+from app.modelos.sincronizable import Sincronizable
 
 
-class Devolucion(Base):
+class Devolucion(Sincronizable, Base):
     __tablename__ = "devoluciones"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -42,6 +43,7 @@ class Devolucion(Base):
     
     # Timestamp
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_actualizacion = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
 
     # Relaciones
     prestamo_detalle = relationship("PrestamoDetalle", back_populates="devolucion")

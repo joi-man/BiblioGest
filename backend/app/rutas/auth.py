@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import configuracion
-from app.core.database import obtener_db
+from app.core.database import es_modo_local, obtener_db
 from app.core.dependencias import obtener_usuario_actual
 from app.esquemas.auth import (
     LoginRequest,
@@ -13,6 +13,9 @@ from app.esquemas.auth import (
 )
 from app.modelos.usuario import Usuario
 from app.servicios import auth_servicio, email_servicio, recuperacion_servicio
+from app.sync import servicio_local
+from app.sync.instancia import obtener_motor
+from app.sync.motor import MotorSincronizacion
 
 router = APIRouter(prefix="/api/auth", tags=["Autenticacion"])
 
@@ -22,6 +25,7 @@ def login(
     datos: LoginRequest,
     request: Request,
     db: Session = Depends(obtener_db),
+    motor: MotorSincronizacion = Depends(obtener_motor),
 ):
     """Iniciar sesion con correo o username y contrasena."""
     ip_address = request.client.host if request.client else None
@@ -43,7 +47,13 @@ def login(
         )
     
     token = auth_servicio.crear_token_usuario(usuario)
-    
+
+    if es_modo_local():
+        # El equipo usara estas credenciales (solo en memoria) para sincronizar con el servidor.
+        servicio_local.recordar_inicio_de_sesion(
+            db, motor, usuario, datos.correo_o_usuario, datos.contrasena
+        )
+
     return LoginResponse(
         access_token=token,
         usuario=UsuarioRespuesta(
