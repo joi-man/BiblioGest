@@ -147,6 +147,7 @@ def olvide_contrasena(
     )
     if resultado is not None:
         usuario, codigo = resultado
+        logger.info("Recuperacion: codigo generado para %s", usuario.correo_electronico)
         if url_servidor:
             background_tasks.add_task(
                 _enviar_codigo_por_servidor, url_servidor, usuario.correo_electronico, codigo
