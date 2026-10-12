@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/core/theme/colores_app.dart';
+import 'package:frontend/features/core/widgets/boton_cambiar_contrasena.dart';
 import 'package:frontend/features/core/widgets/boton_cerrar_sesion.dart';
 import 'package:frontend/features/core/widgets/encabezado_pagina.dart';
 import 'package:frontend/features/core/widgets/valor_asincrono.dart';
@@ -30,6 +31,7 @@ class DashboardScreen extends ConsumerWidget {
                 icon: const Icon(Icons.refresh),
                 onPressed: () => ref.invalidate(resumenDashboardProvider),
               ),
+              const BotonCambiarContrasena(),
               const BotonCerrarSesion(),
             ],
           ),

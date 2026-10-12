@@ -12,7 +12,8 @@ class ErrorManifiesto implements Exception {
   String toString() => mensaje;
 }
 
-/// Datos de la última versión publicada (`latest.json`).
+/// Datos de la última versión publicada (`latest.json` para Windows y
+/// `latest-android.json` para Android; tienen el mismo formato).
 ///
 /// Ejemplo:
 /// ```json
@@ -49,8 +50,11 @@ class Manifiesto {
   final String notas;
   final String? fecha;
 
-  /// Nombre de archivo con el que se guarda el instalador descargado.
-  String get nombreArchivo => 'BiblioGest-Setup-$version.exe';
+  /// Nombre de archivo con el que se guarda el instalador descargado: el APK en
+  /// Android (la dirección termina en `.apk`) o el instalador de Windows.
+  String get nombreArchivo => url.path.toLowerCase().endsWith('.apk')
+      ? 'BiblioGest-$version.apk'
+      : 'BiblioGest-Setup-$version.exe';
 
   factory Manifiesto.desdeTexto(String texto) {
     final Object? crudo;

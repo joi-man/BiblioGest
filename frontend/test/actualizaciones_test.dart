@@ -115,6 +115,12 @@ void main() {
       expect(m.notas, 'Mejoras');
     });
 
+    test('el manifiesto de Android apunta a un APK y se guarda con su propio nombre', () {
+      final m = Manifiesto.desdeTexto(_json(url: 'https://x.test/v0.9.1/BiblioGest-0.9.1.apk'));
+
+      expect(m.nombreArchivo, 'BiblioGest-0.9.1.apk');
+    });
+
     test('exige https para el instalador', () {
       expect(() => Manifiesto.desdeTexto(_json(url: 'http://x.test/i.exe')), throwsA(isA<ErrorManifiesto>()));
     });

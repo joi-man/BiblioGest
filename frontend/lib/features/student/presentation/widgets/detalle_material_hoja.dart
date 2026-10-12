@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/tipografia_app.dart';
-import 'package:frontend/features/core/widgets/chip_estado.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/student/presentation/widgets/chip_estado_estudiante.dart';
 
 /// Hoja inferior con toda la información de un material y el botón para
 /// agregarlo a la solicitud.
@@ -73,7 +73,7 @@ class DetalleMaterialHoja extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                ChipEstado(estado: material.estado.valor),
+                ChipEstadoEstudiante(estado: material.estado),
                 const SizedBox(width: 12),
                 Text(
                   material.codigo,
@@ -115,7 +115,7 @@ class DetalleMaterialHoja extends StatelessWidget {
     }
     if (!material.sePuedeSolicitar) {
       return _Aviso(
-        'Ahora no está disponible (${material.estado.etiqueta.toLowerCase()}).',
+        material.estado.explicacionEstudiante ?? 'Ahora no está disponible.',
       );
     }
     return FilledButton.icon(
@@ -124,7 +124,7 @@ class DetalleMaterialHoja extends StatelessWidget {
         Navigator.pop(context);
       },
       icon: Icon(seleccionado ? Icons.remove : Icons.add),
-      label: Text(seleccionado ? 'Quitar de mi solicitud' : 'Agregar a mi solicitud'),
+      label: Text(seleccionado ? 'Quitar de mi reserva' : 'Agregar a mi reserva'),
     );
   }
 }

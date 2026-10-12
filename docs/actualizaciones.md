@@ -2,7 +2,7 @@
 
 El ejecutable se instala **una sola vez**. Después, cada vez que se abre, busca una versión nueva y le pide al usuario actualizar. No hace falta volver a descargar ni a ejecutar el instalador a mano, y los datos de la biblioteca no se tocan.
 
-Solo aplica al ejecutable instalado (el que trae su propio backend). La versión web se actualiza sola al publicarla, y `flutter run` no busca actualizaciones.
+Aplica al ejecutable instalado (el que trae su propio backend) y a la **app de Android** (ver la sección [App de Android](#app-de-android)). La versión web se actualiza sola al publicarla, y `flutter run` en escritorio no busca actualizaciones.
 
 ## Qué ve el usuario
 
@@ -76,13 +76,30 @@ El manifiesto (`latest.json`):
    .\scripts\construir_ejecutable.ps1 -Minima 0.10.1 -Notas "Corrige un error grave."
    ```
 
-   Genera en `build\instalador\`: `BiblioGest-Setup-<versión>.exe`, `latest.json` y `latest.json.sig`.
-3. En el repositorio de releases, crea un **Release** con la etiqueta `v<versión>` (por ejemplo `v0.10.1`) y sube **los tres archivos**. Los equipos leen `releases/latest/download/latest.json`, así que el Release más reciente es el que se ofrece.
+   Genera en `build\instalador\`: `BiblioGest-Setup-<versión>.exe`, `BiblioGest-Setup.exe` (copia con nombre fijo, es el enlace de descarga de la web), `latest.json` y `latest.json.sig`.
+3. En el repositorio de releases, crea un **Release** con la etiqueta `v<versión>` (por ejemplo `v0.10.1`) y sube **los cuatro archivos** (y los de Android, si publicas también la app móvil: ver abajo). Los equipos leen `releases/latest/download/latest.json`, así que el Release más reciente es el que se ofrece.
 4. Marca el Release como *latest* (no como borrador ni pre-lanzamiento).
 
 > **`-Minima` se arrastra.** Cada `latest.json` reemplaza al anterior. Si una versión anterior ya exigía `0.10.1` como mínima, la siguiente debe volver a indicar `-Minima 0.10.1` (o más), porque si no, dejaría de ser obligatoria.
 
 > Cuando una versión necesite que **toda** la flota la tenga antes de seguir (por ejemplo, un cambio en la sincronización con el servidor), súbela con `-Minima` igual a esa versión.
+
+## App de Android
+
+La app móvil usa el **mismo mecanismo**: mismo formato de manifiesto, misma clave de firma Ed25519, mismas reglas (opcional, obligatoria, omitir, más tarde). Cambia el manifiesto y el archivo:
+
+| | Windows | Android |
+|---|---|---|
+| Manifiesto | `latest.json` + `.sig` | `latest-android.json` + `.sig` |
+| Archivo | `BiblioGest-Setup-<versión>.exe` | `BiblioGest-<versión>.apk` |
+| Enlace fijo de descarga (web) | `BiblioGest-Setup.exe` | `BiblioGest.apk` |
+| Script | `scripts/construir_ejecutable.ps1` | `scripts/construir_apk.ps1` |
+| Al instalar | Inno Setup silencioso; la app se cierra y se reabre sola | Instalador de Android: pide **confirmar** (no se puede omitir) |
+| Instalación automática | Sí (opcional) | No: el sistema siempre pide confirmar |
+
+**Un solo Release por versión, con los archivos de las dos plataformas.** Ambas leen `releases/latest/download/<archivo>`, así que el Release marcado *latest* debe contener `latest.json`, `latest.json.sig`, `BiblioGest-Setup-<v>.exe`, `BiblioGest-Setup.exe`, `latest-android.json`, `latest-android.json.sig`, `BiblioGest-<v>.apk` y `BiblioGest.apk`. Si falta alguno, esa plataforma deja de encontrar actualizaciones (o el botón de descarga de la web da error 404). `-Minima` es independiente para cada plataforma.
+
+Android solo instala la actualización si el APK está firmado con **la misma clave** que la app instalada (ver [app-movil.md](app-movil.md#construir-el-apk)). La primera vez, la app pide autorizar "instalar aplicaciones de esta fuente".
 
 ## Qué no cubre (todavía)
 

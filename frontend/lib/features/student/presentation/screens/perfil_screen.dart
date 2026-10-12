@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/modo_tema_provider.dart';
+import 'package:frontend/core/actualizaciones/actualizaciones_provider.dart';
+import 'package:frontend/features/actualizaciones/presentation/widgets/tarjeta_actualizaciones.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/auth/presentation/widgets/dialogo_cambiar_contrasena.dart';
 import 'package:frontend/features/core/widgets/boton_cerrar_sesion.dart';
 
-/// Datos de la persona y ajustes de la aplicación (modo oscuro, cerrar sesión).
+/// Datos de la persona y ajustes de la aplicación (modo oscuro, contraseña,
+/// actualizaciones y cerrar sesión).
 class PerfilScreen extends ConsumerWidget {
   const PerfilScreen({super.key});
 
@@ -42,6 +46,16 @@ class PerfilScreen extends ConsumerWidget {
             value: esOscuro,
             onChanged: (_) => ref.read(modoTemaProvider.notifier).alternar(),
           ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.key_outlined),
+            title: const Text('Cambiar contraseña'),
+            onTap: () => cambiarContrasena(context),
+          ),
+          if (ref.watch(actualizacionesHabilitadasProvider)) ...[
+            Divider(height: 40, color: colores.linea),
+            const TarjetaActualizaciones(),
+          ],
         ],
       ),
     );

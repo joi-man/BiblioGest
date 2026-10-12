@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/auth/presentation/widgets/descargas_aplicaciones.dart';
 import 'package:frontend/features/auth/presentation/widgets/panel_autenticacion.dart';
 import 'package:frontend/features/core/widgets/alertas.dart';
 
@@ -117,6 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               onPressed: () => context.go('/forgot-password'),
               child: const Text('¿Olvidaste tu contrasena?'),
             ),
+            const DescargasAplicaciones(),
           ],
         ),
       ),

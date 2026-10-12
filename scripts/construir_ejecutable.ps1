@@ -152,6 +152,9 @@ if ($IdApp -ne "") { $argsInno += "/DIdApp=$IdApp" }
 Verificar "ISCC" "Fallo la generacion del instalador"
 
 $instalador = Join-Path $raiz "build\instalador\BiblioGest-Setup-$Version.exe"
+# Copia con nombre fijo: es el enlace de descarga de la pagina de inicio de sesion de la web
+# (releases/latest/download/BiblioGest-Setup.exe). Se sube junto al instalador versionado.
+Copy-Item $instalador (Join-Path $raiz "build\instalador\BiblioGest-Setup.exe") -Force
 
 # ------------------------------------------- 5. Manifiesto de actualizaciones
 if (-not $SinManifiesto) {

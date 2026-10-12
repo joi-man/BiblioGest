@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
 import 'package:frontend/features/loans/data/models/prestamo.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
+import 'dialogo_ceder_reserva.dart';
 import 'dialogo_rechazo.dart';
 
 /// Botones de acción de un préstamo, según el paso del flujo en que está.
 ///
 /// - Pendiente: entregar ahora (aprueba y entrega), aprobar o rechazar.
-/// - Aprobado: entregar o cancelar la reserva.
+/// - Aprobado: entregar, cancelar la reserva o prestarla a otra persona (caso excepcional).
 /// - En préstamo o vencido: ir a la pantalla de devoluciones.
 class BotonesPrestamo extends ConsumerWidget {
   const BotonesPrestamo({super.key, required this.prestamo});
@@ -44,6 +45,10 @@ class BotonesPrestamo extends ConsumerWidget {
             ),
           ],
         EstadoPrestamo.aprobado => [
+            TextButton(
+              onPressed: () => cederReserva(context, prestamo),
+              child: const Text('Prestar a otra persona'),
+            ),
             OutlinedButton(
               onPressed: () => ejecutarAccion(
                 context,

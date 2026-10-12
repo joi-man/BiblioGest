@@ -5,6 +5,7 @@ import 'package:frontend/features/loans/data/repositories/prestamo_repository.da
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
 import 'package:frontend/features/returns/data/repositories/devolucion_repository.dart';
 import 'package:frontend/features/returns/presentation/providers/devoluciones_provider.dart';
+import 'package:frontend/features/student/presentation/providers/catalogo_provider.dart';
 import 'prestamos_provider.dart';
 
 final accionesPrestamoProvider = Provider<AccionesPrestamo>((ref) {
@@ -39,6 +40,20 @@ class AccionesPrestamo {
 
   Future<void> cancelar(String id) =>
       _ejecutarYRefrescar(() => _prestamos.cancelar(id));
+
+  /// Presta una reserva aprobada a otra persona; [motivo] se le informa a quien reservó.
+  Future<void> ceder(
+    String id, {
+    required String usuarioId,
+    required String motivo,
+    bool omitirValidacionesUsuario = false,
+  }) =>
+      _ejecutarYRefrescar(() => _prestamos.ceder(
+            id,
+            usuarioId: usuarioId,
+            motivo: motivo,
+            omitirValidacionesUsuario: omitirValidacionesUsuario,
+          ));
 
   Future<void> crearDirecto({
     required String usuarioId,
@@ -79,6 +94,7 @@ class AccionesPrestamo {
     _ref.invalidate(misSolicitudesProvider);
     _ref.invalidate(devolucionesPendientesProvider);
     _ref.invalidate(materialesProvider);
+    _ref.invalidate(catalogoEstudianteProvider);
     _ref.invalidate(resumenDashboardProvider);
   }
 }

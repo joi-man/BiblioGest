@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Carpetas que el instalador del sistema puede leer: solo las actualizaciones descargadas. -->
+<paths>
+    <cache-path name="actualizaciones" path="actualizaciones/" />
+</paths>

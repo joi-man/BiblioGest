@@ -10,6 +10,11 @@ class ErrorInstalacion implements Exception {
   String toString() => mensaje;
 }
 
+/// Marca a los instaladores tras los cuales la aplicación sigue abierta (el
+/// instalador del sistema se abre encima y la persona puede cancelarlo), a
+/// diferencia de Windows, donde la aplicación se cierra para actualizarse.
+abstract interface class ContinuaTrasInstalar {}
+
 /// Descarga el instalador de una versión y lo ejecuta.
 ///
 /// No usa `dart:io`, para poder importarse también desde la versión web.

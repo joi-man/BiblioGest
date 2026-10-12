@@ -34,6 +34,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\build\instalador
 OutputBaseFilename=BiblioGest-Setup-{#Version}
+SetupIconFile=..\frontend\windows\runner\resources\app_icon.ico
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

@@ -31,7 +31,9 @@ class MetaPrestamo extends StatelessWidget {
       case EstadoPrestamo.rechazado:
         return 'Rechazado: ${prestamo.motivoRechazo ?? 'sin motivo'}';
       case EstadoPrestamo.cancelado:
-        return prestamo.motivoRechazo ?? 'Cancelado';
+        // Cuando la biblioteca cancela (cesión de la reserva, reserva sin retirar), explica el motivo.
+        final motivo = prestamo.motivoRechazo;
+        return motivo == null ? 'Cancelado' : 'Cancelado: $motivo';
     }
   }
 
