@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/local/modo_local.dart';
+import '../core/platform/plataforma.dart';
 import '../core/theme/colores_app.dart';
 import '../features/core/widgets/boton_cambiar_contrasena.dart';
 import '../features/core/widgets/boton_cerrar_sesion.dart';
@@ -63,6 +64,42 @@ const List<DestinoNavegacion> destinosPersonal = [
   ),
 ];
 
+/// Destinos del personal en el teléfono: solo lo esencial para atender el
+/// mostrador. Usuarios, categorías, exportaciones y sincronización quedan para
+/// la web y el escritorio.
+const List<DestinoNavegacion> destinosPersonalMovil = [
+  DestinoNavegacion(
+    ruta: '/',
+    etiqueta: 'Inicio',
+    icono: Icons.dashboard_outlined,
+    iconoActivo: Icons.dashboard,
+  ),
+  DestinoNavegacion(
+    ruta: '/loans',
+    etiqueta: 'Préstamos',
+    icono: Icons.assignment_outlined,
+    iconoActivo: Icons.assignment,
+  ),
+  DestinoNavegacion(
+    ruta: '/returns',
+    etiqueta: 'Devoluciones',
+    icono: Icons.assignment_return_outlined,
+    iconoActivo: Icons.assignment_return,
+  ),
+  DestinoNavegacion(
+    ruta: '/materials',
+    etiqueta: 'Materiales',
+    icono: Icons.menu_book_outlined,
+    iconoActivo: Icons.menu_book,
+  ),
+  DestinoNavegacion(
+    ruta: '/perfil',
+    etiqueta: 'Perfil',
+    icono: Icons.person_outline,
+    iconoActivo: Icons.person,
+  ),
+];
+
 /// Destino extra del ejecutable de escritorio: estado de la sincronización.
 const DestinoNavegacion destinoSincronizacion = DestinoNavegacion(
   ruta: '/sync',
@@ -96,6 +133,14 @@ class ShellNavegacion extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (esDispositivoMovil) {
+      return _conBarraInferior(
+        context,
+        destinosPersonalMovil,
+        _indiceSeleccionado(context, destinosPersonalMovil),
+      );
+    }
+
     // El ejecutable de escritorio agrega la sección de sincronización.
     final destinos = [
       ...destinosPersonal,
@@ -170,7 +215,8 @@ class ShellNavegacion extends ConsumerWidget {
   Widget _conBarraInferior(
       BuildContext context, List<DestinoNavegacion> destinos, int indice) {
     return Scaffold(
-      body: hijo,
+      // SafeArea: en el teléfono la barra de estado no debe tapar el encabezado.
+      body: SafeArea(bottom: false, child: hijo),
       bottomNavigationBar: NavigationBar(
         selectedIndex: indice,
         onDestinationSelected: (i) => _alSeleccionar(context, destinos, i),

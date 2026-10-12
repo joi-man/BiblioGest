@@ -26,44 +26,47 @@ class PanelAutenticacion extends StatelessWidget {
     final colores = context.colores;
 
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, restricciones) {
-          final ancho = restricciones.maxWidth >= 860;
-          return Row(
-            children: [
-              if (ancho) const Expanded(flex: 5, child: _PanelMarca()),
-              Expanded(
-                flex: 4,
-                child: Container(
-                  color: colores.papel,
-                  child: Stack(
-                    children: [
-                      const Positioned(
-                        top: 12,
-                        right: 12,
-                        child: BotonModoTema(),
-                      ),
-                      Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(32),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: _Formulario(
-                              titulo: titulo,
-                              subtitulo: subtitulo,
-                              hijo: hijo,
-                              mostrarMarca: !ancho,
+      // SafeArea: en el telefono la barra de estado no debe tapar el contenido.
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, restricciones) {
+            final ancho = restricciones.maxWidth >= 860;
+            return Row(
+              children: [
+                if (ancho) const Expanded(flex: 5, child: _PanelMarca()),
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    color: colores.papel,
+                    child: Stack(
+                      children: [
+                        const Positioned(
+                          top: 12,
+                          right: 12,
+                          child: BotonModoTema(),
+                        ),
+                        Center(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(32),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 400),
+                              child: _Formulario(
+                                titulo: titulo,
+                                subtitulo: subtitulo,
+                                hijo: hijo,
+                                mostrarMarca: !ancho,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
