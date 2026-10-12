@@ -13,6 +13,7 @@ from app.rutas import (
     local,
     materiales,
     prestamos,
+    reportes,
     solicitudes,
     sync,
     usuarios,
@@ -67,6 +68,7 @@ app.include_router(solicitudes.router)
 app.include_router(prestamos.router)
 app.include_router(devoluciones.router)
 app.include_router(dashboard.router)
+app.include_router(reportes.router)
 app.include_router(sync.router)
 
 # Solo el ejecutable de escritorio tiene configuracion y sincronizacion propias.

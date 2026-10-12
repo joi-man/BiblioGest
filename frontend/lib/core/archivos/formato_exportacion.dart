@@ -2,7 +2,8 @@
 enum FormatoExportacion {
   excel('xlsx', 'Excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-  pdf('pdf', 'PDF', 'application/pdf');
+  pdf('pdf', 'PDF', 'application/pdf'),
+  csv('csv', 'CSV', 'text/csv');
 
   const FormatoExportacion(this.extension, this.etiqueta, this.tipoContenido);
 

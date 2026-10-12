@@ -6,7 +6,7 @@ import 'package:frontend/core/archivos/guardar_archivo.dart';
 import 'package:frontend/core/network/mensaje_error.dart';
 import 'alertas.dart';
 
-/// Botón con menú para descargar el listado actual en Excel o PDF.
+/// Botón con menú para descargar el listado actual en Excel, PDF o CSV.
 ///
 /// Pide los bytes del archivo a [obtenerArchivo], lo guarda con
 /// [guardarArchivo] y avisa el resultado. Mientras descarga muestra un
@@ -69,9 +69,11 @@ class _BotonExportarState extends State<BotonExportar> {
             child: Row(
               children: [
                 Icon(
-                  formato == FormatoExportacion.pdf
-                      ? Icons.picture_as_pdf_outlined
-                      : Icons.table_chart_outlined,
+                  switch (formato) {
+                    FormatoExportacion.pdf => Icons.picture_as_pdf_outlined,
+                    FormatoExportacion.csv => Icons.description_outlined,
+                    FormatoExportacion.excel => Icons.table_chart_outlined,
+                  },
                   size: 20,
                 ),
                 const SizedBox(width: 12),
