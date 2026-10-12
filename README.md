@@ -132,6 +132,8 @@ Es la app de los estudiantes (catálogo de libros y revistas, reservas): funcion
 | [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
 | [docs/listados-paginados-exportacion.md](docs/listados-paginados-exportacion.md) | Grillas paginadas con búsqueda, filtros y exportación a Excel/PDF |
 | [docs/ejecutable-offline.md](docs/ejecutable-offline.md) | Ejecutable de Windows: modo offline, sincronización, red privada e instalador |
+| [docs/reportes.md](docs/reportes.md) | Reportes de préstamos, vencidos por rango de fechas (RFC-G1) y devoluciones, con exportación a CSV, Excel y PDF |
+| [docs/despliegue.md](docs/despliegue.md) | Render, Neon y Vercel: cómo se publica, correo con Brevo y orden de despliegue |
 | [docs/app-movil.md](docs/app-movil.md) | App de Android para estudiantes: reservas, cesión, avisos, reconexión, catálogo sin conexión, firma y distribución |
 | [docs/actualizaciones.md](docs/actualizaciones.md) | Actualizaciones desde la propia app (Windows y Android) y cómo publicar una versión |
 | [docs/iconos.md](docs/iconos.md) | Iconos de todas las plataformas y cómo regenerarlos |
