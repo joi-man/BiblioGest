@@ -39,7 +39,7 @@ Un bibliotecario o administrador que entra desde el teléfono ve un menú inferi
 | **Materiales** | **Solo consultar**: buscar por título, código, autor o marca y filtrar por estado |
 | **Perfil** | Cambiar contraseña, modo oscuro, actualizaciones y cerrar sesión |
 
-**Solo en la web o el escritorio:** usuarios, categorías, registrar/editar/eliminar materiales, **exportaciones a Excel y PDF** (reportes), grillas completas con paginación y la sincronización del ejecutable. Si alguien abre esas direcciones en el móvil, vuelve al Inicio. La decisión de qué va al móvil está en `app/shell_navegacion.dart` (`destinosPersonalMovil`) y en `app/router.dart` (`_rutasSoloEscritorio`).
+**Solo en la web o el escritorio:** usuarios, categorías, registrar/editar/eliminar materiales, **reportes y exportaciones a CSV, Excel y PDF** (ver [reportes.md](reportes.md)), grillas completas con paginación y la sincronización del ejecutable. Si alguien abre esas direcciones en el móvil, vuelve al Inicio. La decisión de qué va al móvil está en `app/shell_navegacion.dart` (`destinosPersonalMovil`) y en `app/router.dart` (`_rutasSoloEscritorio`).
 
 ## Reservas: de principio a fin
 
