@@ -32,7 +32,8 @@ class TarjetaPrestamo extends StatelessWidget {
   Widget build(BuildContext context) {
     final colores = context.colores;
     final textos = Theme.of(context).textTheme;
-    final botones = botonesPersonalizados ??
+    final botones =
+        botonesPersonalizados ??
         (mostrarBotones ? BotonesPrestamo(prestamo: prestamo) : null);
 
     return Card(
@@ -48,8 +49,10 @@ class TarjetaPrestamo extends StatelessWidget {
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(prestamo.usuario.nombreCompleto,
-                                style: textos.titleMedium),
+                            Text(
+                              prestamo.usuario.nombreCompleto,
+                              style: textos.titleMedium,
+                            ),
                             Text(
                               'Doc. ${prestamo.usuario.numeroDocumento}',
                               style: textos.bodySmall,
@@ -62,15 +65,19 @@ class TarjetaPrestamo extends StatelessWidget {
               ],
             ),
             Divider(height: 24, color: colores.linea),
-            for (final detalle in prestamo.detalles) ItemPrestamo(detalle: detalle),
+            for (final detalle in prestamo.detalles)
+              ItemPrestamo(detalle: detalle),
             const SizedBox(height: 8),
             MetaPrestamo(prestamo: prestamo),
-            if (prestamo.observaciones != null && prestamo.observaciones!.isNotEmpty)
+            if (prestamo.observaciones != null &&
+                prestamo.observaciones!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   'Nota: ${prestamo.observaciones}',
-                  style: textos.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                  style: textos.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
             if (botones != null) ...[

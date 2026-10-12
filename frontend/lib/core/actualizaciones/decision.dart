@@ -42,7 +42,8 @@ Decision decidir({
   if (manifiesto.version <= actual) return Decision.ninguna;
 
   final obligatoria = actual < manifiesto.minima;
-  if (!obligatoria && versionOmitida == manifiesto.version) return Decision.ninguna;
+  if (!obligatoria && versionOmitida == manifiesto.version)
+    return Decision.ninguna;
 
   return Decision(
     obligatoria ? Urgencia.obligatoria : Urgencia.opcional,

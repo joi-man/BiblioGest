@@ -22,38 +22,54 @@ final versionAppProvider = Provider<String>((ref) {
 });
 
 /// Cierra el backend local antes de instalar. `main` lo reemplaza por el real.
-final cerrarBackendProvider = Provider<Future<void> Function()>((ref) => () async {});
+final cerrarBackendProvider = Provider<Future<void> Function()>(
+  (ref) => () async {},
+);
 
 /// Si las actualizaciones aplican a esta ejecución: el ejecutable instalado
 /// (con backend propio) y la app de Android; no `flutter run` en escritorio ni la web.
-final actualizacionesHabilitadasProvider =
-    Provider<bool>((ref) => modoLocalNotifier.activo || esAndroid);
+final actualizacionesHabilitadasProvider = Provider<bool>(
+  (ref) => modoLocalNotifier.activo || esAndroid,
+);
 
-final instaladorActualizacionesProvider =
-    Provider<InstaladorActualizaciones>((ref) => crearInstaladorActualizaciones());
+final instaladorActualizacionesProvider = Provider<InstaladorActualizaciones>(
+  (ref) => crearInstaladorActualizaciones(),
+);
 
 final clienteActualizacionesProvider = Provider<ClienteActualizaciones>((ref) {
   return ClienteActualizaciones(
     dio: Dio(),
-    urlManifiesto: esAndroid ? urlManifiestoActualizacionesAndroid : urlManifiestoActualizaciones,
+    urlManifiesto: esAndroid
+        ? urlManifiestoActualizacionesAndroid
+        : urlManifiestoActualizaciones,
     clavePublica: clavePublicaActualizaciones,
   );
 });
 
 final actualizacionesProvider =
     StateNotifierProvider<ActualizacionesNotifier, EstadoActualizacion>((ref) {
-  return ActualizacionesNotifier(
-    versionInstalada: VersionApp.parse(ref.watch(versionAppProvider)),
-    cliente: ref.watch(clienteActualizacionesProvider),
-    instalador: ref.watch(instaladorActualizacionesProvider),
-    preferencias: PreferenciasActualizacion(ref.watch(preferenciasProvider)),
-    cerrarBackend: ref.watch(cerrarBackendProvider),
-    habilitado: ref.watch(actualizacionesHabilitadasProvider),
-    clavePublica: clavePublicaActualizaciones,
-  );
-});
+      return ActualizacionesNotifier(
+        versionInstalada: VersionApp.parse(ref.watch(versionAppProvider)),
+        cliente: ref.watch(clienteActualizacionesProvider),
+        instalador: ref.watch(instaladorActualizacionesProvider),
+        preferencias: PreferenciasActualizacion(
+          ref.watch(preferenciasProvider),
+        ),
+        cerrarBackend: ref.watch(cerrarBackendProvider),
+        habilitado: ref.watch(actualizacionesHabilitadasProvider),
+        clavePublica: clavePublicaActualizaciones,
+      );
+    });
 
-enum FaseActualizacion { inactiva, comprobando, alDia, disponible, descargando, instalando, error }
+enum FaseActualizacion {
+  inactiva,
+  comprobando,
+  alDia,
+  disponible,
+  descargando,
+  instalando,
+  error,
+}
 
 class EstadoActualizacion {
   const EstadoActualizacion({
@@ -175,12 +191,18 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
     if (!_activo || state.ocupado) return;
     final anterior = state;
     if (manual) {
-      state = state.copyWith(fase: FaseActualizacion.comprobando, quitarMensaje: true);
+      state = state.copyWith(
+        fase: FaseActualizacion.comprobando,
+        quitarMensaje: true,
+      );
     }
 
     try {
       final consultado = await cliente.consultar();
-      await preferencias.guardarManifiesto(consultado.contenido, consultado.firma);
+      await preferencias.guardarManifiesto(
+        consultado.contenido,
+        consultado.firma,
+      );
       _aplicar(consultado.manifiesto, confirmadoEnLinea: true);
       // Instalación automática: solo con una versión confirmada en línea.
       final decision = _decidir(consultado.manifiesto);
@@ -191,7 +213,8 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       state = manual
           ? anterior.copyWith(
               fase: FaseActualizacion.error,
-              mensaje: 'No se pudo conectar. Revisa tu conexión a internet.'
+              mensaje:
+                  'No se pudo conectar. Revisa tu conexión a internet.'
                   '${error.detalle.isEmpty ? '' : ' (${error.detalle})'}',
             )
           : anterior;
@@ -199,7 +222,8 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       state = manual
           ? anterior.copyWith(
               fase: FaseActualizacion.error,
-              mensaje: 'No se pudo verificar la información de la actualización.',
+              mensaje:
+                  'No se pudo verificar la información de la actualización.',
             )
           : anterior;
     }
@@ -211,7 +235,9 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       manifiesto: manifiesto,
       automatica: preferencias.automatica,
       versionOmitida: VersionApp.intentar(preferencias.versionOmitida),
-      versionIntentadaSola: VersionApp.intentar(preferencias.versionIntentadaSola),
+      versionIntentadaSola: VersionApp.intentar(
+        preferencias.versionIntentadaSola,
+      ),
     );
   }
 
@@ -224,7 +250,8 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       manifiesto: manifiesto,
       // El aviso opcional solo se muestra con datos recién consultados, para no
       // preguntar dos veces (primero con los guardados y luego con los nuevos).
-      avisoPendiente: decision.urgencia == Urgencia.opcional &&
+      avisoPendiente:
+          decision.urgencia == Urgencia.opcional &&
           confirmadoEnLinea &&
           !_pospuestas.contains(manifiesto.version),
       automatica: preferencias.automatica,
@@ -237,7 +264,10 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
     if (!_activo || manifiesto == null || state.ocupado) return;
 
     // Se anota antes de intentar: si algo falla, el próximo inicio pregunta en vez de repetir.
-    if (automatica) await preferencias.guardarIntentoAutomatico(manifiesto.version.toString());
+    if (automatica)
+      await preferencias.guardarIntentoAutomatico(
+        manifiesto.version.toString(),
+      );
 
     state = state.copyWith(
       fase: FaseActualizacion.descargando,
@@ -254,7 +284,10 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       // En Windows la aplicación se cierra al instalar. En Android el instalador del
       // sistema se abre encima: si la persona lo cancela, la app debe poder reintentar.
       if (instalador is ContinuaTrasInstalar) {
-        state = state.copyWith(fase: FaseActualizacion.disponible, avisoPendiente: false);
+        state = state.copyWith(
+          fase: FaseActualizacion.disponible,
+          avisoPendiente: false,
+        );
       }
     } on ErrorInstalacion catch (error) {
       state = state.copyWith(
@@ -276,7 +309,11 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
     final manifiesto = state.manifiesto;
     if (manifiesto == null || state.bloqueaLaApp) return;
     _pospuestas.add(manifiesto.version);
-    state = state.copyWith(avisoPendiente: false, fase: FaseActualizacion.disponible, quitarMensaje: true);
+    state = state.copyWith(
+      avisoPendiente: false,
+      fase: FaseActualizacion.disponible,
+      quitarMensaje: true,
+    );
   }
 
   /// "Omitir esta versión": no avisa de ella; sí de las siguientes. No aplica si es obligatoria.

@@ -25,7 +25,8 @@ class ActualizadorPersonal extends ConsumerStatefulWidget {
   final Duration periodo;
 
   @override
-  ConsumerState<ActualizadorPersonal> createState() => _ActualizadorPersonalState();
+  ConsumerState<ActualizadorPersonal> createState() =>
+      _ActualizadorPersonalState();
 }
 
 class _ActualizadorPersonalState extends ConsumerState<ActualizadorPersonal>

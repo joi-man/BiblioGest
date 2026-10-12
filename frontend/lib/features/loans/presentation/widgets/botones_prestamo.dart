@@ -27,50 +27,50 @@ class BotonesPrestamo extends ConsumerWidget {
       alignment: WrapAlignment.end,
       children: switch (prestamo.estado) {
         EstadoPrestamo.pendiente => [
-            OutlinedButton(
-              onPressed: () => _rechazar(context, acciones),
-              child: const Text('Rechazar'),
+          OutlinedButton(
+            onPressed: () => _rechazar(context, acciones),
+            child: const Text('Rechazar'),
+          ),
+          OutlinedButton(
+            onPressed: () => ejecutarAccion(
+              context,
+              () => acciones.aprobar(prestamo.id),
+              exito: 'Solicitud aprobada: material reservado',
             ),
-            OutlinedButton(
-              onPressed: () => ejecutarAccion(
-                context,
-                () => acciones.aprobar(prestamo.id),
-                exito: 'Solicitud aprobada: material reservado',
-              ),
-              child: const Text('Aprobar'),
-            ),
-            FilledButton(
-              onPressed: () => _entregar(context, acciones),
-              child: const Text('Entregar ahora'),
-            ),
-          ],
+            child: const Text('Aprobar'),
+          ),
+          FilledButton(
+            onPressed: () => _entregar(context, acciones),
+            child: const Text('Entregar ahora'),
+          ),
+        ],
         EstadoPrestamo.aprobado => [
-            TextButton(
-              onPressed: () => cederReserva(context, prestamo),
-              child: const Text('Prestar a otra persona'),
+          TextButton(
+            onPressed: () => cederReserva(context, prestamo),
+            child: const Text('Prestar a otra persona'),
+          ),
+          OutlinedButton(
+            onPressed: () => ejecutarAccion(
+              context,
+              () => acciones.cancelar(prestamo.id),
+              exito: 'Reserva cancelada',
             ),
-            OutlinedButton(
-              onPressed: () => ejecutarAccion(
-                context,
-                () => acciones.cancelar(prestamo.id),
-                exito: 'Reserva cancelada',
-              ),
-              child: const Text('Cancelar reserva'),
-            ),
-            FilledButton(
-              onPressed: () => _entregar(context, acciones),
-              child: const Text('Marcar como entregado'),
-            ),
-          ],
+            child: const Text('Cancelar reserva'),
+          ),
+          FilledButton(
+            onPressed: () => _entregar(context, acciones),
+            child: const Text('Marcar como entregado'),
+          ),
+        ],
         EstadoPrestamo.activo || EstadoPrestamo.vencido => [
-            OutlinedButton.icon(
-              onPressed: () => context.go(
-                '/returns?q=${Uri.encodeQueryComponent(prestamo.usuario.numeroDocumento)}',
-              ),
-              icon: const Icon(Icons.assignment_return_outlined, size: 18),
-              label: const Text('Ir a devolución'),
+          OutlinedButton.icon(
+            onPressed: () => context.go(
+              '/returns?q=${Uri.encodeQueryComponent(prestamo.usuario.numeroDocumento)}',
             ),
-          ],
+            icon: const Icon(Icons.assignment_return_outlined, size: 18),
+            label: const Text('Ir a devolución'),
+          ),
+        ],
         _ => const [],
       },
     );
@@ -84,7 +84,10 @@ class BotonesPrestamo extends ConsumerWidget {
     );
   }
 
-  Future<void> _rechazar(BuildContext context, AccionesPrestamo acciones) async {
+  Future<void> _rechazar(
+    BuildContext context,
+    AccionesPrestamo acciones,
+  ) async {
     final motivo = await pedirMotivoRechazo(context);
     if (motivo == null || !context.mounted) return;
 

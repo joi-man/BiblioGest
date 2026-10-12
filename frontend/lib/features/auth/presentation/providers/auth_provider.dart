@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/core/network/dio_client.dart';
@@ -12,13 +13,16 @@ final sesionRestauradaProvider = Provider<LoginResponse?>((ref) => null);
 
 /// Sesión que se conserva al cerrar la ventana sin cerrar sesión.
 final sesionGuardadaProvider = Provider<SesionGuardada>((ref) {
-  return SesionGuardada(ref.watch(preferenciasProvider));
+  return SesionGuardada(
+    ref.watch(preferenciasProvider),
+    vigencia: vigenciaSesionWeb,
+  );
 });
 
 final authProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<LoginResponse?>>((ref) {
-  return AuthNotifier(ref);
-});
+      return AuthNotifier(ref);
+    });
 
 /// Token de la sesión actual, o `null` si no hay sesión.
 ///
@@ -31,7 +35,8 @@ final tokenSesionProvider = Provider<String?>((ref) {
 class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
   final Ref _ref;
 
-  AuthNotifier(this._ref) : super(AsyncValue.data(_ref.read(sesionRestauradaProvider))) {
+  AuthNotifier(this._ref)
+    : super(AsyncValue.data(_ref.read(sesionRestauradaProvider))) {
     final cliente = _ref.read(dioClientProvider);
     cliente.alSesionExpirada = _alSesionExpirada;
     final restaurada = state.value;
@@ -39,9 +44,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
   }
 
   /// El servidor ya no acepta la sesión: se cierra y se avisa en el login.
-  void _alSesionExpirada() {
+  void _alSesionExpirada(String? motivo) {
     if (state.value == null) return;
-    authStateNotifier.avisoAlLogin = 'Tu sesión terminó. Inicia sesión de nuevo.';
+    // Si el servidor explicó el motivo (por ejemplo, cuenta suspendida), se muestra.
+    authStateNotifier.avisoAlLogin =
+        (motivo != null && motivo.contains('suspendida'))
+        ? motivo
+        : 'Tu sesión terminó. Inicia sesión de nuevo.';
     logout();
   }
 
@@ -52,15 +61,14 @@ class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
     try {
       final repository = _ref.read(authRepositoryProvider);
       final loginResponse = await repository.login(
-        LoginRequest(
-          correoOUsuario: correoOUsuario,
-          contrasena: contrasena,
-        ),
+        LoginRequest(correoOUsuario: correoOUsuario, contrasena: contrasena),
       );
       // Desde aquí todas las peticiones llevan el token sin que cada
       // repositorio tenga que pasarlo.
       _ref.read(dioClientProvider).setToken(loginResponse.accessToken);
       state = AsyncValue.data(loginResponse);
+      if (kIsWeb)
+        await _ref.read(sesionGuardadaProvider).guardar(loginResponse);
       authStateNotifier.iniciarSesion(loginResponse.usuario.rol);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -69,6 +77,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<LoginResponse?>> {
 
   void logout() {
     _ref.read(dioClientProvider).clearToken();
+    if (kIsWeb) _ref.read(sesionGuardadaProvider).borrar();
     state = const AsyncValue.data(null);
     authStateNotifier.cerrarSesion();
   }

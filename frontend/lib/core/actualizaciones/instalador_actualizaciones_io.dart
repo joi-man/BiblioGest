@@ -14,7 +14,9 @@ import 'version_app.dart';
 /// [carpetaDescargas] existe para las pruebas; por defecto es
 /// `%LOCALAPPDATA%\BiblioGest\actualizaciones` en Windows (junto a los datos de
 /// la biblioteca) y la carpeta de caché de la app en Android.
-InstaladorActualizaciones crearInstaladorActualizaciones({String? carpetaDescargas}) {
+InstaladorActualizaciones crearInstaladorActualizaciones({
+  String? carpetaDescargas,
+}) {
   if (Platform.isAndroid) return _InstaladorAndroid(carpetaDescargas);
   return _InstaladorWindows(carpetaDescargas);
 }
@@ -31,8 +33,9 @@ abstract class _InstaladorDescargable implements InstaladorActualizaciones {
 
   Future<Directory> _carpetaPorDefecto();
 
-  Future<Directory> _carpeta() async =>
-      _carpetaIndicada != null ? Directory(_carpetaIndicada) : _carpetaPorDefecto();
+  Future<Directory> _carpeta() async => _carpetaIndicada != null
+      ? Directory(_carpetaIndicada)
+      : _carpetaPorDefecto();
 
   @override
   Future<void> limpiarDescargas(String versionActual) async {
@@ -42,7 +45,9 @@ abstract class _InstaladorDescargable implements InstaladorActualizaciones {
     await for (final entrada in carpeta.list()) {
       if (entrada is! File) continue;
       final nombre = entrada.uri.pathSegments.last;
-      final version = VersionApp.intentar(_formatoArchivo.firstMatch(nombre)?.group(1));
+      final version = VersionApp.intentar(
+        _formatoArchivo.firstMatch(nombre)?.group(1),
+      );
       // Todo lo que no sea el instalador de una versión posterior (parciales,
       // instaladores ya aplicados, archivos ajenos) sobra.
       if (version == null || version <= actual) {
@@ -56,10 +61,15 @@ abstract class _InstaladorDescargable implements InstaladorActualizaciones {
   }
 
   @override
-  Future<String> descargar(Manifiesto manifiesto, {required void Function(double) alProgreso}) async {
+  Future<String> descargar(
+    Manifiesto manifiesto, {
+    required void Function(double) alProgreso,
+  }) async {
     final carpeta = await _carpeta();
     await carpeta.create(recursive: true);
-    final destino = File('${carpeta.path}${Platform.pathSeparator}${manifiesto.nombreArchivo}');
+    final destino = File(
+      '${carpeta.path}${Platform.pathSeparator}${manifiesto.nombreArchivo}',
+    );
 
     // Un instalador ya descargado y verificado se reutiliza (por ejemplo, tras
     // cerrar la app a mitad de camino o si la instalación no llegó a ejecutarse).
@@ -118,30 +128,31 @@ class _InstaladorWindows extends _InstaladorDescargable {
   bool get disponible => Platform.isWindows;
 
   @override
-  RegExp get _formatoArchivo => RegExp(r'^BiblioGest-Setup-(\d+\.\d+\.\d+)\.exe$');
+  RegExp get _formatoArchivo =>
+      RegExp(r'^BiblioGest-Setup-(\d+\.\d+\.\d+)\.exe$');
 
   @override
   Future<Directory> _carpetaPorDefecto() async {
-    final base = Platform.environment['LOCALAPPDATA'] ?? Directory.systemTemp.path;
+    final base =
+        Platform.environment['LOCALAPPDATA'] ?? Directory.systemTemp.path;
     final s = Platform.pathSeparator;
     return Directory('$base${s}BiblioGest${s}actualizaciones');
   }
 
   @override
-  Future<void> instalar(String ruta, {required Future<void> Function() cerrarBackend}) async {
+  Future<void> instalar(
+    String ruta, {
+    required Future<void> Function() cerrarBackend,
+  }) async {
     // Inno Setup en modo silencioso con ventana de progreso: cierra BiblioGest
     // si siguiera abierto, reemplaza los archivos y la vuelve a abrir (/RELANZAR=1).
-    await Process.start(
-      ruta,
-      const [
-        '/SILENT',
-        '/SUPPRESSMSGBOXES',
-        '/NORESTART',
-        '/CLOSEAPPLICATIONS',
-        '/RELANZAR=1',
-      ],
-      mode: ProcessStartMode.detached,
-    );
+    await Process.start(ruta, const [
+      '/SILENT',
+      '/SUPPRESSMSGBOXES',
+      '/NORESTART',
+      '/CLOSEAPPLICATIONS',
+      '/RELANZAR=1',
+    ], mode: ProcessStartMode.detached);
     await salir(cerrarBackend: cerrarBackend);
   }
 
@@ -158,7 +169,8 @@ class _InstaladorWindows extends _InstaladorDescargable {
 /// instalador del sistema (ver `MainActivity.kt`), que pide confirmar a la
 /// persona. Android solo acepta la actualización si el APK está firmado con la
 /// misma clave que la app instalada.
-class _InstaladorAndroid extends _InstaladorDescargable implements ContinuaTrasInstalar {
+class _InstaladorAndroid extends _InstaladorDescargable
+    implements ContinuaTrasInstalar {
   _InstaladorAndroid(super.carpetaIndicada);
 
   static const _canal = MethodChannel('com.bibliogest.app/actualizaciones');
@@ -176,8 +188,12 @@ class _InstaladorAndroid extends _InstaladorDescargable implements ContinuaTrasI
   }
 
   @override
-  Future<void> instalar(String ruta, {required Future<void> Function() cerrarBackend}) async {
-    final puedeInstalar = await _canal.invokeMethod<bool>('puedeInstalar') ?? false;
+  Future<void> instalar(
+    String ruta, {
+    required Future<void> Function() cerrarBackend,
+  }) async {
+    final puedeInstalar =
+        await _canal.invokeMethod<bool>('puedeInstalar') ?? false;
     if (!puedeInstalar) {
       // Android exige que la persona autorice, una vez, a BiblioGest a instalar apps.
       await _canal.invokeMethod<void>('pedirPermisoInstalar');

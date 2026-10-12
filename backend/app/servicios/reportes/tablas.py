@@ -4,6 +4,7 @@ from typing import Optional, Sequence
 
 from app.core import reloj
 from app.core.config import configuracion
+from app.core.hora_paraguay import a_paraguay
 from app.modelos.devolucion import Devolucion
 from app.modelos.prestamo_cabecera import PrestamoCabecera
 from app.servicios.exportacion.tabla_exportable import TablaExportable
@@ -14,12 +15,12 @@ from app.servicios.reportes.consultas import FiltrosReporte
 _ESTADOS = {"aprobado": "Por retirar", "activo": "En préstamo", "vencido": "Vencido"}
 _CONDICIONES = {"bueno": "Bueno", "dano_menor": "Daño menor", "dano_mayor": "Daño mayor", "perdido": "Perdido"}
 
-# Las fechas se guardan y se muestran en UTC (hora del servidor).
+# Las fechas se guardan en UTC y se muestran en hora de Paraguay.
 _FORMATO_FECHA = "%d/%m/%Y %H:%M"
 
 
 def _fecha(valor: Optional[datetime]) -> str:
-    return valor.strftime(_FORMATO_FECHA) if valor else ""
+    return a_paraguay(valor).strftime(_FORMATO_FECHA) if valor else ""
 
 
 def _persona(prestamo: PrestamoCabecera) -> str:
@@ -37,7 +38,7 @@ def _describir(filtros: FiltrosReporte, total: int, **extra: Optional[object]) -
         rango = f"{filtros.desde.strftime('%d/%m/%Y') if filtros.desde else 'inicio'}" \
                 f" a {filtros.hasta.strftime('%d/%m/%Y') if filtros.hasta else 'hoy'}"
     resumen = describir_filtros(rango=rango, busqueda=filtros.texto, **extra)
-    return f"{resumen} | Total: {total} | Horas en UTC"
+    return f"{resumen} | Total: {total} | Hora de Paraguay"
 
 
 # ---------------------------------------------------------------------------

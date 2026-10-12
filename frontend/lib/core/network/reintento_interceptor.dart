@@ -49,7 +49,10 @@ class ReintentoInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     final opciones = err.requestOptions;
     if (opciones.extra[extraSinReintento] == true || !_esReintentable(err)) {
       handler.next(err);
@@ -85,7 +88,8 @@ class ReintentoInterceptor extends Interceptor {
         return _esLectura(error);
       case DioExceptionType.badResponse:
         final codigo = error.response?.statusCode;
-        return _esLectura(error) && (codigo == 502 || codigo == 503 || codigo == 504);
+        return _esLectura(error) &&
+            (codigo == 502 || codigo == 503 || codigo == 504);
       default:
         return false;
     }

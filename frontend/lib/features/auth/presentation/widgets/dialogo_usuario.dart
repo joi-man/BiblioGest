@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/auth/data/models/usuario.dart';
 import 'package:frontend/features/auth/data/repositories/usuario_repository.dart';
@@ -37,17 +38,23 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
   void initState() {
     super.initState();
     _usernameController = TextEditingController(
-        text: widget.usuario?.username ?? '');
+      text: widget.usuario?.username ?? '',
+    );
     _correoController = TextEditingController(
-        text: widget.usuario?.correoElectronico ?? '');
+      text: widget.usuario?.correoElectronico ?? '',
+    );
     _nombreController = TextEditingController(
-        text: widget.usuario?.nombre ?? '');
+      text: widget.usuario?.nombre ?? '',
+    );
     _apellidoController = TextEditingController(
-        text: widget.usuario?.apellido ?? '');
+      text: widget.usuario?.apellido ?? '',
+    );
     _documentoController = TextEditingController(
-        text: widget.usuario?.numeroDocumento ?? '');
+      text: widget.usuario?.numeroDocumento ?? '',
+    );
     _telefonoController = TextEditingController(
-        text: widget.usuario?.telefono ?? '');
+      text: widget.usuario?.telefono ?? '',
+    );
     _contrasenaController = TextEditingController();
     _confirmarContrasenaController = TextEditingController();
     if (widget.usuario != null) {
@@ -86,7 +93,9 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                 Text(
                   esEdicion ? 'Editar Usuario' : 'Nuevo Usuario',
                   style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
@@ -163,8 +172,12 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   controller: _documentoController,
                   maxLength: 20,
                   keyboardType: TextInputType.number,
+                  // Sin puntos ni espacios: 4111222, no 4.111.222.
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Za-z-]')),
+                  ],
                   decoration: const InputDecoration(
-                    labelText: 'Numero de documento *',
+                    labelText: 'Numero de documento * (sin puntos)',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -193,12 +206,17 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   ),
                   items: const [
                     DropdownMenuItem(
-                        value: 'estudiante', child: Text('Estudiante')),
+                      value: 'estudiante',
+                      child: Text('Estudiante'),
+                    ),
                     DropdownMenuItem(
-                        value: 'bibliotecario',
-                        child: Text('Bibliotecario')),
+                      value: 'bibliotecario',
+                      child: Text('Bibliotecario'),
+                    ),
                     DropdownMenuItem(
-                        value: 'admin', child: Text('Administrador')),
+                      value: 'admin',
+                      child: Text('Administrador'),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -214,7 +232,9 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                       ? 'Dejar vacio para no cambiar contrasena'
                       : 'Contrasena *',
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -239,13 +259,10 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                     ),
                   ),
                   validator: (value) {
-                    if (!esEdicion &&
-                        (value == null || value.isEmpty)) {
+                    if (!esEdicion && (value == null || value.isEmpty)) {
                       return 'La contrasena es obligatoria';
                     }
-                    if (value != null &&
-                        value.isNotEmpty &&
-                        value.length < 6) {
+                    if (value != null && value.isNotEmpty && value.length < 6) {
                       return 'Minimo 6 caracteres';
                     }
                     return null;
@@ -260,8 +277,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (!esEdicion &&
-                        (value == null || value.isEmpty)) {
+                    if (!esEdicion && (value == null || value.isEmpty)) {
                       return 'Confirma la contrasena';
                     }
                     if (_contrasenaController.text.isNotEmpty &&
@@ -276,8 +292,9 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed:
-                          _guardando ? null : () => Navigator.pop(context),
+                      onPressed: _guardando
+                          ? null
+                          : () => Navigator.pop(context),
                       child: const Text('Cancelar'),
                     ),
                     const SizedBox(width: 8),
@@ -287,8 +304,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Guardar'),
                     ),
@@ -315,30 +331,29 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
       final esEdicion = widget.usuario != null;
 
       if (!esEdicion) {
-        await repo.crear(
-          {
-            'username': _usernameController.text.trim(),
-            'correo_electronico': _correoController.text.trim(),
-            'contrasena': _contrasenaController.text,
-            'numero_documento': _documentoController.text.trim(),
-            'nombre': _nombreController.text.trim(),
-            'apellido': _apellidoController.text.trim(),
-            'rol': _rol,
-            'telefono': _telefonoController.text.trim().isEmpty
-                ? null
-                : _telefonoController.text.trim(),
-          },
-          token,
-        );
-      } else {
-        final datos = {
+        await repo.crear({
+          'username': _usernameController.text.trim(),
           'correo_electronico': _correoController.text.trim(),
+          'contrasena': _contrasenaController.text,
+          'numero_documento': _documentoController.text.trim(),
           'nombre': _nombreController.text.trim(),
           'apellido': _apellidoController.text.trim(),
           'rol': _rol,
           'telefono': _telefonoController.text.trim().isEmpty
               ? null
               : _telefonoController.text.trim(),
+        }, token);
+      } else {
+        final datos = {
+          'correo_electronico': _correoController.text.trim(),
+          'numero_documento': _documentoController.text.trim(),
+          'nombre': _nombreController.text.trim(),
+          'apellido': _apellidoController.text.trim(),
+          'rol': _rol,
+          // Vacio borra el telefono (null significaria "no cambiar").
+          'telefono': _telefonoController.text.trim(),
+          if (_contrasenaController.text.isNotEmpty)
+            'contrasena': _contrasenaController.text,
         };
         await repo.actualizar(widget.usuario!.id, datos, token);
       }
@@ -347,7 +362,8 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
       if (mounted) Navigator.pop(context);
       if (mounted) {
         context.mostrarExito(
-            esEdicion ? 'Usuario actualizado' : 'Usuario creado');
+          esEdicion ? 'Usuario actualizado' : 'Usuario creado',
+        );
       }
     } catch (e) {
       if (mounted) context.mostrarError('Error: $e');

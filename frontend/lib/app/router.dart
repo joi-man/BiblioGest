@@ -23,6 +23,7 @@ import 'auth_state.dart';
 import 'shell_navegacion.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
 /// Navegador raíz: permite mostrar diálogos desde fuera del árbol de pantallas.
 GlobalKey<NavigatorState> get navegadorRaizKey => _rootNavigatorKey;
 
@@ -39,7 +40,12 @@ const _rutaConfiguracionInicial = '/configuracion-inicial';
 const _rutaSincronizacion = '/sync';
 
 /// Pantallas que el personal solo usa desde la web o el escritorio.
-const _rutasSoloEscritorio = ['/users', '/categories', '/reports', _rutaSincronizacion];
+const _rutasSoloEscritorio = [
+  '/users',
+  '/categories',
+  '/reports',
+  _rutaSincronizacion,
+];
 
 /// Página sin animación de transición, usada dentro del marco de navegación.
 Page<void> _paginaSinTransicion(Widget pantalla) {
@@ -60,11 +66,14 @@ String? _redireccionar(BuildContext context, GoRouterState state) {
 
   // Un equipo recién instalado debe configurarse antes de poder iniciar sesión.
   if (modoLocalNotifier.requiereConfiguracion) {
-    return ubicacion == _rutaConfiguracionInicial ? null : _rutaConfiguracionInicial;
+    return ubicacion == _rutaConfiguracionInicial
+        ? null
+        : _rutaConfiguracionInicial;
   }
   if (ubicacion == _rutaConfiguracionInicial) return '/login';
   // La sincronización existe solo en el ejecutable de escritorio.
-  if (ubicacion == _rutaSincronizacion && !modoLocalNotifier.activo) return _inicioPersonal;
+  if (ubicacion == _rutaSincronizacion && !modoLocalNotifier.activo)
+    return _inicioPersonal;
 
   if (!authStateNotifier.isAuthenticated) {
     return esPublica ? null : '/login';
@@ -142,7 +151,9 @@ final appRouter = GoRouter(
           name: 'materials',
           pageBuilder: (context, state) => _paginaSinTransicion(
             // En el teléfono el inventario es solo de consulta.
-            esDispositivoMovil ? const MaterialesMovilScreen() : const MaterialsScreen(),
+            esDispositivoMovil
+                ? const MaterialesMovilScreen()
+                : const MaterialsScreen(),
           ),
         ),
         GoRoute(

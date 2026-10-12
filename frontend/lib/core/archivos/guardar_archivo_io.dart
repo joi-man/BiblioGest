@@ -35,7 +35,8 @@ File _rutaLibre(Directory carpeta, String nombre) {
   var archivo = File('${carpeta.path}${Platform.pathSeparator}$nombre');
   for (var numero = 2; archivo.existsSync(); numero++) {
     archivo = File(
-        '${carpeta.path}${Platform.pathSeparator}$base ($numero)$extension');
+      '${carpeta.path}${Platform.pathSeparator}$base ($numero)$extension',
+    );
   }
   return archivo;
 }

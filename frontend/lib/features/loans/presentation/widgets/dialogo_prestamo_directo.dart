@@ -56,8 +56,13 @@ class _DialogoPrestamoDirectoState
     if (hora == null) return;
 
     setState(() {
-      _fechaLimite =
-          DateTime(fecha.year, fecha.month, fecha.day, hora.hour, hora.minute);
+      _fechaLimite = DateTime(
+        fecha.year,
+        fecha.month,
+        fecha.day,
+        hora.hour,
+        hora.minute,
+      );
     });
   }
 
@@ -67,7 +72,9 @@ class _DialogoPrestamoDirectoState
 
     final registrado = await ejecutarAccion(
       context,
-      () => ref.read(accionesPrestamoProvider).crearDirecto(
+      () => ref
+          .read(accionesPrestamoProvider)
+          .crearDirecto(
             usuarioId: _usuario!.id,
             materialIds: _materiales.map((m) => m.id).toList(),
             observaciones: _observaciones.text.trim(),
@@ -125,8 +132,7 @@ class _DialogoPrestamoDirectoState
   Widget _campos() {
     final colores = context.colores;
     final usuarios = ref.watch(usuariosProvider);
-    final materiales =
-        ref.watch(materialesProvider(_filtroDisponibles));
+    final materiales = ref.watch(materialesProvider(_filtroDisponibles));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,11 +143,13 @@ class _DialogoPrestamoDirectoState
         DropdownSearch<Usuario>(
           mode: Mode.form,
           items: (filtro, _) async => usuarios.value ?? [],
-          itemAsString: (u) => '${u.nombre} ${u.apellido} · ${u.numeroDocumento}',
+          itemAsString: (u) =>
+              '${u.nombre} ${u.apellido} · ${u.numeroDocumento}',
           compareFn: (a, b) => a.id == b.id,
           filterFn: (u, filtro) => _coincide(
-              '${u.nombre} ${u.apellido} ${u.numeroDocumento} ${u.username}',
-              filtro),
+            '${u.nombre} ${u.apellido} ${u.numeroDocumento} ${u.username}',
+            filtro,
+          ),
           onChanged: (u) => setState(() => _usuario = u),
           popupProps: const PopupProps.dialog(
             showSearchBox: true,
@@ -150,8 +158,9 @@ class _DialogoPrestamoDirectoState
               child: Text('¿A quién se le presta?'),
             ),
             searchFieldProps: TextFieldProps(
-              decoration:
-                  InputDecoration(hintText: 'Nombre, documento o usuario'),
+              decoration: InputDecoration(
+                hintText: 'Nombre, documento o usuario',
+              ),
             ),
           ),
           decoratorProps: const DropDownDecoratorProps(
@@ -165,8 +174,9 @@ class _DialogoPrestamoDirectoState
           itemAsString: (m) => '${m.titulo} · ${m.codigo}',
           compareFn: (a, b) => a.id == b.id,
           filterFn: (m, filtro) => _coincide(
-              '${m.titulo} ${m.codigo} ${m.marca ?? ''} ${m.modelo ?? ''}',
-              filtro),
+            '${m.titulo} ${m.codigo} ${m.marca ?? ''} ${m.modelo ?? ''}',
+            filtro,
+          ),
           onChanged: (lista) => setState(() => _materiales = lista),
           popupProps: const PopupPropsMultiSelection.dialog(
             showSearchBox: true,
@@ -195,15 +205,19 @@ class _DialogoPrestamoDirectoState
         const SizedBox(height: 8),
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
-          title: Text('Opciones avanzadas',
-              style: Theme.of(context).textTheme.titleSmall),
+          title: Text(
+            'Opciones avanzadas',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.event_outlined),
-              title: Text(_fechaLimite == null
-                  ? 'Plazo automático según el material'
-                  : 'Devolver antes del ${FormatoFecha.fechaHora(_fechaLimite!)}'),
+              title: Text(
+                _fechaLimite == null
+                    ? 'Plazo automático según el material'
+                    : 'Devolver antes del ${FormatoFecha.fechaHora(_fechaLimite!)}',
+              ),
               trailing: _fechaLimite == null
                   ? null
                   : IconButton(
@@ -230,12 +244,8 @@ class _DialogoPrestamoDirectoState
   }
 
   /// Materiales que se pueden prestar ahora mismo.
-  FiltroMateriales get _filtroDisponibles => (
-        texto: '',
-        tipo: null,
-        estado: null,
-        soloDisponibles: true,
-      );
+  FiltroMateriales get _filtroDisponibles =>
+      (texto: '', tipo: null, estado: null, soloDisponibles: true);
 
   /// Búsqueda sin distinguir mayúsculas ni tildes.
   bool _coincide(String texto, String filtro) {

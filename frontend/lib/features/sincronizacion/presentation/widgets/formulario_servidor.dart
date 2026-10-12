@@ -47,7 +47,9 @@ class _FormularioServidorState extends ConsumerState<FormularioServidor> {
 
     setState(() => _conectando = true);
     try {
-      await ref.read(localRepositoryProvider).conectar(
+      await ref
+          .read(localRepositoryProvider)
+          .conectar(
             servidorUrl: _urlController.text.trim(),
             usuario: _usuarioController.text.trim(),
             contrasena: _contrasenaController.text,
@@ -66,7 +68,8 @@ class _FormularioServidorState extends ConsumerState<FormularioServidor> {
     return confirmarAccion(
       context,
       titulo: 'Reemplazar los datos de este equipo',
-      mensaje: 'Este equipo ya tiene información propia. Al conectarlo con el '
+      mensaje:
+          'Este equipo ya tiene información propia. Al conectarlo con el '
           'servidor se reemplazará por la del servidor y tendrás que iniciar sesión de nuevo '
           'con una cuenta del servidor. ¿Continuar?',
       etiquetaConfirmar: 'Reemplazar',
@@ -86,12 +89,14 @@ class _FormularioServidorState extends ConsumerState<FormularioServidor> {
             decoration: const InputDecoration(
               labelText: 'Dirección del servidor',
               hintText: 'http://192.168.1.10:8000',
-              helperText: 'En una red local sin internet usa la IP del servidor.',
+              helperText:
+                  'En una red local sin internet usa la IP del servidor.',
               prefixIcon: Icon(Icons.dns_outlined),
             ),
             validator: (valor) {
               final texto = valor?.trim() ?? '';
-              if (!texto.startsWith('http://') && !texto.startsWith('https://')) {
+              if (!texto.startsWith('http://') &&
+                  !texto.startsWith('https://')) {
                 return 'Debe empezar con http:// o https://';
               }
               return texto.length > 8 ? null : 'Escribe la dirección completa';

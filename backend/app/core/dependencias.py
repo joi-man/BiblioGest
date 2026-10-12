@@ -49,14 +49,14 @@ def obtener_usuario_actual(
     if usuario.eliminado:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario desactivado"
+            detail="Tu cuenta ya no existe"
         )
     
-    # Verificar que este activo
+    # Un usuario suspendido pierde la sesion al instante: su siguiente peticion falla.
     if not usuario.activo:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario desactivado"
+            detail="Tu cuenta fue suspendida. Contacta al administrador de la biblioteca."
         )
     
     return usuario

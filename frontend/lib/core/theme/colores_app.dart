@@ -141,8 +141,11 @@ class ColoresApp extends ThemeExtension<ColoresApp> {
     return ColoresApp(
       papel: Color.lerp(papel, other.papel, t)!,
       superficie: Color.lerp(superficie, other.superficie, t)!,
-      superficieElevada:
-          Color.lerp(superficieElevada, other.superficieElevada, t)!,
+      superficieElevada: Color.lerp(
+        superficieElevada,
+        other.superficieElevada,
+        t,
+      )!,
       linea: Color.lerp(linea, other.linea, t)!,
       tinta: Color.lerp(tinta, other.tinta, t)!,
       tintaSuave: Color.lerp(tintaSuave, other.tintaSuave, t)!,

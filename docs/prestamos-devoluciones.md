@@ -153,7 +153,7 @@ flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true
 - **Un solo agregado con máquina de estados.** Una solicitud y un préstamo son el mismo registro (`prestamos_cabecera`) en distintos estados; las transiciones válidas están en `servicios/prestamos/maquina_estados.py`.
 - **Vencimientos perezosos.** No hay tareas programadas: antes de cada consulta de préstamos se expiran las reservas y se marcan los vencidos (`vencimiento_servicio`). El estado siempre está al día cuando alguien lo mira.
 - **Una transacción por operación.** El cambio de datos y su registro en la bitácora se confirman juntos.
-- **Fechas en UTC.** La base guarda UTC sin zona; la API las entrega con sufijo `Z` y el cliente las muestra en hora local.
+- **Hora de Paraguay.** La base guarda UTC sin zona y la API entrega las fechas con sufijo `Z`; las pantallas, los reportes, los correos y el contador «hoy» del Inicio usan la **hora de Paraguay (UTC-3)**, igual en cualquier dispositivo. Paraguay no cambia de horario desde octubre de 2024, por eso basta un desfase fijo (`backend/app/core/hora_paraguay.py`).
 - **Una responsabilidad por módulo.** `servicios/prestamos/` tiene un archivo por tarea (solicitud, aprobación, entrega, devolución, vencimiento, multas, reglas, plazos, consultas).
 
 ## Pruebas

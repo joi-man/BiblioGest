@@ -42,11 +42,13 @@ class CampoTexto extends StatelessWidget {
       enabled: habilitado,
       maxLines: maxLineas,
       keyboardType: soloDigitos ? TextInputType.number : teclado,
-      textCapitalization:
-          mayusculas ? TextCapitalization.characters : TextCapitalization.sentences,
+      textCapitalization: mayusculas
+          ? TextCapitalization.characters
+          : TextCapitalization.sentences,
       inputFormatters: [
         if (soloDigitos) FilteringTextInputFormatter.digitsOnly,
-        if (maxCaracteres != null) LengthLimitingTextInputFormatter(maxCaracteres),
+        if (maxCaracteres != null)
+          LengthLimitingTextInputFormatter(maxCaracteres),
       ],
       decoration: InputDecoration(
         labelText: requerido ? '$etiqueta *' : etiqueta,

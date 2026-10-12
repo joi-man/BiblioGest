@@ -20,8 +20,8 @@ class ResumenPrestamos(BaseModel):
     activos: int  # entregados y dentro de plazo
     vencidos: int  # entregados y pasados de plazo
     por_vencer_24h: int  # prestamos activos que vencen en las proximas 24 horas
-    entregados_hoy: int  # dia UTC en curso
-    devueltos_hoy: int  # dia UTC en curso
+    entregados_hoy: int  # dia en curso, hora de Paraguay
+    devueltos_hoy: int  # dia en curso, hora de Paraguay
 
 
 class ResumenDashboard(BaseModel):

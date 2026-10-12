@@ -146,6 +146,8 @@ def actualizar_usuario(
         db=db,
         usuario_id=usuario_id,
         correo_electronico=datos.correo_electronico,
+        numero_documento=datos.numero_documento,
+        contrasena=datos.contrasena,
         nombre=datos.nombre,
         apellido=datos.apellido,
         rol=datos.rol,

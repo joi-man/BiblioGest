@@ -35,7 +35,8 @@ class Prestamo with _$Prestamo {
     @JsonKey(name: 'fecha_solicitud') required DateTime fechaSolicitud,
     @JsonKey(name: 'fecha_retiro_limite') DateTime? fechaRetiroLimite,
     @JsonKey(name: 'fecha_prestamo') DateTime? fechaPrestamo,
-    @JsonKey(name: 'fecha_devolucion_esperada') DateTime? fechaDevolucionEsperada,
+    @JsonKey(name: 'fecha_devolucion_esperada')
+    DateTime? fechaDevolucionEsperada,
     @JsonKey(name: 'fecha_devolucion_real') DateTime? fechaDevolucionReal,
     @JsonKey(name: 'aprobado_por') UsuarioResumen? aprobadoPor,
     @JsonKey(name: 'entregado_por') UsuarioResumen? entregadoPor,
@@ -51,5 +52,6 @@ class Prestamo with _$Prestamo {
       detalles.where((d) => !d.devuelto).toList();
 
   /// Los títulos de los materiales separados por coma, para mostrar en una línea.
-  String get resumenMateriales => detalles.map((d) => d.material.titulo).join(', ');
+  String get resumenMateriales =>
+      detalles.map((d) => d.material.titulo).join(', ');
 }

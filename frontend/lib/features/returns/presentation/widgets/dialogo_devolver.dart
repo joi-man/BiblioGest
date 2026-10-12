@@ -94,7 +94,10 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(widget.prestamo.usuario.nombreCompleto, style: textos.bodyMedium),
+              child: Text(
+                widget.prestamo.usuario.nombreCompleto,
+                style: textos.bodyMedium,
+              ),
             ),
             Expanded(
               child: ListView(
@@ -152,13 +155,18 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
                   children: [
                     Text(
                       detalle.material.codigo,
-                      style: TipografiaApp.codigo(colores.tintaSuave, tamano: 12),
+                      style: TipografiaApp.codigo(
+                        colores.tintaSuave,
+                        tamano: 12,
+                      ),
                     ),
                     if (vencido) ...[
                       const SizedBox(width: 8),
                       Text(
                         'Vencido',
-                        style: textos.labelMedium?.copyWith(color: colores.vencido),
+                        style: textos.labelMedium?.copyWith(
+                          color: colores.vencido,
+                        ),
                       ),
                     ],
                   ],
@@ -173,7 +181,10 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
               isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Condición',
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
               ),
               items: [
                 for (final c in CondicionDevolucion.values)
@@ -181,7 +192,9 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
               ],
               onChanged: marcado && !_guardando
                   ? (c) => setState(
-                      () => _condicion[detalle.id] = c ?? CondicionDevolucion.bueno)
+                      () => _condicion[detalle.id] =
+                          c ?? CondicionDevolucion.bueno,
+                    )
                   : null,
             ),
           ),
@@ -211,9 +224,11 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(_cantidad == 1
-                    ? 'Registrar 1 devolución'
-                    : 'Registrar $_cantidad devoluciones'),
+                : Text(
+                    _cantidad == 1
+                        ? 'Registrar 1 devolución'
+                        : 'Registrar $_cantidad devoluciones',
+                  ),
           ),
         ],
       ),

@@ -28,7 +28,7 @@ La solicitud de cambio pedía filtrar los préstamos vencidos por rango de fecha
 | **Excel (.xlsx)** | Título, filtros aplicados, encabezado destacado y columnas autoajustadas |
 | **PDF** | Horizontal, con título, filtros, encabezado repetido en cada página y numeración |
 
-Los archivos se llaman `reporte_<tipo>_AAAAMMDD.<extensión>` (por ejemplo `reporte_vencidos_20261012.csv`). Todas las **horas van en UTC** (hora del servidor); la descripción de cada archivo lo recuerda.
+Los archivos se llaman `reporte_<tipo>_AAAAMMDD.<extensión>` (por ejemplo `reporte_vencidos_20261012.csv`). Todas las **horas van en hora de Paraguay (UTC-3)**; la descripción de cada archivo lo recuerda.
 
 ## API
 
@@ -57,7 +57,7 @@ El backend devuelve cada reporte como una **tabla de texto** (columnas y filas),
 
 - Solo web y escritorio; el móvil no tiene reportes.
 - Tope de 5 000 filas por archivo exportado.
-- Las horas se muestran en UTC; no hay selector de zona horaria.
+- Las horas están fijas en hora de Paraguay; no hay selector de zona horaria. Las fechas de los filtros son días de Paraguay.
 - No hay todavía un reporte de **historial de préstamos por material** ni reportes del inventario por categoría o autor; sí se exportan Materiales y Usuarios desde sus pantallas.
 - En el ejecutable de Windows los reportes leen la base **local**: incluyen lo sincronizado hasta el último momento en que hubo conexión.
 

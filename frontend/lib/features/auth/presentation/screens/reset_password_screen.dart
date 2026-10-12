@@ -48,7 +48,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _cargando = true);
     try {
-      await ref.read(authRepositoryProvider).restablecerContrasena(
+      await ref
+          .read(authRepositoryProvider)
+          .restablecerContrasena(
             correo: _correoController.text.trim(),
             codigo: _codigoController.text.trim(),
             nuevaContrasena: _contrasenaController.text,
@@ -58,12 +60,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       context.go('/login');
     } on DioException catch (e) {
       if (!mounted) return;
-      context.mostrarError(e.response?.statusCode == 400
-          ? 'Codigo invalido o expirado'
-          : 'No se pudo cambiar la contrasena. Intenta de nuevo');
+      context.mostrarError(
+        e.response?.statusCode == 400
+            ? 'Codigo invalido o expirado'
+            : 'No se pudo cambiar la contrasena. Intenta de nuevo',
+      );
     } catch (_) {
       if (mounted) {
-        context.mostrarError('No se pudo cambiar la contrasena. Intenta de nuevo');
+        context.mostrarError(
+          'No se pudo cambiar la contrasena. Intenta de nuevo',
+        );
       }
     } finally {
       if (mounted) setState(() => _cargando = false);
@@ -74,7 +80,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return PanelAutenticacion(
       titulo: 'Nueva contrasena',
-      subtitulo: 'Ingresa el código que recibiste por correo (vence en 15 minutos).',
+      subtitulo:
+          'Ingresa el código que recibiste por correo (vence en 15 minutos).',
       hijo: Form(
         key: _formKey,
         child: Column(
@@ -122,9 +129,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 labelText: 'Nueva contrasena',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
-                  icon: Icon(_ocultar
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined),
+                  icon: Icon(
+                    _ocultar
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
                   onPressed: () => setState(() => _ocultar = !_ocultar),
                 ),
               ),

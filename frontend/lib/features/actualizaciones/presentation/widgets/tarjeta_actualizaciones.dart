@@ -17,21 +17,34 @@ class TarjetaActualizaciones extends ConsumerWidget {
     final textos = Theme.of(context).textTheme;
     final colores = context.colores;
 
-    final hayNueva = estado.urgencia != Urgencia.ninguna && estado.manifiesto != null;
+    final hayNueva =
+        estado.urgencia != Urgencia.ninguna && estado.manifiesto != null;
     final (icono, color, resumen) = switch (estado.fase) {
-      FaseActualizacion.comprobando => (Icons.sync, colores.prestado, 'Buscando actualizaciones…'),
+      FaseActualizacion.comprobando => (
+        Icons.sync,
+        colores.prestado,
+        'Buscando actualizaciones…',
+      ),
       FaseActualizacion.error => (
-          Icons.error_outline,
-          colores.vencido,
-          estado.mensaje ?? 'No se pudo completar la acción',
-        ),
+        Icons.error_outline,
+        colores.vencido,
+        estado.mensaje ?? 'No se pudo completar la acción',
+      ),
       _ when hayNueva => (
-          Icons.system_update_alt,
-          colores.reservado,
-          'Hay una versión nueva: ${estado.manifiesto!.version}',
-        ),
-      FaseActualizacion.alDia => (Icons.check_circle_outline, colores.disponible, 'Tienes la última versión'),
-      _ => (Icons.info_outline, colores.tintaSuave, 'Aún no se buscaron actualizaciones'),
+        Icons.system_update_alt,
+        colores.reservado,
+        'Hay una versión nueva: ${estado.manifiesto!.version}',
+      ),
+      FaseActualizacion.alDia => (
+        Icons.check_circle_outline,
+        colores.disponible,
+        'Tienes la última versión',
+      ),
+      _ => (
+        Icons.info_outline,
+        colores.tintaSuave,
+        'Aún no se buscaron actualizaciones',
+      ),
     };
 
     return Card(
@@ -72,7 +85,9 @@ class TarjetaActualizaciones extends ConsumerWidget {
               runSpacing: 8,
               children: [
                 OutlinedButton.icon(
-                  onPressed: estado.ocupado ? null : () => notifier.comprobar(manual: true),
+                  onPressed: estado.ocupado
+                      ? null
+                      : () => notifier.comprobar(manual: true),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Buscar actualizaciones'),
                 ),

@@ -19,7 +19,8 @@ class MaterialesMovilScreen extends ConsumerStatefulWidget {
   const MaterialesMovilScreen({super.key});
 
   @override
-  ConsumerState<MaterialesMovilScreen> createState() => _MaterialesMovilScreenState();
+  ConsumerState<MaterialesMovilScreen> createState() =>
+      _MaterialesMovilScreenState();
 }
 
 class _MaterialesMovilScreenState extends ConsumerState<MaterialesMovilScreen> {
@@ -135,18 +136,31 @@ class _TarjetaMaterial extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(material.titulo,
-                      style: textos.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    material.titulo,
+                    style: textos.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 2),
-                  Text(detalle,
-                      style: textos.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(
+                    detalle,
+                    style: textos.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       ChipEstado(estado: material.estado.valor),
                       const SizedBox(width: 8),
-                      Text(material.codigo,
-                          style: TipografiaApp.codigo(colores.tintaSuave, tamano: 11)),
+                      Text(
+                        material.codigo,
+                        style: TipografiaApp.codigo(
+                          colores.tintaSuave,
+                          tamano: 11,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -169,10 +183,9 @@ class _AvisoSoloConsulta extends StatelessWidget {
       child: Text(
         'Para registrar, editar o exportar materiales usa la versión web o de escritorio.',
         textAlign: TextAlign.center,
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall
-            ?.copyWith(color: context.colores.tintaSuave),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: context.colores.tintaSuave),
       ),
     );
   }

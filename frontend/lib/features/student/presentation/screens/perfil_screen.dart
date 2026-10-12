@@ -29,7 +29,10 @@ class PerfilScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24),
         children: [
           if (usuario != null) ...[
-            Text('${usuario.nombre} ${usuario.apellido}', style: textos.headlineMedium),
+            Text(
+              '${usuario.nombre} ${usuario.apellido}',
+              style: textos.headlineMedium,
+            ),
             const SizedBox(height: 4),
             Text('@${usuario.username}', style: textos.bodyMedium),
             const SizedBox(height: 24),
@@ -77,7 +80,10 @@ class _Dato extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 110, child: Text(etiqueta, style: textos.labelMedium)),
+          SizedBox(
+            width: 110,
+            child: Text(etiqueta, style: textos.labelMedium),
+          ),
           Expanded(child: Text(valor, style: textos.bodyMedium)),
         ],
       ),

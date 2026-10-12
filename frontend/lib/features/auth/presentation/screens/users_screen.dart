@@ -9,10 +9,7 @@ class UsersScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Usuarios'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.person_add), onPressed: () {}),
         ],
       ),
       body: const Center(

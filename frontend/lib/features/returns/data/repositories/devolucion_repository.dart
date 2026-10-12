@@ -22,11 +22,11 @@ class ItemADevolver {
   final String? observaciones;
 
   Map<String, dynamic> toJson() => {
-        'prestamo_detalle_id': detalleId,
-        'condicion': condicion.valor,
-        if (observaciones != null && observaciones!.isNotEmpty)
-          'observaciones': observaciones,
-      };
+    'prestamo_detalle_id': detalleId,
+    'condicion': condicion.valor,
+    if (observaciones != null && observaciones!.isNotEmpty)
+      'observaciones': observaciones,
+  };
 }
 
 /// Acceso a la API de devoluciones. El token lo agrega el cliente HTTP.
@@ -47,7 +47,10 @@ class DevolucionRepository {
   }
 
   /// Registra la devolución de uno o varios items de un préstamo.
-  Future<Prestamo> registrar(String prestamoId, List<ItemADevolver> items) async {
+  Future<Prestamo> registrar(
+    String prestamoId,
+    List<ItemADevolver> items,
+  ) async {
     final respuesta = await _dio.post(
       '/api/devoluciones/$prestamoId',
       data: {'items': items.map((i) => i.toJson()).toList()},

@@ -25,7 +25,9 @@ class TarjetaEstadoSincronizacion extends StatelessWidget {
               children: [
                 Icon(situacion.icono, color: situacion.color, size: 28),
                 const SizedBox(width: 12),
-                Expanded(child: Text(situacion.titulo, style: textos.titleLarge)),
+                Expanded(
+                  child: Text(situacion.titulo, style: textos.titleLarge),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -69,7 +71,9 @@ class TarjetaEstadoSincronizacion extends StatelessWidget {
             width: 180,
             child: Text(
               etiqueta,
-              style: textos.bodyMedium?.copyWith(color: context.colores.tintaSuave),
+              style: textos.bodyMedium?.copyWith(
+                color: context.colores.tintaSuave,
+              ),
             ),
           ),
           Expanded(child: Text(valor, style: textos.bodyMedium)),
@@ -98,8 +102,12 @@ class _Situacion {
       );
     }
     if (estado.sincronizando) {
-      return _Situacion(Icons.sync, colores.prestado, 'Sincronizando…',
-          'Enviando y recibiendo cambios.');
+      return _Situacion(
+        Icons.sync,
+        colores.prestado,
+        'Sincronizando…',
+        'Enviando y recibiendo cambios.',
+      );
     }
     if (estado.conectado == false) {
       return _Situacion(

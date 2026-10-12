@@ -14,8 +14,7 @@ class TemaApp {
 
   static ThemeData get claro => _construir(ColoresApp.claro, Brightness.light);
 
-  static ThemeData get oscuro =>
-      _construir(ColoresApp.oscuro, Brightness.dark);
+  static ThemeData get oscuro => _construir(ColoresApp.oscuro, Brightness.dark);
 
   static ThemeData _construir(ColoresApp c, Brightness brillo) {
     final textos = TipografiaApp.crear(c.tinta, c.tintaSuave);
@@ -62,8 +61,10 @@ class TemaApp {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: c.superficieElevada,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         labelStyle: textos.bodyMedium?.copyWith(color: c.tintaSuave),
         floatingLabelStyle: textos.labelMedium?.copyWith(color: c.acento),
         border: _borde(c.linea),
@@ -139,8 +140,7 @@ class TemaApp {
         indicatorShape: forma,
         selectedIconTheme: IconThemeData(color: c.acento),
         unselectedIconTheme: IconThemeData(color: c.tintaSuave),
-        selectedLabelTextStyle:
-            textos.labelMedium?.copyWith(color: c.acento),
+        selectedLabelTextStyle: textos.labelMedium?.copyWith(color: c.acento),
         unselectedLabelTextStyle: textos.labelMedium,
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -155,8 +155,9 @@ class TemaApp {
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((estados) {
           final activo = estados.contains(WidgetState.selected);
-          return textos.labelMedium
-              ?.copyWith(color: activo ? c.acento : c.tintaSuave);
+          return textos.labelMedium?.copyWith(
+            color: activo ? c.acento : c.tintaSuave,
+          );
         }),
       ),
       popupMenuTheme: PopupMenuThemeData(

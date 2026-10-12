@@ -94,9 +94,7 @@ class _CampoValidadoState extends State<CampoValidado> {
           obscureText: widget.obscureText,
           enabled: widget.enabled,
           onChanged: _validar,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(widget.maxLength),
-          ],
+          inputFormatters: [LengthLimitingTextInputFormatter(widget.maxLength)],
           decoration: InputDecoration(
             labelText: widget.label,
             hintText: widget.hintText,

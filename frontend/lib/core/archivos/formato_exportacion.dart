@@ -1,7 +1,10 @@
 /// Formatos en que se puede descargar un listado.
 enum FormatoExportacion {
-  excel('xlsx', 'Excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+  excel(
+    'xlsx',
+    'Excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ),
   pdf('pdf', 'PDF', 'application/pdf'),
   csv('csv', 'CSV', 'text/csv');
 

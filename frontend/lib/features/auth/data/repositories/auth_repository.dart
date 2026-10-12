@@ -27,10 +27,7 @@ class AuthRepository {
   }
 
   Future<void> solicitarRecuperacion(String correo) async {
-    await _dio.post(
-      '/api/auth/olvide-contrasena',
-      data: {'correo': correo},
-    );
+    await _dio.post('/api/auth/olvide-contrasena', data: {'correo': correo});
   }
 
   Future<void> restablecerContrasena({
