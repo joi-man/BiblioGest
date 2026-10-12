@@ -5,6 +5,7 @@ from typing import Callable, Dict
 from fastapi import HTTPException, status
 
 from app.core import reloj
+from app.servicios.exportacion.csv_exportador import a_csv
 from app.servicios.exportacion.excel_exportador import a_excel
 from app.servicios.exportacion.pdf_exportador import a_pdf
 from app.servicios.exportacion.tabla_exportable import TablaExportable
@@ -24,6 +25,7 @@ FORMATOS: Dict[str, FormatoExportacion] = {
         a_excel,
     ),
     "pdf": FormatoExportacion("pdf", "application/pdf", a_pdf),
+    "csv": FormatoExportacion("csv", "text/csv; charset=utf-8", a_csv),
 }
 
 
