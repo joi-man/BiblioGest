@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.sql import Select
 from app.core.paginacion import paginar
 from fastapi import HTTPException, status
@@ -78,12 +78,16 @@ def obtener_usuario_por_id(db: Session, usuario_id: UUID) -> Optional[Usuario]:
 
 
 def obtener_usuario_por_correo(db: Session, correo_electronico: str) -> Optional[Usuario]:
-    """Obtener un usuario por correo electronico."""
+    """Obtener un usuario por correo electronico, sin distinguir mayusculas.
+
+    Los teclados de los telefonos suelen poner la primera letra en mayuscula, y
+    un correo no cambia por eso.
+    """
     stmt = select(Usuario).where(
-        Usuario.correo_electronico == correo_electronico,
+        func.lower(Usuario.correo_electronico) == correo_electronico.strip().lower(),
         Usuario.eliminado == False
     )
-    return db.execute(stmt).scalar_one_or_none()
+    return db.execute(stmt).scalars().first()
 
 
 def obtener_usuario_por_username(db: Session, username: str) -> Optional[Usuario]:

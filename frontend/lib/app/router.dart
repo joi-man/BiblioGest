@@ -5,6 +5,8 @@ import '../core/local/modo_local.dart';
 import '../core/platform/plataforma.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../features/materials/presentation/screens/materials_screen.dart';
+import '../features/materials/presentation/screens/materiales_movil_screen.dart';
+import '../features/student/presentation/screens/perfil_screen.dart';
 import '../features/loans/presentation/screens/loans_screen.dart';
 import '../features/returns/presentation/screens/devoluciones_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
@@ -34,6 +36,9 @@ const _inicioEstudiante = '/estudiante';
 const _rutaSoloMovil = '/solo-movil';
 const _rutaConfiguracionInicial = '/configuracion-inicial';
 const _rutaSincronizacion = '/sync';
+
+/// Pantallas que el personal solo usa desde la web o el escritorio.
+const _rutasSoloEscritorio = ['/users', '/categories', _rutaSincronizacion];
 
 /// Página sin animación de transición, usada dentro del marco de navegación.
 Page<void> _paginaSinTransicion(Widget pantalla) {
@@ -69,6 +74,11 @@ String? _redireccionar(BuildContext context, GoRouterState state) {
       return ubicacion == _rutaSoloMovil ? null : _rutaSoloMovil;
     }
     return ubicacion.startsWith(_inicioEstudiante) ? null : _inicioEstudiante;
+  }
+
+  // En el teléfono el personal solo tiene lo esencial; el resto vuelve al inicio.
+  if (esDispositivoMovil && _rutasSoloEscritorio.any(ubicacion.startsWith)) {
+    return _inicioPersonal;
   }
 
   // Personal de la biblioteca
@@ -129,8 +139,16 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/materials',
           name: 'materials',
+          pageBuilder: (context, state) => _paginaSinTransicion(
+            // En el teléfono el inventario es solo de consulta.
+            esDispositivoMovil ? const MaterialesMovilScreen() : const MaterialsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/perfil',
+          name: 'perfil',
           pageBuilder: (context, state) =>
-              _paginaSinTransicion(const MaterialsScreen()),
+              _paginaSinTransicion(const PerfilScreen()),
         ),
         GoRoute(
           path: '/loans',

@@ -64,6 +64,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             TextFormField(
               controller: _correoController,
               keyboardType: TextInputType.emailAddress,
+              textCapitalization: TextCapitalization.none,
+              autocorrect: false,
+              enableSuggestions: false,
               decoration: const InputDecoration(
                 labelText: 'Correo electronico',
                 prefixIcon: Icon(Icons.mail_outline),

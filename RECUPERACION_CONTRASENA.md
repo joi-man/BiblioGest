@@ -18,6 +18,10 @@ Permite que un usuario restablezca su contraseña recibiendo un **código de 6 d
 
 Validaciones: `codigo` son exactamente 6 dígitos; `nueva_contrasena` mínimo 6 caracteres.
 
+## Correo sin distinguir mayúsculas
+
+El correo se busca **sin distinguir mayúsculas** (al recuperar la contraseña y al iniciar sesión). Los teclados de los teléfonos ponen la primera letra en mayúscula, y `Ana@correo.com` es el mismo correo que `ana@correo.com`. Los campos de correo de la app también desactivan la mayúscula automática y el autocorrector. Si a pesar de eso un correo no llega, revisa que el correo escrito sea exactamente el que está registrado en el usuario: por seguridad el servidor responde igual exista o no la cuenta, así que no avisa si no la encuentra (queda una línea en el registro del servidor: "Recuperacion pedida para un correo no registrado, inactivo o eliminado").
+
 ## Reglas de seguridad
 
 - **No revela qué correos existen:** `olvide-contrasena` responde igual exista o no la cuenta (si no existe, simplemente no envía nada).

@@ -100,4 +100,33 @@ void main() {
       expect(find.text('Mis reservas'), findsWidgets);
     });
   });
+
+  testWidgets('el personal en el movil tiene solo lo esencial y no entra a Usuarios', (tester) async {
+    await _enPlataforma(TargetPlatform.android, tester, () async {
+      authStateNotifier.iniciarSesion('bibliotecario');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Préstamos'), findsWidgets);
+      expect(find.text('Devoluciones'), findsWidgets);
+      expect(find.text('Materiales'), findsWidgets);
+      expect(find.text('Perfil'), findsWidgets);
+      expect(find.text('Usuarios'), findsNothing);
+      expect(find.text('Categorías'), findsNothing);
+
+      appRouter.go('/users');
+      await tester.pumpAndSettle();
+      expect(find.text('Inicio'), findsWidgets);
+      expect(find.text('Usuarios'), findsNothing);
+    });
+  });
+
+  testWidgets('el personal en escritorio sigue viendo todo el menu', (tester) async {
+    await _enPlataforma(TargetPlatform.windows, tester, () async {
+      authStateNotifier.iniciarSesion('admin');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Usuarios'), findsWidgets);
+      expect(find.text('Categorías'), findsWidgets);
+    });
+  });
 }
