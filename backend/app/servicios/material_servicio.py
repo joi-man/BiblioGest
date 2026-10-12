@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -7,7 +7,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import Select
 
-from app.core.constantes_inventario import ESTADO_DISPONIBLE
+from app.core.constantes_inventario import ESTADO_DISPONIBLE, ESTADO_FUERA_DE_SERVICIO
 from app.core.paginacion import paginar
 from app.core.utilidades_modelo import aplicar_cambios
 from app.esquemas.material import MaterialActualizar, MaterialCrear
@@ -32,6 +32,8 @@ def _consulta_materiales(
     estado: Optional[str] = None,
     categoria_id: Optional[UUID] = None,
     solo_disponibles: bool = False,
+    tipos: Optional[Sequence[str]] = None,
+    ocultar_fuera_de_servicio: bool = False,
 ) -> Select:
     """Arma la consulta de materiales no eliminados con los filtros indicados.
 
@@ -40,6 +42,8 @@ def _consulta_materiales(
     - `estado`: estado exacto del material.
     - `categoria_id`: solo materiales de esa categoria.
     - `solo_disponibles`: solo unidades prestables y disponibles ahora.
+    - `tipos`: solo materiales de alguno de estos tipos (catalogo del estudiante).
+    - `ocultar_fuera_de_servicio`: excluye las unidades fuera de servicio.
     """
     # selectinload evita una consulta por fila al leer la categoria (listados y exportaciones).
     consulta = (
@@ -62,6 +66,10 @@ def _consulta_materiales(
         )
     if tipo:
         consulta = consulta.where(Material.tipo_material == tipo)
+    if tipos is not None:
+        consulta = consulta.where(Material.tipo_material.in_(tipos))
+    if ocultar_fuera_de_servicio:
+        consulta = consulta.where(Material.estado != ESTADO_FUERA_DE_SERVICIO)
     if estado:
         consulta = consulta.where(Material.estado == estado)
     if categoria_id:
@@ -83,9 +91,13 @@ def listar_materiales(
     solo_disponibles: bool = False,
     categoria_id: Optional[UUID] = None,
     limite: Optional[int] = None,
+    tipos: Optional[Sequence[str]] = None,
+    ocultar_fuera_de_servicio: bool = False,
 ) -> List[Material]:
     """Lista los materiales no eliminados, con filtros y tope opcionales."""
-    consulta = _consulta_materiales(texto, tipo, estado, categoria_id, solo_disponibles)
+    consulta = _consulta_materiales(
+        texto, tipo, estado, categoria_id, solo_disponibles, tipos, ocultar_fuera_de_servicio
+    )
     if limite is not None:
         consulta = consulta.limit(limite)
     return list(db.execute(consulta).scalars().all())

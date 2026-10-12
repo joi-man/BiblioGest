@@ -1,10 +1,10 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import select, or_
 from fastapi import HTTPException, status
 from app.modelos.usuario import Usuario
-from app.core.seguridad import verificar_contrasena, crear_token_acceso
+from app.core.seguridad import hashear_contrasena, verificar_contrasena, crear_token_acceso
 from app.core.config import configuracion
 from app.servicios import bitacora_servicio
 
@@ -72,3 +72,31 @@ def crear_token_usuario(usuario: Usuario) -> str:
     }
     tiempo_expiracion = timedelta(minutes=configuracion.EXPIRACION_TOKEN_MINUTOS)
     return crear_token_acceso(datos_token, tiempo_expiracion)
+
+
+def cambiar_contrasena(
+    db: Session,
+    usuario: Usuario,
+    contrasena_actual: str,
+    nueva_contrasena: str,
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None,
+) -> bool:
+    """Cambia la contrasena de `usuario`. Devuelve False si la actual no coincide."""
+    if not verificar_contrasena(contrasena_actual, usuario.contrasena_hash):
+        return False
+
+    usuario.contrasena_hash = hashear_contrasena(nueva_contrasena)
+    usuario.fecha_actualizacion = datetime.utcnow()
+    db.commit()
+
+    bitacora_servicio.registrar_accion(
+        db=db,
+        usuario_id=usuario.id,
+        accion="PASSWORD_CHANGE",
+        tabla_afectada="usuarios",
+        registro_id=usuario.id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+    return True

@@ -1,11 +1,12 @@
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import obtener_db
 from app.esquemas.prestamo_cabecera import (
+    CesionPeticion,
     EntregaPeticion,
     PrestamoDirectoCrear,
     PrestamoRespuesta,
@@ -15,6 +16,8 @@ from app.modelos.usuario import Usuario
 from app.rutas.dependencias_prestamos import personal_requerido, vencimientos_al_dia
 from app.servicios.prestamos import (
     aprobacion_servicio,
+    aviso_prestamo_servicio,
+    cesion_servicio,
     consulta_prestamo_servicio,
     entrega_servicio,
     solicitud_servicio,
@@ -70,22 +73,52 @@ def obtener_prestamo(
 @router.post("/{prestamo_id}/aprobar", response_model=PrestamoRespuesta)
 def aprobar_solicitud(
     prestamo_id: UUID,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(obtener_db),
     personal: Usuario = Depends(personal_requerido),
 ):
-    """Aprueba una solicitud pendiente y reserva las unidades."""
-    return aprobacion_servicio.aprobar(db, prestamo_id, personal)
+    """Aprueba una solicitud pendiente y reserva las unidades. Avisa al estudiante por correo."""
+    prestamo = aprobacion_servicio.aprobar(db, prestamo_id, personal)
+    background_tasks.add_task(
+        aviso_prestamo_servicio.enviar, aviso_prestamo_servicio.aviso_aprobacion(prestamo)
+    )
+    return prestamo
 
 
 @router.post("/{prestamo_id}/rechazar", response_model=PrestamoRespuesta)
 def rechazar_solicitud(
     prestamo_id: UUID,
     datos: RechazoPeticion,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(obtener_db),
     personal: Usuario = Depends(personal_requerido),
 ):
-    """Rechaza una solicitud pendiente indicando el motivo."""
-    return aprobacion_servicio.rechazar(db, prestamo_id, personal, datos.motivo)
+    """Rechaza una solicitud pendiente indicando el motivo. Avisa al estudiante por correo."""
+    prestamo = aprobacion_servicio.rechazar(db, prestamo_id, personal, datos.motivo)
+    background_tasks.add_task(
+        aviso_prestamo_servicio.enviar, aviso_prestamo_servicio.aviso_rechazo(prestamo)
+    )
+    return prestamo
+
+
+@router.post("/{prestamo_id}/ceder", response_model=PrestamoRespuesta)
+def ceder_reserva(
+    prestamo_id: UUID,
+    datos: CesionPeticion,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(obtener_db),
+    personal: Usuario = Depends(personal_requerido),
+):
+    """Presta una reserva aprobada a otra persona (caso excepcional, con motivo).
+
+    Cancela la reserva original, avisa a quien reservo (con el motivo) y devuelve
+    el nuevo prestamo, ya entregado.
+    """
+    reserva, nuevo = cesion_servicio.ceder_reserva(db, prestamo_id, personal, datos)
+    background_tasks.add_task(
+        aviso_prestamo_servicio.enviar, aviso_prestamo_servicio.aviso_cesion(reserva)
+    )
+    return nuevo
 
 
 @router.post("/{prestamo_id}/entregar", response_model=PrestamoRespuesta)

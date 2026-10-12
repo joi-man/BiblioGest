@@ -94,3 +94,17 @@ class EntregaPeticion(BaseModel):
 
     # Si se indica, reemplaza el plazo calculado de todos los items.
     fecha_devolucion_esperada: Optional[FechaUTC] = None
+
+
+class CesionPeticion(BaseModel):
+    """Presta una reserva aprobada a otra persona (caso excepcional).
+
+    El motivo es obligatorio: se le muestra y se le envia por correo a quien
+    habia reservado.
+    """
+
+    usuario_id: UUID
+    motivo: str = Field(..., min_length=10, max_length=500)
+    # Si se indica, reemplaza el plazo calculado de todos los items.
+    fecha_devolucion_esperada: Optional[FechaUTC] = None
+    omitir_validaciones_usuario: bool = False
