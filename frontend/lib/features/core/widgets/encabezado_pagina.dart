@@ -36,6 +36,8 @@ class EncabezadoPagina extends StatelessWidget {
     );
 
     return Container(
+      // Ocupa todo el ancho: si no, en pantallas angostas el título queda centrado.
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: colores.linea)),

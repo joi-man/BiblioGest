@@ -2,7 +2,7 @@
 
 BiblioGest para Android es la aplicación **de los estudiantes**: consultan los libros y revistas de la biblioteca, ven su estado real y los reservan. Funciona **solo conectada al servidor de internet**, igual que la versión web; no tiene modo offline ni base de datos propia.
 
-El personal (bibliotecarios y administradores) sigue usando la web o el ejecutable de Windows. En la v1 la app móvil es **solo para estudiantes**.
+La app es un **complemento** del sistema: simple y rápida para lo del día a día. El personal (bibliotecarios y administradores) también puede entrar, con una versión reducida (ver [Personal en el móvil](#personal-en-el-móvil)); la gestión completa, los reportes y las exportaciones se hacen desde la web o el ejecutable de Windows.
 
 ## Qué puede hacer el estudiante
 
@@ -26,6 +26,20 @@ El estudiante ve siempre el estado real, con textos pensados para él:
 | **Fuera de servicio** | No se presta por ahora | No |
 
 En el detalle de cada material se explica por qué no se puede reservar.
+
+## Personal en el móvil
+
+Un bibliotecario o administrador que entra desde el teléfono ve un menú inferior con **lo esencial para atender el mostrador**:
+
+| Sección | Qué puede hacer en el móvil |
+|---|---|
+| **Inicio** | Los indicadores de lo que requiere atención (solicitudes por revisar, reservas por retirar, vencidos...) |
+| **Préstamos** | Aprobar, rechazar (con motivo), entregar, cancelar y **prestar una reserva a otra persona**; registrar un préstamo directo |
+| **Devoluciones** | Registrar devoluciones |
+| **Materiales** | **Solo consultar**: buscar por título, código, autor o marca y filtrar por estado |
+| **Perfil** | Cambiar contraseña, modo oscuro, actualizaciones y cerrar sesión |
+
+**Solo en la web o el escritorio:** usuarios, categorías, registrar/editar/eliminar materiales, **exportaciones a Excel y PDF** (reportes), grillas completas con paginación y la sincronización del ejecutable. Si alguien abre esas direcciones en el móvil, vuelve al Inicio. La decisión de qué va al móvil está en `app/shell_navegacion.dart` (`destinosPersonalMovil`) y en `app/router.dart` (`_rutasSoloEscritorio`).
 
 ## Reservas: de principio a fin
 
@@ -115,6 +129,7 @@ Al pulsar *Actualizar ahora*: descarga el APK, verifica su tamaño y SHA-256 con
 
 | Pieza | Dónde |
 |---|---|
+| Menú y pantallas del personal en el móvil | `app/shell_navegacion.dart`, `app/router.dart`, `features/materials/presentation/screens/materiales_movil_screen.dart` |
 | Pantallas del estudiante | `frontend/lib/features/student/presentation/screens/` (`shell_estudiante`, `catalogo_screen`, `mis_solicitudes_screen`, `perfil_screen`) |
 | Estado del material para el estudiante | `student/presentation/widgets/chip_estado_estudiante.dart` |
 | Catálogo + copia guardada | `student/presentation/providers/catalogo_provider.dart`, `student/data/catalogo_cache.dart` |
@@ -176,7 +191,7 @@ En el emulador, `localhost` es el propio emulador: tu PC es `10.0.2.2`. Las comp
 
 **Funcionales**
 
-- **Solo estudiantes.** El personal no tiene una vista pensada para el móvil (la web funciona en pantallas angostas, pero no está optimizada).
+- **El personal tiene una versión reducida.** Sin reportes ni exportaciones, sin gestión de usuarios, categorías ni materiales (el inventario es solo de consulta). Todo eso solo está en la web y el escritorio, a propósito, para que la app siga siendo simple.
 - **Solo libros y revistas.** Los equipos y medios los presta el personal en el mostrador; no se pueden ver ni reservar desde la app.
 - **Sin modo offline de escritura.** Sin conexión solo se consulta la copia guardada del catálogo, cuyo estado puede estar desactualizado. Reservar, cancelar y cambiar la contraseña necesitan conexión; nada se guarda "para después". Si nunca se abrió el catálogo con conexión, no hay copia que mostrar.
 - **Una reserva no bloquea el material mientras está pendiente.** El material solo pasa a *Reservado* cuando el bibliotecario aprueba. Dos estudiantes pueden tener solicitudes pendientes del mismo libro; se aprueba la primera y la otra falla al aprobarse.

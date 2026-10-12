@@ -287,3 +287,31 @@ def test_cambiar_la_contrasena_exige_sesion(cliente):
     )
 
     assert respuesta.status_code in (401, 403)
+
+
+# ---------------------------------------------------------------------------
+# El correo no distingue mayusculas (los teclados del telefono las ponen solos)
+# ---------------------------------------------------------------------------
+def test_recuperar_la_contrasena_funciona_aunque_el_correo_se_escriba_con_mayusculas(
+    cliente, estudiante, monkeypatch
+):
+    enviados = []
+    monkeypatch.setattr(
+        "app.servicios.email_servicio.enviar_correo",
+        lambda destino, asunto, cuerpo: enviados.append((destino, cuerpo)) or True,
+    )
+
+    respuesta = cliente.post("/api/auth/olvide-contrasena", json={"correo": "Ana@prueba.com"})
+
+    assert respuesta.status_code == 200
+    assert [d for d, _ in enviados] == ["ana@prueba.com"]
+    assert "codigo de recuperacion es" in enviados[0][1]
+
+
+def test_iniciar_sesion_con_el_correo_en_mayusculas(cliente, estudiante):
+    respuesta = cliente.post(
+        "/api/auth/login",
+        json={"correo_o_usuario": "ANA@Prueba.com", "contrasena": "Clave12345"},
+    )
+
+    assert respuesta.status_code == 200

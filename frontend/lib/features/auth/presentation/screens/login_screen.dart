@@ -74,6 +74,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           children: [
             TextFormField(
               controller: _correoController,
+              keyboardType: TextInputType.emailAddress,
+              textCapitalization: TextCapitalization.none,
+              autocorrect: false,
+              enableSuggestions: false,
               decoration: const InputDecoration(
                 labelText: 'Correo o usuario',
                 prefixIcon: Icon(Icons.person_outline),
