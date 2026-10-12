@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import configuracion
-from app.core.constantes_inventario import ESTADO_DISPONIBLE
+from app.core.constantes_inventario import ESTADO_DISPONIBLE, TIPOS_BIBLIOGRAFICOS
+from app.core.constantes_roles import ROLES_PERSONAL
 from app.core.constantes_prestamo import (
     ESTADOS_QUE_OCUPAN_UNIDADES,
     PRESTAMO_PENDIENTE,
@@ -88,4 +89,19 @@ def validar_materiales_disponibles(materiales: Sequence[Material]) -> None:
             raise _conflicto(
                 f"'{material.titulo}' ({material.codigo}) no esta disponible "
                 f"(estado: {material.estado})"
+            )
+
+
+def validar_materiales_para_solicitante(usuario: Usuario, materiales: Sequence[Material]) -> None:
+    """Un estudiante solo puede solicitar libros y revistas.
+
+    Los equipos (proyectores, laptops...) los presta el personal en el mostrador.
+    """
+    if usuario.rol in ROLES_PERSONAL:
+        return
+    for material in materiales:
+        if material.tipo_material not in TIPOS_BIBLIOGRAFICOS:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"'{material.titulo}' no se puede solicitar desde la aplicacion; pidelo en la biblioteca",
             )

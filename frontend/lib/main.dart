@@ -8,6 +8,7 @@ import 'app/arranque.dart';
 import 'app/pantalla_arranque.dart';
 import 'core/actualizaciones/actualizaciones_provider.dart';
 import 'core/local/modo_local.dart';
+import 'core/local/preferencias_seguras.dart';
 import 'core/sesion/sesion_guardada.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'app/auth_state.dart';
@@ -18,7 +19,7 @@ Future<void> main() async {
   // Se cargan antes de arrancar para que el tema y las fechas en español
   // funcionen desde el primer cuadro.
   await initializeDateFormatting('es');
-  final preferencias = await SharedPreferences.getInstance();
+  final preferencias = await cargarPreferencias();
   final version = (await PackageInfo.fromPlatform()).version;
   await _arrancar(preferencias, version);
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/actualizaciones/actualizaciones_provider.dart';
 import 'package:frontend/core/actualizaciones/decision.dart';
+import 'package:frontend/core/platform/plataforma.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 
 /// Versión instalada, búsqueda manual de actualizaciones y opción de instalarlas solas.
@@ -54,15 +55,17 @@ class TarjetaActualizaciones extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 8),
-            SwitchListTile(
-              value: estado.automatica,
-              onChanged: notifier.fijarAutomatica,
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Instalar actualizaciones automáticamente'),
-              subtitle: const Text(
-                'Al abrir BiblioGest se descargan e instalan solas. Las obligatorias siempre se piden.',
+            // En Android el sistema siempre pide confirmar la instalación: no hay modo automático.
+            if (!esAndroid)
+              SwitchListTile(
+                value: estado.automatica,
+                onChanged: notifier.fijarAutomatica,
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Instalar actualizaciones automáticamente'),
+                subtitle: const Text(
+                  'Al abrir BiblioGest se descargan e instalan solas. Las obligatorias siempre se piden.',
+                ),
               ),
-            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,

@@ -2,43 +2,47 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 
 import 'instalador_actualizaciones_base.dart';
 import 'manifiesto.dart';
 import 'version_app.dart';
 
-/// Instalador para el ejecutable de Windows.
+/// Instalador de actualizaciones para el sistema donde corre la aplicación:
+/// el ejecutable de Windows o la app de Android.
 ///
 /// [carpetaDescargas] existe para las pruebas; por defecto es
-/// `%LOCALAPPDATA%\BiblioGest\actualizaciones`, junto a los datos de la biblioteca.
-InstaladorActualizaciones crearInstaladorActualizaciones({String? carpetaDescargas}) =>
-    _InstaladorWindows(carpetaDescargas);
+/// `%LOCALAPPDATA%\BiblioGest\actualizaciones` en Windows (junto a los datos de
+/// la biblioteca) y la carpeta de caché de la app en Android.
+InstaladorActualizaciones crearInstaladorActualizaciones({String? carpetaDescargas}) {
+  if (Platform.isAndroid) return _InstaladorAndroid(carpetaDescargas);
+  return _InstaladorWindows(carpetaDescargas);
+}
 
-class _InstaladorWindows implements InstaladorActualizaciones {
-  _InstaladorWindows(this._carpetaIndicada);
+/// Lo común a ambos sistemas: guardar la descarga verificada y limpiar las viejas.
+/// Cada uno decide dónde guarda los archivos y cómo se instalan.
+abstract class _InstaladorDescargable implements InstaladorActualizaciones {
+  _InstaladorDescargable(this._carpetaIndicada);
 
   final String? _carpetaIndicada;
 
-  @override
-  bool get disponible => Platform.isWindows;
+  /// Nombre de los archivos descargados, con la versión en el primer grupo.
+  RegExp get _formatoArchivo;
 
-  Directory get _carpeta {
-    if (_carpetaIndicada != null) return Directory(_carpetaIndicada);
-    final base = Platform.environment['LOCALAPPDATA'] ?? Directory.systemTemp.path;
-    final s = Platform.pathSeparator;
-    return Directory('$base${s}BiblioGest${s}actualizaciones');
-  }
+  Future<Directory> _carpetaPorDefecto();
+
+  Future<Directory> _carpeta() async =>
+      _carpetaIndicada != null ? Directory(_carpetaIndicada) : _carpetaPorDefecto();
 
   @override
   Future<void> limpiarDescargas(String versionActual) async {
     final actual = VersionApp.intentar(versionActual);
-    final carpeta = _carpeta;
+    final carpeta = await _carpeta();
     if (actual == null || !await carpeta.exists()) return;
-    final formato = RegExp(r'^BiblioGest-Setup-(\d+\.\d+\.\d+)\.exe$');
     await for (final entrada in carpeta.list()) {
       if (entrada is! File) continue;
       final nombre = entrada.uri.pathSegments.last;
-      final version = VersionApp.intentar(formato.firstMatch(nombre)?.group(1));
+      final version = VersionApp.intentar(_formatoArchivo.firstMatch(nombre)?.group(1));
       // Todo lo que no sea el instalador de una versión posterior (parciales,
       // instaladores ya aplicados, archivos ajenos) sobra.
       if (version == null || version <= actual) {
@@ -53,7 +57,7 @@ class _InstaladorWindows implements InstaladorActualizaciones {
 
   @override
   Future<String> descargar(Manifiesto manifiesto, {required void Function(double) alProgreso}) async {
-    final carpeta = _carpeta;
+    final carpeta = await _carpeta();
     await carpeta.create(recursive: true);
     final destino = File('${carpeta.path}${Platform.pathSeparator}${manifiesto.nombreArchivo}');
 
@@ -104,6 +108,24 @@ class _InstaladorWindows implements InstaladorActualizaciones {
     final huella = await sha256.bind(archivo.openRead()).first;
     return huella.toString() == manifiesto.sha256;
   }
+}
+
+/// Instalador para el ejecutable de Windows.
+class _InstaladorWindows extends _InstaladorDescargable {
+  _InstaladorWindows(super.carpetaIndicada);
+
+  @override
+  bool get disponible => Platform.isWindows;
+
+  @override
+  RegExp get _formatoArchivo => RegExp(r'^BiblioGest-Setup-(\d+\.\d+\.\d+)\.exe$');
+
+  @override
+  Future<Directory> _carpetaPorDefecto() async {
+    final base = Platform.environment['LOCALAPPDATA'] ?? Directory.systemTemp.path;
+    final s = Platform.pathSeparator;
+    return Directory('$base${s}BiblioGest${s}actualizaciones');
+  }
 
   @override
   Future<void> instalar(String ruta, {required Future<void> Function() cerrarBackend}) async {
@@ -127,5 +149,48 @@ class _InstaladorWindows implements InstaladorActualizaciones {
   Future<void> salir({required Future<void> Function() cerrarBackend}) async {
     await cerrarBackend();
     exit(0);
+  }
+}
+
+/// Instalador para la app de Android.
+///
+/// La descarga queda en la carpeta de caché de la app y se entrega al
+/// instalador del sistema (ver `MainActivity.kt`), que pide confirmar a la
+/// persona. Android solo acepta la actualización si el APK está firmado con la
+/// misma clave que la app instalada.
+class _InstaladorAndroid extends _InstaladorDescargable implements ContinuaTrasInstalar {
+  _InstaladorAndroid(super.carpetaIndicada);
+
+  static const _canal = MethodChannel('com.bibliogest.app/actualizaciones');
+
+  @override
+  bool get disponible => Platform.isAndroid;
+
+  @override
+  RegExp get _formatoArchivo => RegExp(r'^BiblioGest-(\d+\.\d+\.\d+)\.apk$');
+
+  @override
+  Future<Directory> _carpetaPorDefecto() async {
+    final ruta = await _canal.invokeMethod<String>('carpeta');
+    return Directory(ruta!);
+  }
+
+  @override
+  Future<void> instalar(String ruta, {required Future<void> Function() cerrarBackend}) async {
+    final puedeInstalar = await _canal.invokeMethod<bool>('puedeInstalar') ?? false;
+    if (!puedeInstalar) {
+      // Android exige que la persona autorice, una vez, a BiblioGest a instalar apps.
+      await _canal.invokeMethod<void>('pedirPermisoInstalar');
+      throw const ErrorInstalacion(
+        'Para actualizar, permite que BiblioGest instale aplicaciones en la pantalla '
+        'que se abrió. Luego vuelve y pulsa Actualizar otra vez.',
+      );
+    }
+    await _canal.invokeMethod<void>('instalar', {'ruta': ruta});
+  }
+
+  @override
+  Future<void> salir({required Future<void> Function() cerrarBackend}) async {
+    await SystemNavigator.pop();
   }
 }

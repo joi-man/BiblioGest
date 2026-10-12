@@ -17,18 +17,32 @@ class MisSolicitudesScreen extends ConsumerWidget {
   bool _sePuedeCancelar(Prestamo p) =>
       p.estado == EstadoPrestamo.pendiente || p.estado == EstadoPrestamo.aprobado;
 
+  /// Una solicitud rechazada o cancelada se puede pedir de nuevo.
+  bool _sePuedeVolverAReservar(Prestamo p) =>
+      p.estado == EstadoPrestamo.rechazado || p.estado == EstadoPrestamo.cancelado;
+
+  Future<void> _volverAReservar(BuildContext context, WidgetRef ref, Prestamo prestamo) async {
+    await ejecutarAccion(
+      context,
+      () => ref
+          .read(accionesPrestamoProvider)
+          .solicitar([for (final d in prestamo.detalles) d.material.id]),
+      exito: 'Reserva enviada. El bibliotecario la revisará y te avisaremos',
+    );
+  }
+
   Future<void> _cancelar(BuildContext context, WidgetRef ref, Prestamo prestamo) async {
     final confirmado = await confirmarEliminar(
       context,
-      titulo: 'Cancelar solicitud',
-      mensaje: '¿Quieres cancelar esta solicitud?',
+      titulo: 'Cancelar reserva',
+      mensaje: '¿Quieres cancelar esta reserva?',
     );
     if (!confirmado || !context.mounted) return;
 
     await ejecutarAccion(
       context,
       () => ref.read(accionesPrestamoProvider).cancelarPropia(prestamo.id),
-      exito: 'Solicitud cancelada',
+      exito: 'Reserva cancelada',
     );
   }
 
@@ -37,15 +51,15 @@ class MisSolicitudesScreen extends ConsumerWidget {
     final solicitudes = ref.watch(misSolicitudesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis solicitudes')),
+      appBar: AppBar(title: const Text('Mis reservas')),
       body: ValorAsincrono(
         valor: solicitudes,
         alReintentar: () => ref.invalidate(misSolicitudesProvider),
         construir: (lista) {
           if (lista.isEmpty) {
             return const EstadoVacio(
-              titulo: 'Aún no has pedido nada',
-              detalle: 'Busca en el catálogo y solicita lo que necesites.',
+              titulo: 'Aún no has reservado nada',
+              detalle: 'Busca en el catálogo y reserva lo que necesites.',
               icono: Icons.assignment_outlined,
             );
           }
@@ -64,9 +78,14 @@ class MisSolicitudesScreen extends ConsumerWidget {
                   botonesPersonalizados: _sePuedeCancelar(prestamo)
                       ? OutlinedButton(
                           onPressed: () => _cancelar(context, ref, prestamo),
-                          child: const Text('Cancelar solicitud'),
+                          child: const Text('Cancelar reserva'),
                         )
-                      : null,
+                      : _sePuedeVolverAReservar(prestamo)
+                          ? FilledButton(
+                              onPressed: () => _volverAReservar(context, ref, prestamo),
+                              child: const Text('Volver a reservar'),
+                            )
+                          : null,
                 );
               },
             ),

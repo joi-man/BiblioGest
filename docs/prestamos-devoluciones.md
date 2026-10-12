@@ -45,6 +45,12 @@ pendiente --aprobar--> aprobado --entregar--> activo <--> vencido --> devuelto
 | `vencido` | Entregado y pasado de plazo | Sistema |
 | `devuelto` | Todos los items fueron devueltos | Personal |
 
+### Ceder una reserva a otra persona
+
+Caso excepcional: un material **reservado** (`aprobado`) para alguien se presta a otra persona (por ejemplo, un docente lo necesita ahora para una clase). El bibliotecario usa **Prestar a otra persona** sobre la reserva e indica un **motivo** obligatorio (mínimo 10 caracteres).
+
+En una sola transacción: la reserva original pasa a `cancelado` con ese motivo, las unidades se liberan y se entregan a la otra persona como un préstamo `activo` (con sus reglas habituales: usuario activo, sin vencidos, dentro del límite; el personal puede omitirlas con `omitir_validaciones_usuario`). Si el nuevo préstamo no es posible, nada cambia. A quien reservó se le avisa por correo y ve el motivo en su app. Queda en la bitácora (`RESERVA_CEDIDA`, `PRESTAMO_POR_CESION`). Solo se puede ceder una reserva aprobada que aún no se retiró.
+
 ### Atajos para el mostrador
 
 - **Entregar ahora** sobre una solicitud `pendiente` la aprueba y entrega en un solo paso.
@@ -72,6 +78,8 @@ Se validan al solicitar o registrar un préstamo directo (configurables, ver aba
 - No puede superar `MAX_PRESTAMOS_ACTIVOS` items entre pendientes, reservados y entregados.
 - Cada material debe ser prestable y estar disponible.
 
+**Un estudiante solo puede solicitar libros y revistas.** El catálogo (`GET /api/materiales/`) le devuelve solo esos tipos y sin las unidades fuera de servicio, y `POST /api/solicitudes/` rechaza con 403 cualquier otro. Los equipos y medios los presta el personal (solicitud a su nombre o préstamo directo).
+
 Dos personas no pueden reservar la misma unidad: al aprobar se bloquea la fila del material (en PostgreSQL) y se verifica que siga disponible.
 
 ## Multas (opcionales)
@@ -81,6 +89,10 @@ Están **desactivadas por defecto** (`MULTAS_HABILITADAS=False`). Con ellas apag
 - `MULTA_POR_DIA_RETRASO` × días de retraso.
 - `MULTA_DANO_MENOR` o `MULTA_DANO_MAYOR` según la condición.
 - El `valor_referencial` del material si se perdió.
+
+## Avisos por correo
+
+Al **aprobar**, **rechazar** o **ceder** una reserva, el servidor le envía un correo al estudiante (con los materiales y, si aplica, el motivo). Se envían en segundo plano después de responder, así que un SMTP lento o caído nunca retrasa ni rompe la operación. Requieren `SMTP_CLAVE` en el servidor (ver [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md)). En el ejecutable de Windows sin clave de correo no se envían.
 
 ## Configuración
 
@@ -110,12 +122,14 @@ Todas las rutas requieren sesión. Las de personal exigen rol `admin` o `bibliot
 | `POST /api/prestamos/directo` | Personal | Préstamo en mostrador, ya entregado |
 | `POST /api/prestamos/{id}/aprobar` | Personal | Aprueba y reserva |
 | `POST /api/prestamos/{id}/rechazar` | Personal | Rechaza con `motivo` |
+| `POST /api/prestamos/{id}/ceder` | Personal | Cancela una reserva aprobada (con `motivo`) y presta el material a `usuario_id` |
 | `POST /api/prestamos/{id}/entregar` | Personal | Entrega (aprueba antes si estaba pendiente) |
 | `POST /api/prestamos/{id}/cancelar` | Personal | Cancela |
 | `GET /api/devoluciones/pendientes` | Personal | Préstamos con material por recibir (`q` opcional) |
 | `POST /api/devoluciones/{prestamo_id}` | Personal | Registra la devolución de uno o más items |
 | `GET /api/dashboard/resumen` | Personal | Métricas del inicio |
-| `GET /api/materiales/` | Cualquier usuario | Inventario: `q`, `tipo`, `estado`, `disponible` |
+| `GET /api/materiales/` | Cualquier usuario | Inventario: `q`, `tipo`, `estado`, `disponible`. Al estudiante solo le devuelve libros y revistas |
+| `POST /api/auth/cambiar-contrasena` | Cualquier usuario | Cambia la contraseña de la sesión (ver [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md)) |
 
 La documentación interactiva está en `http://localhost:8000/docs`.
 
@@ -123,7 +137,7 @@ La documentación interactiva está en `http://localhost:8000/docs`.
 
 **Personal (web y escritorio):** Inicio (métricas), Materiales, **Préstamos** (Solicitudes · Por retirar · En préstamo · Historial), **Devoluciones**, Usuarios y Categorías.
 
-**Estudiante (solo móvil):** Catálogo con búsqueda, filtros y selección de varios materiales; Mis solicitudes (con cancelación); Perfil con modo oscuro. En web o escritorio un estudiante ve un aviso para usar la app móvil. Para probar su vista en el navegador durante el desarrollo:
+**Estudiante (solo móvil):** Catálogo de libros y revistas con búsqueda, filtros, estado real y selección de varios materiales; Mis reservas (con cancelación y "volver a reservar"); Perfil con modo oscuro, cambio de contraseña y actualizaciones. Detalle en [app-movil.md](app-movil.md). En web o escritorio un estudiante ve un aviso para usar la app móvil. Para probar su vista en el navegador durante el desarrollo:
 
 ```bash
 flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true

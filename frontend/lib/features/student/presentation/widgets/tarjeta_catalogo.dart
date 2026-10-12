@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/tipografia_app.dart';
-import 'package:frontend/features/core/widgets/chip_estado.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/student/presentation/widgets/chip_estado_estudiante.dart';
 
 /// Un material del catálogo, tal como lo ve el estudiante.
 class TarjetaCatalogo extends StatelessWidget {
@@ -80,7 +80,7 @@ class TarjetaCatalogo extends StatelessWidget {
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        ChipEstado(estado: material.estado.valor),
+                        ChipEstadoEstudiante(estado: material.estado),
                         const SizedBox(width: 8),
                         Text(
                           material.codigo,

@@ -90,7 +90,7 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1          # Windows PowerShell
 pip install -r requirements.txt
-python -m pytest                      # 70 pruebas, no necesitan base de datos
+python -m pytest                      # pruebas sin base de datos (SQLite en memoria)
 ```
 
 ### 4. Frontend
@@ -100,7 +100,7 @@ cd frontend
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs   # modelos Freezed
 flutter run -d chrome                 # personal de la biblioteca (web)
-flutter test                          # 35 pruebas
+flutter test
 ```
 
 Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
@@ -114,6 +114,15 @@ Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
 
 Funciona sin internet, solo en el equipo o conectado a un servidor (internet o red privada). Requisitos y funcionamiento en [docs/ejecutable-offline.md](docs/ejecutable-offline.md).
 
+### 6. App de Android
+
+```powershell
+.\scripts\crear_keystore.ps1                                          # una sola vez: clave de firma
+.\scripts\construir_apk.ps1 -ApiUrl https://tu-api.onrender.com      # -> build\apk\BiblioGest-<version>.apk
+```
+
+Es la app de los estudiantes (catálogo de libros y revistas, reservas): funciona conectada al servidor, se actualiza desde la propia app y se descarga desde la página de inicio de sesión de la web. Requisitos y funcionamiento en [docs/app-movil.md](docs/app-movil.md).
+
 ---
 
 ## 📖 Documentación
@@ -123,6 +132,9 @@ Funciona sin internet, solo en el equipo o conectado a un servidor (internet o r
 | [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
 | [docs/listados-paginados-exportacion.md](docs/listados-paginados-exportacion.md) | Grillas paginadas con búsqueda, filtros y exportación a Excel/PDF |
 | [docs/ejecutable-offline.md](docs/ejecutable-offline.md) | Ejecutable de Windows: modo offline, sincronización, red privada e instalador |
+| [docs/app-movil.md](docs/app-movil.md) | App de Android para estudiantes: reservas, cesión, avisos, reconexión, catálogo sin conexión, firma y distribución |
+| [docs/actualizaciones.md](docs/actualizaciones.md) | Actualizaciones desde la propia app (Windows y Android) y cómo publicar una versión |
+| [docs/iconos.md](docs/iconos.md) | Iconos de todas las plataformas y cómo regenerarlos |
 | [docs/diseno-sistema.md](docs/diseno-sistema.md) | Sistema de diseño (paleta, tipografía, modo oscuro, componentes) |
 | [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md) | Recuperación de contraseña por correo |
 

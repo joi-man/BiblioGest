@@ -7,6 +7,8 @@ docs/*
 !docs/listados-paginados-exportacion.md
 !docs/ejecutable-offline.md
 !docs/actualizaciones.md
+!docs/app-movil.md
+!docs/iconos.md
 *.docx
 
 # Environment and Secret files

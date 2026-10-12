@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../local/modo_local.dart';
+import '../platform/plataforma.dart';
 import '../theme/modo_tema_provider.dart';
 import 'clave_publica.dart';
 import 'cliente_actualizaciones.dart';
@@ -23,9 +24,10 @@ final versionAppProvider = Provider<String>((ref) {
 /// Cierra el backend local antes de instalar. `main` lo reemplaza por el real.
 final cerrarBackendProvider = Provider<Future<void> Function()>((ref) => () async {});
 
-/// Si las actualizaciones aplican a esta ejecución: solo el ejecutable instalado
-/// (con backend propio), no `flutter run` ni la web.
-final actualizacionesHabilitadasProvider = Provider<bool>((ref) => modoLocalNotifier.activo);
+/// Si las actualizaciones aplican a esta ejecución: el ejecutable instalado
+/// (con backend propio) y la app de Android; no `flutter run` en escritorio ni la web.
+final actualizacionesHabilitadasProvider =
+    Provider<bool>((ref) => modoLocalNotifier.activo || esAndroid);
 
 final instaladorActualizacionesProvider =
     Provider<InstaladorActualizaciones>((ref) => crearInstaladorActualizaciones());
@@ -33,7 +35,7 @@ final instaladorActualizacionesProvider =
 final clienteActualizacionesProvider = Provider<ClienteActualizaciones>((ref) {
   return ClienteActualizaciones(
     dio: Dio(),
-    urlManifiesto: urlManifiestoActualizaciones,
+    urlManifiesto: esAndroid ? urlManifiestoActualizacionesAndroid : urlManifiestoActualizaciones,
     clavePublica: clavePublicaActualizaciones,
   );
 });
@@ -110,7 +112,7 @@ class EstadoActualizacion {
   }
 }
 
-/// Busca, descarga e instala actualizaciones del ejecutable de Windows.
+/// Busca, descarga e instala actualizaciones del ejecutable de Windows y de la app de Android.
 class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
   ActualizacionesNotifier({
     required this.versionInstalada,
@@ -249,6 +251,11 @@ class ActualizacionesNotifier extends StateNotifier<EstadoActualizacion> {
       );
       state = state.copyWith(fase: FaseActualizacion.instalando, progreso: 1);
       await instalador.instalar(ruta, cerrarBackend: cerrarBackend);
+      // En Windows la aplicación se cierra al instalar. En Android el instalador del
+      // sistema se abre encima: si la persona lo cancela, la app debe poder reintentar.
+      if (instalador is ContinuaTrasInstalar) {
+        state = state.copyWith(fase: FaseActualizacion.disponible, avisoPendiente: false);
+      }
     } on ErrorInstalacion catch (error) {
       state = state.copyWith(
         fase: FaseActualizacion.error,

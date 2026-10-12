@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/actualizaciones/actualizaciones_provider.dart';
 import 'package:frontend/core/actualizaciones/decision.dart';
+import 'package:frontend/core/platform/plataforma.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 
 /// Texto, progreso y botones de una actualización pendiente.
@@ -53,7 +54,9 @@ class ContenidoActualizacion extends ConsumerWidget {
         Text(
           obligatoria
               ? 'Esta actualización es obligatoria: la versión que tienes ya no es compatible.'
-              : 'Tus datos no se tocan. La aplicación se cerrará un momento y se volverá a abrir sola.',
+              : esDispositivoMovil
+                  ? 'Android te pedirá confirmar la instalación. Tus datos no se tocan.'
+                  : 'Tus datos no se tocan. La aplicación se cerrará un momento y se volverá a abrir sola.',
           style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
         ),
         if (ocupado) ...[

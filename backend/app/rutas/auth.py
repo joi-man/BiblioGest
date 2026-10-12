@@ -6,6 +6,7 @@ from app.core.config import configuracion
 from app.core.database import es_modo_local, obtener_db
 from app.core.dependencias import obtener_usuario_actual
 from app.esquemas.auth import (
+    CambiarContrasenaRequest,
     CodigoExternoRequest,
     LoginRequest,
     LoginResponse,
@@ -31,6 +32,8 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticacion"])
 # Limites del envio de codigos pedidos por equipos con el ejecutable: por correo y en total.
 _limite_por_correo = LimitadorPorClave(maximo=3, segundos=15 * 60)
 _limite_global = LimitadorPorClave(maximo=60, segundos=60 * 60)
+# Intentos de cambio de contrasena por usuario (frena adivinar la actual con una sesion robada).
+_limite_cambio_contrasena = LimitadorPorClave(maximo=10, segundos=15 * 60)
 
 MENSAJE_CODIGO = "Si el correo esta registrado, recibiras un codigo de recuperacion."
 
@@ -197,6 +200,40 @@ def restablecer_contrasena(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Codigo invalido o expirado",
+        )
+    return MensajeRespuesta(mensaje="Contrasena actualizada correctamente")
+
+
+@router.post("/cambiar-contrasena", response_model=MensajeRespuesta)
+def cambiar_contrasena(
+    datos: CambiarContrasenaRequest,
+    request: Request,
+    db: Session = Depends(obtener_db),
+    usuario: Usuario = Depends(obtener_usuario_actual),
+):
+    """Cambiar la contrasena de la sesion actual, comprobando la contrasena actual."""
+    if not _limite_cambio_contrasena.permitir(str(usuario.id)):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Demasiados intentos. Intenta de nuevo en unos minutos.",
+        )
+    if datos.nueva_contrasena == datos.contrasena_actual:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contrasena debe ser distinta de la actual",
+        )
+    ok = auth_servicio.cambiar_contrasena(
+        db=db,
+        usuario=usuario,
+        contrasena_actual=datos.contrasena_actual,
+        nueva_contrasena=datos.nueva_contrasena,
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contrasena actual no es correcta",
         )
     return MensajeRespuesta(mensaje="Contrasena actualizada correctamente")
 
