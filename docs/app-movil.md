@@ -174,12 +174,41 @@ En el emulador, `localhost` es el propio emulador: tu PC es `10.0.2.2`. Las comp
 
 ## Limitaciones conocidas
 
+**Funcionales**
+
 - **Solo estudiantes.** El personal no tiene una vista pensada para el móvil (la web funciona en pantallas angostas, pero no está optimizada).
-- **Sin notificaciones push.** Los avisos son por correo y por la app abierta. Con la app cerrada, el estudiante se entera por el correo.
-- **Sin modo offline de escritura.** Sin conexión solo se consulta la copia del catálogo.
+- **Solo libros y revistas.** Los equipos y medios los presta el personal en el mostrador; no se pueden ver ni reservar desde la app.
+- **Sin modo offline de escritura.** Sin conexión solo se consulta la copia guardada del catálogo, cuyo estado puede estar desactualizado. Reservar, cancelar y cambiar la contraseña necesitan conexión; nada se guarda "para después". Si nunca se abrió el catálogo con conexión, no hay copia que mostrar.
+- **Una reserva no bloquea el material mientras está pendiente.** El material solo pasa a *Reservado* cuando el bibliotecario aprueba. Dos estudiantes pueden tener solicitudes pendientes del mismo libro; se aprueba la primera y la otra falla al aprobarse.
+- **Solo se puede ceder una reserva aprobada** (no una pendiente ni un préstamo ya entregado), y la cesión cancela toda la reserva, no solo un item.
 - **Solo Android.** No hay versión para iPhone.
-- **Sesión de 60 minutos:** al vencer hay que iniciar sesión otra vez.
-- **El APK no se puede instalar si el teléfono bloquea fuentes desconocidas** (algunos teléfonos de empresa).
+- **Sesión de 60 minutos.** Al vencer hay que iniciar sesión otra vez (`EXPIRACION_TOKEN_MINUTOS`).
+
+**Avisos**
+
+- **Solo por correo; sin notificaciones push.** Con la app cerrada, el estudiante se entera por el correo. Dentro de la app, el aviso aparece al refrescarse (cada 30 s o al volver a abrirla).
+- **Depende del servidor de correo.** Sin `SMTP_CLAVE` en el servidor no sale ningún correo. Si el envío falla, la operación del bibliotecario igual se completa (solo queda el error en el registro del servidor) y no se reintenta.
+- **No se envían correos si el bibliotecario trabaja desde el ejecutable sin conexión** y sincroniza después: el cambio llega al servidor, pero el correo se genera al ejecutar la acción en el servidor, no al sincronizar. El estudiante igual lo ve en la app.
+- Las horas de los correos van en UTC.
+
+**Conexión**
+
+- **Escrituras con tiempo agotado no se reintentan** (pudieron llegar al servidor); se muestra el error y la persona decide.
+- **El servidor gratuito de Render duerme** tras un rato sin uso: la primera petición puede tardar cerca de un minuto, y la app lo trata como un corte de conexión (franja de "Reconectando").
+
+**Instalación y actualizaciones**
+
+- **El APK no está en Google Play.** Hay que permitir "instalar apps de esta fuente" (una vez), y algunos teléfonos de empresa bloquean las fuentes desconocidas. Algunos teléfonos muestran el aviso de Play Protect al instalar un APK de fuera de la tienda.
+- **Cada actualización pide confirmar** en el instalador de Android; no hay actualización automática ni se puede omitir ese paso.
+- **La clave de firma no se puede recuperar.** Si se pierde `bibliogest-release.jks` o su contraseña, los teléfonos instalados no podrán actualizar y habrá que desinstalar e instalar otra vez.
+- **Un solo Release por versión con los archivos de Windows y de Android.** Si falta alguno, esa plataforma deja de encontrar actualizaciones o su botón de descarga da error 404. Los enlaces fijos de la web (`BiblioGest.apk`, `BiblioGest-Setup.exe`) solo funcionan desde el primer Release que los incluya.
+- **Reversión:** no hay vuelta atrás automática; Android además no deja instalar una versión menor sobre una mayor. Para retirar una versión mala, publica una nueva con número mayor.
+
+**Compilación**
+
+- **Espacio en disco:** Gradle descarga el NDK y otras piezas; hacen falta unos 10 GB libres, y la compilación falla con "Espacio en disco insuficiente" si no los hay.
+- **Aviso de Gradle:** al compilar aparece un aviso de que el plugin `shared_preferences_android` aplica el plugin de Kotlin (KGP). No impide compilar; versiones futuras de Flutter podrían exigir actualizar ese plugin.
+- **Iconos:** salen de un dibujo de 96 px, así que los grandes se ven algo suaves (ver [iconos.md](iconos.md)).
 
 ## Pruebas
 
