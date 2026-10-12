@@ -24,6 +24,7 @@ def enviar_correo(destino: str, asunto: str, cuerpo: str) -> bool:
             servidor.starttls()
             servidor.login(configuracion.SMTP_USUARIO, configuracion.SMTP_CLAVE)
             servidor.send_message(mensaje)
+        logger.info("Correo enviado a %s: %s", destino, asunto)
         return True
     except Exception:
         logger.exception("Error enviando correo a %s", destino)
