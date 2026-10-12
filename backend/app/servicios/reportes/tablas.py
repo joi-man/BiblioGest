@@ -10,6 +10,10 @@ from app.servicios.exportacion.tabla_exportable import TablaExportable
 from app.servicios.exportacion.texto_listado import describir_filtros, etiqueta, texto
 from app.servicios.reportes.consultas import FiltrosReporte
 
+# Nombres que ve el personal (los mismos de la aplicacion).
+_ESTADOS = {"aprobado": "Por retirar", "activo": "En préstamo", "vencido": "Vencido"}
+_CONDICIONES = {"bueno": "Bueno", "dano_menor": "Daño menor", "dano_mayor": "Daño mayor", "perdido": "Perdido"}
+
 # Las fechas se guardan y se muestran en UTC (hora del servidor).
 _FORMATO_FECHA = "%d/%m/%Y %H:%M"
 
@@ -39,7 +43,7 @@ def _describir(filtros: FiltrosReporte, total: int, **extra: Optional[object]) -
 # ---------------------------------------------------------------------------
 COLUMNAS_PRESTAMOS = [
     "Solicitud", "Persona", "Documento", "Materiales", "Estado",
-    "Entrega", "Limite de devolucion", "Devolucion",
+    "Entrega", "Límite de devolución", "Devolución",
 ]
 
 
@@ -50,16 +54,16 @@ def tabla_de_prestamos(prestamos: Sequence[PrestamoCabecera], filtros: FiltrosRe
             _persona(p),
             p.usuario.numero_documento,
             _materiales(p),
-            etiqueta(p.estado),
+            _ESTADOS.get(p.estado, etiqueta(p.estado)),
             _fecha(p.fecha_prestamo),
             _fecha(p.fecha_devolucion_esperada),
             _fecha(p.fecha_devolucion_real),
         ]
         for p in prestamos
     ]
-    estados = ", ".join(etiqueta(e) for e in filtros.estados) or None
+    estados = ", ".join(_ESTADOS.get(e, etiqueta(e)) for e in filtros.estados) or None
     return TablaExportable(
-        titulo="Reporte de prestamos - BiblioGest",
+        titulo="Reporte de préstamos - BiblioGest",
         columnas=COLUMNAS_PRESTAMOS,
         filas=filas,
         descripcion=_describir(filtros, total, estado=estados),
@@ -68,8 +72,8 @@ def tabla_de_prestamos(prestamos: Sequence[PrestamoCabecera], filtros: FiltrosRe
 
 # ---------------------------------------------------------------------------
 COLUMNAS_VENCIDOS = [
-    "Persona", "Documento", "Correo", "Telefono", "Materiales pendientes",
-    "Fecha limite", "Dias de atraso",
+    "Persona", "Documento", "Correo", "Teléfono", "Materiales pendientes",
+    "Fecha límite", "Días de atraso",
 ]
 
 
@@ -95,7 +99,7 @@ def tabla_de_vencidos(prestamos: Sequence[PrestamoCabecera], filtros: FiltrosRep
         for p in prestamos
     ]
     return TablaExportable(
-        titulo="Prestamos vencidos - BiblioGest",
+        titulo="Préstamos vencidos - BiblioGest",
         columnas=COLUMNAS_VENCIDOS,
         filas=filas,
         descripcion=_describir(filtros, total),
@@ -106,10 +110,10 @@ def tabla_de_vencidos(prestamos: Sequence[PrestamoCabecera], filtros: FiltrosRep
 def tabla_de_devoluciones(devoluciones: Sequence[Devolucion], filtros: FiltrosReporte, total: int) -> TablaExportable:
     # La multa solo existe cuando el sistema de multas esta activado.
     con_multa = configuracion.MULTAS_HABILITADAS
-    columnas = ["Fecha", "Persona", "Documento", "Material", "Codigo", "Condicion", "Dias de retraso"]
+    columnas = ["Fecha", "Persona", "Documento", "Material", "Código", "Condición", "Días de retraso"]
     if con_multa:
         columnas.append("Multa")
-    columnas.append("Recibio")
+    columnas.append("Recibió")
 
     filas = []
     for d in devoluciones:
@@ -121,7 +125,7 @@ def tabla_de_devoluciones(devoluciones: Sequence[Devolucion], filtros: FiltrosRe
             persona.numero_documento,
             detalle.material.titulo,
             detalle.material.codigo,
-            etiqueta(d.condicion),
+            _CONDICIONES.get(d.condicion, etiqueta(d.condicion)),
             str(d.dias_retraso),
         ]
         if con_multa:
@@ -133,5 +137,5 @@ def tabla_de_devoluciones(devoluciones: Sequence[Devolucion], filtros: FiltrosRe
         titulo="Reporte de devoluciones - BiblioGest",
         columnas=columnas,
         filas=filas,
-        descripcion=_describir(filtros, total, condicion=etiqueta(filtros.condicion) or None),
+        descripcion=_describir(filtros, total, condicion=_CONDICIONES.get(filtros.condicion or "") or None),
     )
