@@ -88,6 +88,22 @@ class PrestamoRepository {
     return Prestamo.fromJson(respuesta.data);
   }
 
+  /// Cancela una reserva aprobada y presta el material a otra persona.
+  /// Devuelve el préstamo nuevo, ya entregado.
+  Future<Prestamo> ceder(
+    String id, {
+    required String usuarioId,
+    required String motivo,
+    bool omitirValidacionesUsuario = false,
+  }) async {
+    final respuesta = await _dio.post('/api/prestamos/$id/ceder', data: {
+      'usuario_id': usuarioId,
+      'motivo': motivo,
+      'omitir_validaciones_usuario': omitirValidacionesUsuario,
+    });
+    return Prestamo.fromJson(respuesta.data);
+  }
+
   // ---------------------------------------------------------------------
   // Usuario sobre sus propias solicitudes (app móvil del estudiante)
   // ---------------------------------------------------------------------

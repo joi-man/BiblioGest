@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/local/modo_local.dart';
 import '../core/theme/colores_app.dart';
+import '../features/core/widgets/boton_cambiar_contrasena.dart';
 import '../features/core/widgets/boton_cerrar_sesion.dart';
 import '../features/core/widgets/boton_modo_tema.dart';
 import '../features/sincronizacion/presentation/widgets/indicador_conexion.dart';
@@ -143,6 +144,7 @@ class ShellNavegacion extends ConsumerWidget {
                     children: [
                       IndicadorConexion(),
                       BotonModoTema(),
+                      BotonCambiarContrasena(),
                       BotonCerrarSesion(),
                     ],
                   ),

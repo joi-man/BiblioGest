@@ -7,10 +7,13 @@ import 'package:frontend/core/theme/colores_estado.dart';
 /// Usa un punto de color y texto, sin relleno saturado, para mantener el
 /// aspecto sobrio del sistema.
 class ChipEstado extends StatelessWidget {
-  const ChipEstado({super.key, required this.estado});
+  const ChipEstado({super.key, required this.estado, this.etiqueta});
 
   /// Estado tal como lo entrega el backend (por ejemplo `disponible`).
   final String estado;
+
+  /// Texto a mostrar; por defecto, el de [ColoresEstado.etiqueta].
+  final String? etiqueta;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,7 @@ class ChipEstado extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            ColoresEstado.etiqueta(estado),
+            etiqueta ?? ColoresEstado.etiqueta(estado),
             style: Theme.of(context)
                 .textTheme
                 .labelMedium

@@ -2,9 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/api_constants.dart';
 import '../local/modo_local.dart';
+import '../platform/plataforma.dart';
+import 'estado_conexion.dart';
+import 'reintento_interceptor.dart';
 
 final dioClientProvider = Provider<DioClient>((ref) {
-  return DioClient(ref.watch(urlApiProvider));
+  // En el móvil, un corte de internet no debe mostrar un error al primer fallo.
+  return DioClient(ref.watch(urlApiProvider), reintentar: esDispositivoMovil);
 });
 
 class DioClient {
@@ -15,7 +19,9 @@ class DioClient {
   void Function()? alSesionExpirada;
 
   /// [baseUrl] es la dirección de la API (el backend local o el servidor).
-  DioClient(String baseUrl) {
+  /// Con [reintentar], las fallas de red se reintentan con esperas crecientes
+  /// antes de avisar (ver [ReintentoInterceptor]).
+  DioClient(String baseUrl, {bool reintentar = false}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -31,6 +37,7 @@ class DioClient {
     _dio.interceptors.addAll([
       _AuthInterceptor(() => alSesionExpirada),
       _LogInterceptor(),
+      if (reintentar) ReintentoInterceptor(_dio, estadoConexion),
     ]);
   }
 

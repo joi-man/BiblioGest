@@ -133,3 +133,16 @@ El instalador es público, así que **no lleva la clave del correo**. El equipo 
 4. El usuario escribe el código en el equipo, que lo valida contra su base local.
 
 Requiere que la cuenta exista también en el servidor (equipos sincronizados). Un equipo con `SMTP_CLAVE` propia (variable de entorno o `%LOCALAPPDATA%\BiblioGest\correo.env`) envía el correo directamente y no necesita internet.
+
+## Cambiar la contraseña con la sesión iniciada
+
+Distinto de recuperarla: es para quien **sabe** su contraseña y quiere cambiarla. Está disponible en todas las plataformas (web, Windows y Android) y para todos los roles: en **Perfil** (móvil), en el menú lateral (escritorio y web) y en el encabezado de **Inicio**.
+
+| Método | Ruta | Cuerpo | Respuesta |
+|---|---|---|---|
+| POST | `/api/auth/cambiar-contrasena` | `{ "contrasena_actual", "nueva_contrasena" }` (requiere sesión) | `200` si se cambió; `400` si la actual no es correcta o la nueva es igual; `422` si la nueva tiene menos de 6 caracteres; `429` tras 10 intentos en 15 minutos |
+
+- Siempre se comprueba la contraseña actual (una sesión abierta en un teléfono ajeno no basta para cambiarla).
+- Se registra en la bitácora como `PASSWORD_CHANGE`.
+- Las sesiones ya abiertas siguen valiendo hasta que venzan (60 minutos).
+- En el ejecutable de Windows el cambio se hace en la base local y viaja al servidor con la sincronización.

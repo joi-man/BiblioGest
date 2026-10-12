@@ -2,11 +2,13 @@ import 'package:frontend/features/loans/data/models/prestamo.dart';
 
 /// JSON con la forma exacta que devuelve el backend (`PrestamoRespuesta`).
 Map<String, dynamic> jsonPrestamo({
+  String id = 'p-1',
   String estado = 'pendiente',
   List<Map<String, dynamic>>? detalles,
+  String? motivoRechazo,
 }) {
   return {
-    'id': 'p-1',
+    'id': id,
     'estado': estado,
     'usuario': {
       'id': 'u-1',
@@ -28,7 +30,7 @@ Map<String, dynamic> jsonPrestamo({
     'aprobado_por': null,
     'entregado_por': null,
     'observaciones': null,
-    'motivo_rechazo': null,
+    'motivo_rechazo': motivoRechazo,
   };
 }
 
@@ -56,8 +58,12 @@ Map<String, dynamic> jsonDetalle({
 }
 
 Prestamo prestamoDePrueba({
+  String id = 'p-1',
   String estado = 'pendiente',
   List<Map<String, dynamic>>? detalles,
+  String? motivoRechazo,
 }) {
-  return Prestamo.fromJson(jsonPrestamo(estado: estado, detalles: detalles));
+  return Prestamo.fromJson(
+    jsonPrestamo(id: id, estado: estado, detalles: detalles, motivoRechazo: motivoRechazo),
+  );
 }

@@ -6,6 +6,9 @@ bool get esDispositivoMovil =>
     (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS);
 
+/// Indica si la aplicación corre en Android (la app móvil que se actualiza sola).
+bool get esAndroid => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
 /// Permite probar la vista de estudiante en web o escritorio durante el
 /// desarrollo: `flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true`.
 const bool _permitirEstudianteEnEscritorio =

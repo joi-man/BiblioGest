@@ -16,3 +16,18 @@ const String urlManifiestoActualizaciones = String.fromEnvironment(
   defaultValue:
       'https://github.com/joi-man/BiblioGest-releases/releases/latest/download/latest.json',
 );
+
+/// Manifiesto de la app de Android: mismo formato y misma clave de firma, pero
+/// con el APK. Va en el mismo Release que el instalador de Windows.
+const String urlManifiestoActualizacionesAndroid = String.fromEnvironment(
+  'URL_ACTUALIZACIONES_ANDROID',
+  defaultValue:
+      'https://github.com/joi-man/BiblioGest-releases/releases/latest/download/latest-android.json',
+);
+
+/// Enlaces fijos de descarga (siempre apuntan a la última versión publicada),
+/// que se muestran en la web para instalar las demás aplicaciones.
+const String urlDescargaWindows =
+    'https://github.com/joi-man/BiblioGest-releases/releases/latest/download/BiblioGest-Setup.exe';
+const String urlDescargaAndroid =
+    'https://github.com/joi-man/BiblioGest-releases/releases/latest/download/BiblioGest.apk';

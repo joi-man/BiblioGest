@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/archivos/formato_exportacion.dart';
 import 'package:frontend/core/modelos/pagina_resultado.dart';
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:frontend/core/network/reintento_interceptor.dart';
 import '../models/material.dart';
 import '../models/material_etiquetas.dart';
 
@@ -20,11 +21,15 @@ class MaterialRepository {
   final Dio _dio;
 
   /// Lista materiales. Todos los filtros son opcionales.
+  ///
+  /// Con [sinReintento], si falla la red no se reintenta (ver `ReintentoInterceptor`):
+  /// útil cuando hay datos guardados que mostrar mientras tanto.
   Future<List<MaterialBiblioteca>> listar({
     String? texto,
     TipoMaterial? tipo,
     EstadoMaterial? estado,
     bool soloDisponibles = false,
+    bool sinReintento = false,
   }) async {
     final respuesta = await _dio.get(
       '/api/materiales/',
@@ -34,6 +39,7 @@ class MaterialRepository {
         if (estado != null) 'estado': estado.valor,
         if (soloDisponibles) 'disponible': true,
       },
+      options: sinReintento ? Options(extra: {extraSinReintento: true}) : null,
     );
     return (respuesta.data as List)
         .map((json) => MaterialBiblioteca.fromJson(json))
