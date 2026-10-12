@@ -33,10 +33,12 @@ class AccionesPrestamo {
       _ejecutarYRefrescar(() => _prestamos.rechazar(id, motivo));
 
   Future<void> entregar(String id, {DateTime? fechaDevolucionEsperada}) =>
-      _ejecutarYRefrescar(() => _prestamos.entregar(
-            id,
-            fechaDevolucionEsperada: fechaDevolucionEsperada,
-          ));
+      _ejecutarYRefrescar(
+        () => _prestamos.entregar(
+          id,
+          fechaDevolucionEsperada: fechaDevolucionEsperada,
+        ),
+      );
 
   Future<void> cancelar(String id) =>
       _ejecutarYRefrescar(() => _prestamos.cancelar(id));
@@ -47,13 +49,14 @@ class AccionesPrestamo {
     required String usuarioId,
     required String motivo,
     bool omitirValidacionesUsuario = false,
-  }) =>
-      _ejecutarYRefrescar(() => _prestamos.ceder(
-            id,
-            usuarioId: usuarioId,
-            motivo: motivo,
-            omitirValidacionesUsuario: omitirValidacionesUsuario,
-          ));
+  }) => _ejecutarYRefrescar(
+    () => _prestamos.ceder(
+      id,
+      usuarioId: usuarioId,
+      motivo: motivo,
+      omitirValidacionesUsuario: omitirValidacionesUsuario,
+    ),
+  );
 
   Future<void> crearDirecto({
     required String usuarioId,
@@ -61,30 +64,35 @@ class AccionesPrestamo {
     String? observaciones,
     DateTime? fechaDevolucionEsperada,
     bool omitirValidacionesUsuario = false,
-  }) =>
-      _ejecutarYRefrescar(() => _prestamos.crearDirecto(
-            usuarioId: usuarioId,
-            materialIds: materialIds,
-            observaciones: observaciones,
-            fechaDevolucionEsperada: fechaDevolucionEsperada,
-            omitirValidacionesUsuario: omitirValidacionesUsuario,
-          ));
+  }) => _ejecutarYRefrescar(
+    () => _prestamos.crearDirecto(
+      usuarioId: usuarioId,
+      materialIds: materialIds,
+      observaciones: observaciones,
+      fechaDevolucionEsperada: fechaDevolucionEsperada,
+      omitirValidacionesUsuario: omitirValidacionesUsuario,
+    ),
+  );
 
   Future<void> registrarDevolucion(
-          String prestamoId, List<ItemADevolver> items) =>
-      _ejecutarYRefrescar(() => _devoluciones.registrar(prestamoId, items));
+    String prestamoId,
+    List<ItemADevolver> items,
+  ) => _ejecutarYRefrescar(() => _devoluciones.registrar(prestamoId, items));
 
   // Acciones del propio usuario (app móvil del estudiante)
 
   Future<void> solicitar(List<String> materialIds, {String? observaciones}) =>
       _ejecutarYRefrescar(
-          () => _prestamos.solicitar(materialIds, observaciones: observaciones));
+        () => _prestamos.solicitar(materialIds, observaciones: observaciones),
+      );
 
   Future<void> cancelarPropia(String id) =>
       _ejecutarYRefrescar(() => _prestamos.cancelarPropia(id));
 
   /// Ejecuta [operacion] y, si no falla, refresca los datos que dependen de ella.
-  Future<void> _ejecutarYRefrescar(Future<Prestamo> Function() operacion) async {
+  Future<void> _ejecutarYRefrescar(
+    Future<Prestamo> Function() operacion,
+  ) async {
     await operacion();
     _refrescarListas();
   }

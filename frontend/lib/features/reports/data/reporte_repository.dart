@@ -66,33 +66,33 @@ class ConsultaReporte {
   }
 
   ConsultaReporte enPagina(int nueva) => ConsultaReporte(
-        desde: desde,
-        hasta: hasta,
-        estado: estado,
-        condicion: condicion,
-        texto: texto,
-        pagina: nueva,
-        tamano: tamano,
-      );
+    desde: desde,
+    hasta: hasta,
+    estado: estado,
+    condicion: condicion,
+    texto: texto,
+    pagina: nueva,
+    tamano: tamano,
+  );
 
   /// Cambia las filas por página y vuelve a la primera.
   ConsultaReporte conTamano(int nuevo) => ConsultaReporte(
-        desde: desde,
-        hasta: hasta,
-        estado: estado,
-        condicion: condicion,
-        texto: texto,
-        tamano: nuevo,
-      );
+    desde: desde,
+    hasta: hasta,
+    estado: estado,
+    condicion: condicion,
+    texto: texto,
+    tamano: nuevo,
+  );
 
   /// Parámetros de filtro, comunes a la consulta y a la exportación.
   Map<String, dynamic> get filtros => {
-        if (desde != null) 'desde': _dia(desde!),
-        if (hasta != null) 'hasta': _dia(hasta!),
-        if (estado != null) 'estado': estado,
-        if (condicion != null) 'condicion': condicion,
-        if (texto.trim().isNotEmpty) 'q': texto.trim(),
-      };
+    if (desde != null) 'desde': _dia(desde!),
+    if (hasta != null) 'hasta': _dia(hasta!),
+    if (estado != null) 'estado': estado,
+    if (condicion != null) 'condicion': condicion,
+    if (texto.trim().isNotEmpty) 'q': texto.trim(),
+  };
 
   /// `2026-10-12`: el backend recibe días, sin hora.
   static String _dia(DateTime fecha) =>
@@ -157,7 +157,10 @@ class ReporteRepository {
 
   final Dio _dio;
 
-  Future<ResultadoReporte> consultar(TipoReporte tipo, ConsultaReporte consulta) async {
+  Future<ResultadoReporte> consultar(
+    TipoReporte tipo,
+    ConsultaReporte consulta,
+  ) async {
     final respuesta = await _dio.get(
       '/api/reportes/${tipo.valor}',
       queryParameters: {

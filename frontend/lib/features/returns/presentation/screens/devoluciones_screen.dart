@@ -52,7 +52,8 @@ class _DevolucionesScreenState extends ConsumerState<DevolucionesScreen> {
             child: BarraBusqueda(
               // Se recrea si cambia el texto inicial, para mostrarlo en el campo.
               key: ValueKey(widget.textoInicial),
-              sugerencia: 'Buscar por nombre, documento, usuario o código del material',
+              sugerencia:
+                  'Buscar por nombre, documento, usuario o código del material',
               alCambiar: (texto) => setState(() => _texto = texto),
               textoInicial: widget.textoInicial,
             ),
@@ -60,7 +61,8 @@ class _DevolucionesScreenState extends ConsumerState<DevolucionesScreen> {
           Expanded(
             child: ValorAsincrono(
               valor: pendientes,
-              alReintentar: () => ref.invalidate(devolucionesPendientesProvider),
+              alReintentar: () =>
+                  ref.invalidate(devolucionesPendientesProvider),
               construir: _lista,
             ),
           ),
@@ -73,7 +75,8 @@ class _DevolucionesScreenState extends ConsumerState<DevolucionesScreen> {
     if (prestamos.isEmpty) {
       return const EstadoVacio(
         titulo: 'Nada por recibir',
-        detalle: 'Aquí aparecen los préstamos entregados que aún no se devuelven.',
+        detalle:
+            'Aquí aparecen los préstamos entregados que aún no se devuelven.',
         icono: Icons.assignment_turned_in_outlined,
       );
     }

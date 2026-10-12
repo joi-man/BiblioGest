@@ -11,30 +11,30 @@ import 'package:frontend/features/materials/data/models/material.dart';
 extension EstadoMaterialParaEstudiante on EstadoMaterial {
   /// Estado que decide el color (el del backend, salvo que "vencido" se ve como "en uso").
   String get valorVisible => switch (this) {
-        EstadoMaterial.vencido => 'prestado',
-        EstadoMaterial.disponible => 'disponible',
-        EstadoMaterial.reservado => 'reservado',
-        EstadoMaterial.prestado => 'prestado',
-        EstadoMaterial.fueraDeServicio => 'fuera_de_servicio',
-      };
+    EstadoMaterial.vencido => 'prestado',
+    EstadoMaterial.disponible => 'disponible',
+    EstadoMaterial.reservado => 'reservado',
+    EstadoMaterial.prestado => 'prestado',
+    EstadoMaterial.fueraDeServicio => 'fuera_de_servicio',
+  };
 
   String get etiquetaEstudiante => switch (this) {
-        EstadoMaterial.disponible => 'Disponible',
-        EstadoMaterial.reservado => 'Reservado',
-        EstadoMaterial.prestado || EstadoMaterial.vencido => 'En uso',
-        EstadoMaterial.fueraDeServicio => 'Fuera de servicio',
-      };
+    EstadoMaterial.disponible => 'Disponible',
+    EstadoMaterial.reservado => 'Reservado',
+    EstadoMaterial.prestado || EstadoMaterial.vencido => 'En uso',
+    EstadoMaterial.fueraDeServicio => 'Fuera de servicio',
+  };
 
   /// Frase que explica por qué no se puede solicitar, o `null` si sí se puede.
   String? get explicacionEstudiante => switch (this) {
-        EstadoMaterial.disponible => null,
-        EstadoMaterial.reservado =>
-          'Otra persona lo tiene reservado y aún no lo retira. Si no lo retira a '
-              'tiempo, volverá a estar disponible.',
-        EstadoMaterial.prestado || EstadoMaterial.vencido =>
-          'Ahora mismo lo tiene otra persona en préstamo.',
-        EstadoMaterial.fueraDeServicio => 'Por ahora no se presta.',
-      };
+    EstadoMaterial.disponible => null,
+    EstadoMaterial.reservado =>
+      'Otra persona lo tiene reservado y aún no lo retira. Si no lo retira a '
+          'tiempo, volverá a estar disponible.',
+    EstadoMaterial.prestado ||
+    EstadoMaterial.vencido => 'Ahora mismo lo tiene otra persona en préstamo.',
+    EstadoMaterial.fueraDeServicio => 'Por ahora no se presta.',
+  };
 }
 
 /// Etiqueta de estado de un material, con los textos pensados para el estudiante.
@@ -45,6 +45,9 @@ class ChipEstadoEstudiante extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChipEstado(estado: estado.valorVisible, etiqueta: estado.etiquetaEstudiante);
+    return ChipEstado(
+      estado: estado.valorVisible,
+      etiqueta: estado.etiquetaEstudiante,
+    );
   }
 }

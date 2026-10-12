@@ -31,7 +31,10 @@ class AvisoConexion extends ConsumerWidget {
               icono: const SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               ),
               mensaje: intento > 0
                   ? 'Se perdió la conexión. Reconectando… (intento $intento de ${estadoConexion.maximo})'
@@ -42,8 +45,13 @@ class AvisoConexion extends ConsumerWidget {
           case FaseConexion.sinConexion:
             return _Franja(
               color: colores.vencido,
-              icono: const Icon(Icons.cloud_off_outlined, size: 18, color: Colors.white),
-              mensaje: 'No pudimos conectar con el servidor. Revisa tu conexión a '
+              icono: const Icon(
+                Icons.cloud_off_outlined,
+                size: 18,
+                color: Colors.white,
+              ),
+              mensaje:
+                  'No pudimos conectar con el servidor. Revisa tu conexión a '
                   'internet; seguimos intentando.',
               estilo: textos.bodySmall,
               accion: TextButton(
@@ -84,7 +92,10 @@ class _Franja extends StatelessWidget {
             icono,
             const SizedBox(width: 12),
             Expanded(
-              child: Text(mensaje, style: estilo?.copyWith(color: Colors.white)),
+              child: Text(
+                mensaje,
+                style: estilo?.copyWith(color: Colors.white),
+              ),
             ),
             if (accion != null) accion!,
           ],

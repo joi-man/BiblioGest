@@ -15,23 +15,33 @@ class MisSolicitudesScreen extends ConsumerWidget {
 
   /// Solo se puede cancelar lo que aún no se entregó.
   bool _sePuedeCancelar(Prestamo p) =>
-      p.estado == EstadoPrestamo.pendiente || p.estado == EstadoPrestamo.aprobado;
+      p.estado == EstadoPrestamo.pendiente ||
+      p.estado == EstadoPrestamo.aprobado;
 
   /// Una solicitud rechazada o cancelada se puede pedir de nuevo.
   bool _sePuedeVolverAReservar(Prestamo p) =>
-      p.estado == EstadoPrestamo.rechazado || p.estado == EstadoPrestamo.cancelado;
+      p.estado == EstadoPrestamo.rechazado ||
+      p.estado == EstadoPrestamo.cancelado;
 
-  Future<void> _volverAReservar(BuildContext context, WidgetRef ref, Prestamo prestamo) async {
+  Future<void> _volverAReservar(
+    BuildContext context,
+    WidgetRef ref,
+    Prestamo prestamo,
+  ) async {
     await ejecutarAccion(
       context,
-      () => ref
-          .read(accionesPrestamoProvider)
-          .solicitar([for (final d in prestamo.detalles) d.material.id]),
+      () => ref.read(accionesPrestamoProvider).solicitar([
+        for (final d in prestamo.detalles) d.material.id,
+      ]),
       exito: 'Reserva enviada. El bibliotecario la revisará y te avisaremos',
     );
   }
 
-  Future<void> _cancelar(BuildContext context, WidgetRef ref, Prestamo prestamo) async {
+  Future<void> _cancelar(
+    BuildContext context,
+    WidgetRef ref,
+    Prestamo prestamo,
+  ) async {
     final confirmado = await confirmarEliminar(
       context,
       titulo: 'Cancelar reserva',
@@ -81,11 +91,12 @@ class MisSolicitudesScreen extends ConsumerWidget {
                           child: const Text('Cancelar reserva'),
                         )
                       : _sePuedeVolverAReservar(prestamo)
-                          ? FilledButton(
-                              onPressed: () => _volverAReservar(context, ref, prestamo),
-                              child: const Text('Volver a reservar'),
-                            )
-                          : null,
+                      ? FilledButton(
+                          onPressed: () =>
+                              _volverAReservar(context, ref, prestamo),
+                          child: const Text('Volver a reservar'),
+                        )
+                      : null,
                 );
               },
             ),

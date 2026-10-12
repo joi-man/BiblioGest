@@ -86,8 +86,11 @@ class Manifiesto {
     final url = Uri.tryParse(requerido('url'));
     // Un instalador solo se descarga por una conexión cifrada. Se admite http
     // únicamente hacia este mismo equipo, para probar sin certificado.
-    final esLocal = url != null && (url.host == 'localhost' || url.host == '127.0.0.1');
-    if (url == null || url.host.isEmpty || !(url.scheme == 'https' || (url.scheme == 'http' && esLocal))) {
+    final esLocal =
+        url != null && (url.host == 'localhost' || url.host == '127.0.0.1');
+    if (url == null ||
+        url.host.isEmpty ||
+        !(url.scheme == 'https' || (url.scheme == 'http' && esLocal))) {
       throw const ErrorManifiesto('La dirección del instalador debe ser https');
     }
 
@@ -104,7 +107,9 @@ class Manifiesto {
     final version0 = version('version');
     final minima = version('minima');
     if (version0 < minima) {
-      throw const ErrorManifiesto('La versión mínima no puede superar a la última');
+      throw const ErrorManifiesto(
+        'La versión mínima no puede superar a la última',
+      );
     }
 
     return Manifiesto(

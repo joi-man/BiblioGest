@@ -14,7 +14,8 @@ class PreferenciasActualizacion {
 
   /// El usuario aceptó instalar las actualizaciones sin preguntar.
   bool get automatica => _preferencias.getBool(_claveAutomatica) ?? false;
-  Future<void> guardarAutomatica(bool valor) => _preferencias.setBool(_claveAutomatica, valor);
+  Future<void> guardarAutomatica(bool valor) =>
+      _preferencias.setBool(_claveAutomatica, valor);
 
   /// Versión cuyo aviso el usuario decidió ignorar (solo si es opcional).
   String? get versionOmitida => _preferencias.getString(_claveOmitida);
@@ -22,7 +23,8 @@ class PreferenciasActualizacion {
       _preferencias.setString(_claveOmitida, version);
 
   /// Última versión que se intentó instalar sin preguntar.
-  String? get versionIntentadaSola => _preferencias.getString(_claveIntentoAutomatico);
+  String? get versionIntentadaSola =>
+      _preferencias.getString(_claveIntentoAutomatico);
   Future<void> guardarIntentoAutomatico(String version) =>
       _preferencias.setString(_claveIntentoAutomatico, version);
 

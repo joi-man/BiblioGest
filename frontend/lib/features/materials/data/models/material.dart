@@ -84,7 +84,8 @@ class MaterialBiblioteca with _$MaterialBiblioteca {
 
   /// Libros y revistas: tienen autor, ISBN y editorial.
   bool get esBibliografico =>
-      tipoMaterial == TipoMaterial.libro || tipoMaterial == TipoMaterial.revista;
+      tipoMaterial == TipoMaterial.libro ||
+      tipoMaterial == TipoMaterial.revista;
 
   /// DVD y CD: tienen formato y duración.
   bool get esMedio =>

@@ -24,8 +24,10 @@ class ReportesScreen extends StatefulWidget {
 
 class _ReportesScreenState extends State<ReportesScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabs =
-      TabController(length: TipoReporte.values.length, vsync: this);
+  late final TabController _tabs = TabController(
+    length: TipoReporte.values.length,
+    vsync: this,
+  );
 
   @override
   void dispose() {
@@ -46,13 +48,16 @@ class _ReportesScreenState extends State<ReportesScreen>
             controller: _tabs,
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            tabs: [for (final tipo in TipoReporte.values) Tab(text: tipo.etiqueta)],
+            tabs: [
+              for (final tipo in TipoReporte.values) Tab(text: tipo.etiqueta),
+            ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabs,
               children: [
-                for (final tipo in TipoReporte.values) _PanelReporte(tipo: tipo),
+                for (final tipo in TipoReporte.values)
+                  _PanelReporte(tipo: tipo),
               ],
             ),
           ),
@@ -82,8 +87,9 @@ class _PanelReporteState extends ConsumerState<_PanelReporte>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final resultado =
-        ref.watch(reporteProvider((tipo: widget.tipo, consulta: _consulta)));
+    final resultado = ref.watch(
+      reporteProvider((tipo: widget.tipo, consulta: _consulta)),
+    );
 
     return Column(
       children: [
@@ -138,10 +144,9 @@ class _PanelReporteState extends ConsumerState<_PanelReporte>
             alignment: Alignment.centerLeft,
             child: Text(
               resultado.descripcion,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: context.colores.tintaSuave),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: context.colores.tintaSuave,
+              ),
             ),
           ),
         ),
@@ -154,7 +159,11 @@ class _PanelReporteState extends ConsumerState<_PanelReporte>
                   titulo: resultado.columnas[i],
                   celda: (fila) => ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 360),
-                    child: Text(fila[i], maxLines: 2, overflow: TextOverflow.ellipsis),
+                    child: Text(
+                      fila[i],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
             ],

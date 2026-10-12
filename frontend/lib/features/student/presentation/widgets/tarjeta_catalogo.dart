@@ -68,15 +68,19 @@ class TarjetaCatalogo extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(material.titulo,
-                        style: textos.titleMedium,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      material.titulo,
+                      style: textos.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 2),
-                    Text(_detalle,
-                        style: textos.bodySmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      _detalle,
+                      style: textos.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
@@ -84,7 +88,10 @@ class TarjetaCatalogo extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           material.codigo,
-                          style: TipografiaApp.codigo(colores.tintaSuave, tamano: 11),
+                          style: TipografiaApp.codigo(
+                            colores.tintaSuave,
+                            tamano: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -93,7 +100,9 @@ class TarjetaCatalogo extends StatelessWidget {
               ),
               if (material.sePuedeSolicitar)
                 IconButton.filledTonal(
-                  tooltip: seleccionado ? 'Quitar de la solicitud' : 'Agregar a la solicitud',
+                  tooltip: seleccionado
+                      ? 'Quitar de la solicitud'
+                      : 'Agregar a la solicitud',
                   onPressed: alAlternarSeleccion,
                   icon: Icon(seleccionado ? Icons.check : Icons.add),
                 ),

@@ -3,7 +3,8 @@ import 'dart:io';
 /// Renombra el archivo de ajustes de Windows a `shared_preferences.json.danado`
 /// para conservarlo y poder empezar con uno nuevo. [carpeta] solo cambia en pruebas.
 Future<void> apartarArchivoDanado({String? carpeta}) async {
-  final base = carpeta ??
+  final base =
+      carpeta ??
       (Platform.isWindows && Platform.environment['APPDATA'] != null
           ? '${Platform.environment['APPDATA']}\com.bibliogest\BiblioGest'
           : null);

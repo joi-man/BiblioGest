@@ -5,7 +5,10 @@ import 'package:frontend/features/loans/data/models/prestamo.dart';
 /// cancelación hecha por la biblioteca.
 ///
 /// Solo compara reservas que ya existían en [antes]; la primera carga no avisa nada.
-List<String> novedadesDeSolicitudes(List<Prestamo> antes, List<Prestamo> ahora) {
+List<String> novedadesDeSolicitudes(
+  List<Prestamo> antes,
+  List<Prestamo> ahora,
+) {
   final estadoAnterior = {for (final p in antes) p.id: p.estado};
   final avisos = <String>[];
 
@@ -26,7 +29,10 @@ List<String> novedadesDeSolicitudes(List<Prestamo> antes, List<Prestamo> ahora) 
           'Tu reserva de $titulo fue rechazada'
           '${motivo == null ? '.' : ': $motivo'}',
         );
-      case (EstadoPrestamo.pendiente || EstadoPrestamo.aprobado, EstadoPrestamo.cancelado)
+      case (
+            EstadoPrestamo.pendiente || EstadoPrestamo.aprobado,
+            EstadoPrestamo.cancelado,
+          )
           when motivo != null:
         avisos.add('Tu reserva de $titulo fue cancelada: $motivo');
       default:

@@ -55,8 +55,8 @@ class ContenidoActualizacion extends ConsumerWidget {
           obligatoria
               ? 'Esta actualización es obligatoria: la versión que tienes ya no es compatible.'
               : esDispositivoMovil
-                  ? 'Android te pedirá confirmar la instalación. Tus datos no se tocan.'
-                  : 'Tus datos no se tocan. La aplicación se cerrará un momento y se volverá a abrir sola.',
+              ? 'Android te pedirá confirmar la instalación. Tus datos no se tocan.'
+              : 'Tus datos no se tocan. La aplicación se cerrará un momento y se volverá a abrir sola.',
           style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
         ),
         if (ocupado) ...[
@@ -70,7 +70,8 @@ class ContenidoActualizacion extends ConsumerWidget {
             style: textos.bodySmall,
           ),
         ],
-        if (estado.fase == FaseActualizacion.error && estado.mensaje != null) ...[
+        if (estado.fase == FaseActualizacion.error &&
+            estado.mensaje != null) ...[
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,11 +91,15 @@ class ContenidoActualizacion extends ConsumerWidget {
           const SizedBox(height: 8),
           CheckboxListTile(
             value: estado.automatica,
-            onChanged: ocupado ? null : (valor) => notifier.fijarAutomatica(valor ?? false),
+            onChanged: ocupado
+                ? null
+                : (valor) => notifier.fijarAutomatica(valor ?? false),
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             dense: true,
-            title: const Text('Instalar las próximas actualizaciones automáticamente'),
+            title: const Text(
+              'Instalar las próximas actualizaciones automáticamente',
+            ),
           ),
         ],
         const SizedBox(height: 8),
@@ -116,7 +121,11 @@ class ContenidoActualizacion extends ConsumerWidget {
             FilledButton.icon(
               onPressed: ocupado ? null : () => notifier.descargarEInstalar(),
               icon: const Icon(Icons.system_update_alt),
-              label: Text(estado.fase == FaseActualizacion.error ? 'Reintentar' : 'Actualizar ahora'),
+              label: Text(
+                estado.fase == FaseActualizacion.error
+                    ? 'Reintentar'
+                    : 'Actualizar ahora',
+              ),
             ),
           ],
         ),
@@ -124,5 +133,6 @@ class ContenidoActualizacion extends ConsumerWidget {
     );
   }
 
-  static String _megabytes(int bytes) => '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  static String _megabytes(int bytes) =>
+      '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
 }

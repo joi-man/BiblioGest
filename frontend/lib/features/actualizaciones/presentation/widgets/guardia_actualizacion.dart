@@ -14,7 +14,8 @@ class GuardiaActualizacion extends ConsumerStatefulWidget {
   final Widget child;
 
   @override
-  ConsumerState<GuardiaActualizacion> createState() => _GuardiaActualizacionState();
+  ConsumerState<GuardiaActualizacion> createState() =>
+      _GuardiaActualizacionState();
 }
 
 class _GuardiaActualizacionState extends ConsumerState<GuardiaActualizacion> {
@@ -59,7 +60,11 @@ class _GuardiaActualizacionState extends ConsumerState<GuardiaActualizacion> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 16),
-                      Flexible(child: ContenidoActualizacion(versionInstalada: versionInstalada)),
+                      Flexible(
+                        child: ContenidoActualizacion(
+                          versionInstalada: versionInstalada,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -91,7 +96,11 @@ class _PantallaObligatoria extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.system_update_alt, size: 48, color: Theme.of(context).colorScheme.primary),
+                Icon(
+                  Icons.system_update_alt,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(height: 16),
                 Text('Actualización obligatoria', style: textos.headlineSmall),
                 const SizedBox(height: 16),

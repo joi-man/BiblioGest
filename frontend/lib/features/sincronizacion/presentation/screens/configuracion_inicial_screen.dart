@@ -14,10 +14,12 @@ class ConfiguracionInicialScreen extends StatefulWidget {
   const ConfiguracionInicialScreen({super.key});
 
   @override
-  State<ConfiguracionInicialScreen> createState() => _ConfiguracionInicialScreenState();
+  State<ConfiguracionInicialScreen> createState() =>
+      _ConfiguracionInicialScreenState();
 }
 
-class _ConfiguracionInicialScreenState extends State<ConfiguracionInicialScreen> {
+class _ConfiguracionInicialScreenState
+    extends State<ConfiguracionInicialScreen> {
   _Paso _paso = _Paso.elegir;
 
   /// El equipo quedó listo: se pasa al inicio de sesión.
@@ -31,54 +33,57 @@ class _ConfiguracionInicialScreenState extends State<ConfiguracionInicialScreen>
   Widget build(BuildContext context) {
     return switch (_paso) {
       _Paso.elegir => PanelAutenticacion(
-          titulo: 'Configura este equipo',
-          subtitulo: 'Elige cómo se usará BiblioGest aquí. Podrás cambiarlo después.',
-          hijo: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _OpcionConfiguracion(
-                icono: Icons.computer_outlined,
-                titulo: 'Usar solo en este equipo',
-                detalle: 'Funciona sin internet ni red. Los datos quedan en esta computadora.',
-                alPulsar: () => setState(() => _paso = _Paso.soloLocal),
-              ),
-              const SizedBox(height: 12),
-              _OpcionConfiguracion(
-                icono: Icons.sync_outlined,
-                titulo: 'Conectar con un servidor',
-                detalle: 'Comparte los datos con otros equipos, en internet o en una red '
-                    'local. Sigue funcionando si se corta la conexión.',
-                alPulsar: () => setState(() => _paso = _Paso.conServidor),
-              ),
-            ],
-          ),
+        titulo: 'Configura este equipo',
+        subtitulo:
+            'Elige cómo se usará BiblioGest aquí. Podrás cambiarlo después.',
+        hijo: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _OpcionConfiguracion(
+              icono: Icons.computer_outlined,
+              titulo: 'Usar solo en este equipo',
+              detalle:
+                  'Funciona sin internet ni red. Los datos quedan en esta computadora.',
+              alPulsar: () => setState(() => _paso = _Paso.soloLocal),
+            ),
+            const SizedBox(height: 12),
+            _OpcionConfiguracion(
+              icono: Icons.sync_outlined,
+              titulo: 'Conectar con un servidor',
+              detalle:
+                  'Comparte los datos con otros equipos, en internet o en una red '
+                  'local. Sigue funcionando si se corta la conexión.',
+              alPulsar: () => setState(() => _paso = _Paso.conServidor),
+            ),
+          ],
         ),
+      ),
       _Paso.soloLocal => PanelAutenticacion(
-          titulo: 'Administrador de este equipo',
-          subtitulo: 'Será la primera persona en iniciar sesión.',
-          hijo: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FormularioAdministradorLocal(
-                alCrear: () => _terminar('Equipo configurado. Inicia sesión.'),
-              ),
-              _botonVolver(),
-            ],
-          ),
+        titulo: 'Administrador de este equipo',
+        subtitulo: 'Será la primera persona en iniciar sesión.',
+        hijo: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FormularioAdministradorLocal(
+              alCrear: () => _terminar('Equipo configurado. Inicia sesión.'),
+            ),
+            _botonVolver(),
+          ],
         ),
+      ),
       _Paso.conServidor => PanelAutenticacion(
-          titulo: 'Conectar con un servidor',
-          subtitulo: 'Usa una cuenta del personal de la biblioteca.',
-          hijo: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FormularioServidor(
-                alConectar: () => _terminar('Datos descargados. Inicia sesión.'),
-              ),
-              _botonVolver(),
-            ],
-          ),
+        titulo: 'Conectar con un servidor',
+        subtitulo: 'Usa una cuenta del personal de la biblioteca.',
+        hijo: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FormularioServidor(
+              alConectar: () => _terminar('Datos descargados. Inicia sesión.'),
+            ),
+            _botonVolver(),
+          ],
         ),
+      ),
     };
   }
 
@@ -127,7 +132,9 @@ class _OpcionConfiguracion extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       detalle,
-                      style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
+                      style: textos.bodySmall?.copyWith(
+                        color: colores.tintaSuave,
+                      ),
                     ),
                   ],
                 ),

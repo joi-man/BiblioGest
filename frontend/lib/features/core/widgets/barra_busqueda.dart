@@ -27,8 +27,9 @@ class BarraBusqueda extends StatefulWidget {
 }
 
 class _BarraBusquedaState extends State<BarraBusqueda> {
-  late final TextEditingController _controlador =
-      TextEditingController(text: widget.textoInicial);
+  late final TextEditingController _controlador = TextEditingController(
+    text: widget.textoInicial,
+  );
   Timer? _temporizador;
 
   @override

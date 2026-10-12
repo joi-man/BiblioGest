@@ -139,10 +139,11 @@ class _Cuadricula extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, restricciones) {
-        final columnas = ((restricciones.maxWidth + _separacion) /
-                (_anchoMinimo + _separacion))
-            .floor()
-            .clamp(1, hijos.length);
+        final columnas =
+            ((restricciones.maxWidth + _separacion) /
+                    (_anchoMinimo + _separacion))
+                .floor()
+                .clamp(1, hijos.length);
         final ancho =
             (restricciones.maxWidth - _separacion * (columnas - 1)) / columnas;
 

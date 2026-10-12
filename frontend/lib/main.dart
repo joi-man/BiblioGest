@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -31,7 +32,11 @@ Future<void> _arrancar(SharedPreferences preferencias, String version) async {
   try {
     final arranque = await prepararArranque();
     // Si se cerró la ventana sin cerrar sesión hace poco, se retoma donde quedó.
-    final sesion = await SesionGuardada(preferencias).restaurar();
+    // En la web la sesión sobrevive a F5 y a nuevas pestañas mientras dure su vigencia.
+    final sesion = await SesionGuardada(
+      preferencias,
+      vigencia: vigenciaSesionWeb,
+    ).restaurar(consumir: !kIsWeb);
     if (sesion != null && !modoLocalNotifier.requiereConfiguracion) {
       authStateNotifier.iniciarSesion(sesion.usuario.rol);
     }
@@ -45,7 +50,9 @@ Future<void> _arrancar(SharedPreferences preferencias, String version) async {
             authStateNotifier.isAuthenticated ? sesion : null,
           ),
           // El instalador necesita cerrar el backend local para reemplazar sus archivos.
-          cerrarBackendProvider.overrideWithValue(() async => arranque.backend?.detener()),
+          cerrarBackendProvider.overrideWithValue(
+            () async => arranque.backend?.detener(),
+          ),
         ],
         child: const BiblioGestApp(),
       ),

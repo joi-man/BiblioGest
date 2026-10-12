@@ -101,6 +101,13 @@ Cada vez que el catálogo se descarga completo, la app guarda una copia en el te
 
 ## Cuenta
 
+- **Suspender un usuario** (administrador, en **Usuarios → ⋮ → Suspender**): la cuenta queda como *Suspendido*. Si la persona tiene una sesión abierta (web, Windows o móvil), **la pierde en su siguiente petición** (como mucho 30 s después, por el refresco automático) y ve el aviso «Tu cuenta fue suspendida…». Si intenta iniciar sesión, se le muestra que la cuenta está suspendida (solo si la contraseña es correcta, para no revelar a terceros que la cuenta existe). **Reactivar** devuelve el acceso. No se puede suspender la propia cuenta.
+- **Eliminar** un usuario es un borrado lógico: el registro se conserva para la auditoría y los préstamos antiguos, pero **no aparece** en el listado, la búsqueda, la exportación ni puede iniciar sesión.
+- **Número de documento sin puntos** (`4111222`, no `4.111.222`): el servidor quita puntos y espacios al crear o editar, y el formulario no los admite.
+- **Editar un usuario** guarda también el documento y la nueva contraseña (dejarla vacía conserva la actual).
+- **Sesión en el navegador (web):** la sesión se conserva en el navegador durante 55 minutos (el token dura 60): **F5 o abrir otra pestaña no pide iniciar sesión de nuevo**. Cerrar sesión la borra. En Windows, al cerrar la ventana se pregunta si mantener la sesión 30 minutos.
+- **Hora de Paraguay:** todas las horas (pantallas, reportes, correos) se muestran en UTC-3.
+
 - **Cambiar contraseña** (todas las plataformas y todos los roles): pide la contraseña actual y la nueva dos veces. Está en **Perfil** (móvil), en el menú lateral (escritorio y web) y en el encabezado de **Inicio**. El servidor comprueba la contraseña actual, exige que la nueva sea distinta y de al menos 6 caracteres, y limita los intentos (10 por 15 minutos). Queda en la bitácora (`PASSWORD_CHANGE`). Detalle de la API en [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md).
 - **Olvidé mi contraseña:** igual que en la web, con un código de 6 dígitos por correo.
 - La sesión dura 60 minutos (`EXPIRACION_TOKEN_MINUTOS`); al vencer, la app vuelve al inicio de sesión con un aviso.
@@ -197,14 +204,14 @@ En el emulador, `localhost` es el propio emulador: tu PC es `10.0.2.2`. Las comp
 - **Una reserva no bloquea el material mientras está pendiente.** El material solo pasa a *Reservado* cuando el bibliotecario aprueba. Dos estudiantes pueden tener solicitudes pendientes del mismo libro; se aprueba la primera y la otra falla al aprobarse.
 - **Solo se puede ceder una reserva aprobada** (no una pendiente ni un préstamo ya entregado), y la cesión cancela toda la reserva, no solo un item.
 - **Solo Android.** No hay versión para iPhone.
-- **Sesión de 60 minutos.** Al vencer hay que iniciar sesión otra vez (`EXPIRACION_TOKEN_MINUTOS`).
+- **Sesión de 60 minutos.** Al vencer hay que iniciar sesión otra vez (`EXPIRACION_TOKEN_MINUTOS`). En la web la sesión guardada en el navegador vence a los 55 minutos; en un equipo compartido, cerrar sesión la borra.
 
 **Avisos**
 
 - **Solo por correo; sin notificaciones push.** Con la app cerrada, el estudiante se entera por el correo. Dentro de la app, el aviso aparece al refrescarse (cada 30 s o al volver a abrirla).
 - **Depende del servidor de correo.** Sin `SMTP_CLAVE` en el servidor no sale ningún correo. **El plan gratuito de Render bloquea el SMTP de Gmail** (puertos 25, 465 y 587): hay que usar un servicio con el puerto 2525 (ver [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md)). Si el envío falla, la operación del bibliotecario igual se completa (solo queda el error en el registro del servidor) y no se reintenta.
 - **No se envían correos si el bibliotecario trabaja desde el ejecutable sin conexión** y sincroniza después: el cambio llega al servidor, pero el correo se genera al ejecutar la acción en el servidor, no al sincronizar. El estudiante igual lo ve en la app.
-- Las horas de los correos van en UTC.
+- Las horas de los correos van en hora de Paraguay (UTC-3).
 
 **Conexión**
 

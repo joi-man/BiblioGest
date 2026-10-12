@@ -38,10 +38,10 @@ class ChipEstado extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             etiqueta ?? ColoresEstado.etiqueta(estado),
-            style: Theme.of(context)
-                .textTheme
-                .labelMedium
-                ?.copyWith(color: color, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

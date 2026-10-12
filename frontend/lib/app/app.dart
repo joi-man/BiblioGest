@@ -31,10 +31,7 @@ class BiblioGestApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('es', 'ES'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: const [Locale('es', 'ES'), Locale('en', 'US')],
       locale: const Locale('es', 'ES'),
     );
   }

@@ -32,8 +32,9 @@ class _DialogoCategoriaState extends ConsumerState<DialogoCategoria> {
     final categoria = widget.categoria;
     _nombre = TextEditingController(text: categoria?.nombre);
     _descripcion = TextEditingController(text: categoria?.descripcion);
-    _plazoHoras =
-        TextEditingController(text: categoria?.plazoPrestamoHoras?.toString());
+    _plazoHoras = TextEditingController(
+      text: categoria?.plazoPrestamoHoras?.toString(),
+    );
   }
 
   @override
@@ -56,18 +57,14 @@ class _DialogoCategoriaState extends ConsumerState<DialogoCategoria> {
     };
     final repositorio = ref.read(categoriaRepositoryProvider);
 
-    final guardada = await ejecutarAccion(
-      context,
-      () async {
-        if (_esNueva) {
-          await repositorio.crear(datos);
-        } else {
-          await repositorio.actualizar(widget.categoria!.id, datos);
-        }
-        ref.invalidate(categoriasProvider);
-      },
-      exito: 'Categoría guardada',
-    );
+    final guardada = await ejecutarAccion(context, () async {
+      if (_esNueva) {
+        await repositorio.crear(datos);
+      } else {
+        await repositorio.actualizar(widget.categoria!.id, datos);
+      }
+      ref.invalidate(categoriasProvider);
+    }, exito: 'Categoría guardada');
 
     if (!mounted) return;
     if (guardada) {
@@ -114,7 +111,8 @@ class _DialogoCategoriaState extends ConsumerState<DialogoCategoria> {
                   controlador: _plazoHoras,
                   soloDigitos: true,
                   maxCaracteres: 5,
-                  ayuda: 'Ej: 168 para una semana, 4 para un equipo. '
+                  ayuda:
+                      'Ej: 168 para una semana, 4 para un equipo. '
                       'Vacío = plazo general del sistema.',
                 ),
                 const SizedBox(height: 24),
@@ -125,7 +123,9 @@ class _DialogoCategoriaState extends ConsumerState<DialogoCategoria> {
                   runSpacing: 8,
                   children: [
                     TextButton(
-                      onPressed: _guardando ? null : () => Navigator.pop(context),
+                      onPressed: _guardando
+                          ? null
+                          : () => Navigator.pop(context),
                       child: const Text('Cancelar'),
                     ),
                     FilledButton(

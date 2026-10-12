@@ -4,7 +4,8 @@
 /// La clave privada NO está en el repositorio: se genera con
 /// `dart run tool/generar_clave_actualizaciones.dart`. Si se pierde, los equipos
 /// ya instalados dejan de aceptar actualizaciones y habrá que reinstalarlos.
-const String clavePublicaActualizaciones = 'EMC/UvJcDCpZwmuiSmzFXPseQTCfRZ5d9Us3nOSeijw=';
+const String clavePublicaActualizaciones =
+    'EMC/UvJcDCpZwmuiSmzFXPseQTCfRZ5d9Us3nOSeijw=';
 
 /// Dirección del manifiesto. La firma está en la misma dirección más `.sig`.
 ///

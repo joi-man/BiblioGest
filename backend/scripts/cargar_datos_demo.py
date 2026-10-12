@@ -68,14 +68,14 @@ EQUIPOS = [
 
 # (usuario, nombre, apellido, documento, rol, contrasena)
 PERSONAS = [
-    ("maria.gonzalez", "María", "González", "2.345.678", "bibliotecario", "biblio123"),
-    ("laura.fernandez", "Laura", "Fernández", "2.456.789", "bibliotecario", "biblio123"),
-    ("juan.perez", "Juan", "Pérez", "4.111.222", "estudiante", "estudiante123"),
-    ("ana.lopez", "Ana", "López", "4.222.333", "estudiante", "estudiante123"),
-    ("carlos.martinez", "Carlos", "Martínez", "4.333.444", "estudiante", "estudiante123"),
-    ("sofia.benitez", "Sofía", "Benítez", "4.444.555", "estudiante", "estudiante123"),
-    ("diego.acosta", "Diego", "Acosta", "4.555.666", "estudiante", "estudiante123"),
-    ("lucia.ramirez", "Lucía", "Ramírez", "4.666.777", "estudiante", "estudiante123"),
+    ("maria.gonzalez", "María", "González", "2345678", "bibliotecario", "biblio123"),
+    ("laura.fernandez", "Laura", "Fernández", "2456789", "bibliotecario", "biblio123"),
+    ("juan.perez", "Juan", "Pérez", "4111222", "estudiante", "estudiante123"),
+    ("ana.lopez", "Ana", "López", "4222333", "estudiante", "estudiante123"),
+    ("carlos.martinez", "Carlos", "Martínez", "4333444", "estudiante", "estudiante123"),
+    ("sofia.benitez", "Sofía", "Benítez", "4444555", "estudiante", "estudiante123"),
+    ("diego.acosta", "Diego", "Acosta", "4555666", "estudiante", "estudiante123"),
+    ("lucia.ramirez", "Lucía", "Ramírez", "4666777", "estudiante", "estudiante123"),
 ]
 
 MINUTOS_PARA_VENCER = 3

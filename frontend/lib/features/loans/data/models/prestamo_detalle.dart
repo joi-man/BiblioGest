@@ -13,7 +13,8 @@ class PrestamoDetalle with _$PrestamoDetalle {
   const factory PrestamoDetalle({
     required String id,
     required MaterialResumen material,
-    @JsonKey(name: 'fecha_devolucion_esperada') DateTime? fechaDevolucionEsperada,
+    @JsonKey(name: 'fecha_devolucion_esperada')
+    DateTime? fechaDevolucionEsperada,
     @Default(false) bool devuelto,
     Devolucion? devolucion,
   }) = _PrestamoDetalle;

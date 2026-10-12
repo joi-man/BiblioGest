@@ -51,7 +51,8 @@ class SelectorCategoria extends ConsumerWidget {
           decoratorProps: const DropDownDecoratorProps(
             decoration: InputDecoration(labelText: 'Categoría *'),
           ),
-          validator: (valor) => valor == null ? 'Selecciona una categoría' : null,
+          validator: (valor) =>
+              valor == null ? 'Selecciona una categoría' : null,
         );
       },
     );

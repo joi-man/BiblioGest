@@ -14,8 +14,9 @@ final almacenModoTemaProvider = Provider<AlmacenModoTema>((ref) {
 });
 
 /// Modo de tema actual (claro/oscuro) y acciones para cambiarlo.
-final modoTemaProvider =
-    StateNotifierProvider<ModoTemaNotifier, ThemeMode>((ref) {
+final modoTemaProvider = StateNotifierProvider<ModoTemaNotifier, ThemeMode>((
+  ref,
+) {
   return ModoTemaNotifier(ref.watch(almacenModoTemaProvider));
 });
 

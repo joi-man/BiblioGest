@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core import reloj
+from app.core.hora_paraguay import inicio_de_hoy_utc
 from app.core.constantes_inventario import (
     ESTADO_DISPONIBLE,
     ESTADO_FUERA_DE_SERVICIO,
@@ -51,7 +52,7 @@ def _contar_prestamos(db: Session, *condiciones) -> int:
 
 
 def _resumen_prestamos(db: Session, ahora: datetime) -> ResumenPrestamos:
-    inicio_dia = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
+    inicio_dia = inicio_de_hoy_utc(ahora)  # el dia en Paraguay
 
     devueltos_hoy = db.execute(
         select(func.count(Devolucion.id)).where(

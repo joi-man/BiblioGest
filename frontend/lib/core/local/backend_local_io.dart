@@ -21,15 +21,16 @@ const Duration _esperaMaxima = Duration(seconds: 60);
 Future<BackendLocal?> iniciarBackendLocal() async {
   if (!Platform.isWindows) return null;
 
-  final ejecutable = File(_rutaIndicada.isNotEmpty ? _rutaIndicada : _rutaEmpaquetada());
+  final ejecutable = File(
+    _rutaIndicada.isNotEmpty ? _rutaIndicada : _rutaEmpaquetada(),
+  );
   if (!await ejecutable.exists()) return null;
 
   final puerto = await _puertoLibre();
-  final proceso = await Process.start(
-    ejecutable.path,
-    ['--puerto', '$puerto'],
-    workingDirectory: ejecutable.parent.path,
-  );
+  final proceso = await Process.start(ejecutable.path, [
+    '--puerto',
+    '$puerto',
+  ], workingDirectory: ejecutable.parent.path);
   // Si nadie lee su salida, el proceso puede bloquearse al llenarse el búfer.
   unawaited(proceso.stdout.drain<void>());
   unawaited(proceso.stderr.drain<void>());
@@ -69,7 +70,9 @@ Future<void> _esperarQueResponda(String url, Process proceso) async {
   try {
     while (DateTime.now().isBefore(limite)) {
       if (terminado) {
-        throw const ErrorBackendLocal('El servicio interno de BiblioGest se cerró al iniciar.');
+        throw const ErrorBackendLocal(
+          'El servicio interno de BiblioGest se cerró al iniciar.',
+        );
       }
       try {
         final peticion = await cliente.getUrl(Uri.parse('$url/health'));
@@ -83,7 +86,9 @@ Future<void> _esperarQueResponda(String url, Process proceso) async {
       }
       await Future<void>.delayed(const Duration(milliseconds: 250));
     }
-    throw const ErrorBackendLocal('El servicio interno de BiblioGest tardó demasiado en iniciar.');
+    throw const ErrorBackendLocal(
+      'El servicio interno de BiblioGest tardó demasiado en iniciar.',
+    );
   } finally {
     cliente.close(force: true);
   }

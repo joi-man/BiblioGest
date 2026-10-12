@@ -16,18 +16,18 @@ enum CondicionDevolucion {
 extension CondicionDevolucionEtiqueta on CondicionDevolucion {
   /// Valor que entiende el backend.
   String get valor => switch (this) {
-        CondicionDevolucion.bueno => 'bueno',
-        CondicionDevolucion.danoMenor => 'dano_menor',
-        CondicionDevolucion.danoMayor => 'dano_mayor',
-        CondicionDevolucion.perdido => 'perdido',
-      };
+    CondicionDevolucion.bueno => 'bueno',
+    CondicionDevolucion.danoMenor => 'dano_menor',
+    CondicionDevolucion.danoMayor => 'dano_mayor',
+    CondicionDevolucion.perdido => 'perdido',
+  };
 
   String get etiqueta => switch (this) {
-        CondicionDevolucion.bueno => 'En buen estado',
-        CondicionDevolucion.danoMenor => 'Daño menor',
-        CondicionDevolucion.danoMayor => 'Daño mayor',
-        CondicionDevolucion.perdido => 'Perdido',
-      };
+    CondicionDevolucion.bueno => 'En buen estado',
+    CondicionDevolucion.danoMenor => 'Daño menor',
+    CondicionDevolucion.danoMayor => 'Daño mayor',
+    CondicionDevolucion.perdido => 'Perdido',
+  };
 }
 
 /// Registro de que un item de un préstamo ya fue devuelto.
