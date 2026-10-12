@@ -58,14 +58,10 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
     );
     if (!confirmado || !mounted) return;
 
-    await ejecutarAccion(
-      context,
-      () async {
-        await ref.read(materialRepositoryProvider).eliminar(material.id);
-        _recargar();
-      },
-      exito: 'Material eliminado',
-    );
+    await ejecutarAccion(context, () async {
+      await ref.read(materialRepositoryProvider).eliminar(material.id);
+      _recargar();
+    }, exito: 'Material eliminado');
   }
 
   /// Si la página actual quedó vacía (se borró su último material), retrocede.
@@ -93,14 +89,15 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
             acciones: [
               BotonExportar(
                 nombreBase: 'materiales',
-                obtenerArchivo: (formato) =>
-                    ref.read(materialRepositoryProvider).exportar(
-                          formato,
-                          texto: _consulta.texto,
-                          tipo: _consulta.tipo,
-                          estado: _consulta.estado,
-                          categoriaId: _consulta.categoriaId,
-                        ),
+                obtenerArchivo: (formato) => ref
+                    .read(materialRepositoryProvider)
+                    .exportar(
+                      formato,
+                      texto: _consulta.texto,
+                      tipo: _consulta.tipo,
+                      estado: _consulta.estado,
+                      categoriaId: _consulta.categoriaId,
+                    ),
               ),
               FilledButton.icon(
                 onPressed: _abrirFormulario,
@@ -155,7 +152,10 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
                 titulo: 'Código',
                 celda: (m) => Text(
                   m.codigo,
-                  style: TipografiaApp.codigo(context.colores.tintaSuave, tamano: 12),
+                  style: TipografiaApp.codigo(
+                    context.colores.tintaSuave,
+                    tamano: 12,
+                  ),
                 ),
               ),
               ColumnaGrilla(
@@ -207,14 +207,18 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(material.titulo,
-                    style: textos.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                Text(
+                  material.titulo,
+                  style: textos.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 if (detalle.isNotEmpty)
                   Text(
                     detalle,
-                    style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
+                    style: textos.bodySmall?.copyWith(
+                      color: colores.tintaSuave,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -235,8 +239,11 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
           const SizedBox(width: 8),
           Tooltip(
             message: 'Solo consulta en sala',
-            child: Icon(Icons.lock_outline,
-                size: 18, color: context.colores.tintaSuave),
+            child: Icon(
+              Icons.lock_outline,
+              size: 18,
+              color: context.colores.tintaSuave,
+            ),
           ),
         ],
       ],

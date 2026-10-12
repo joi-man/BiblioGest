@@ -35,32 +35,38 @@ const _intentosAntesDeAvisar = 5;
 ///   (filtrada aquí) y deja que el reconector siga intentando en segundo plano.
 /// - Sin conexión y sin copia: reintenta como cualquier otra pantalla.
 final catalogoEstudianteProvider =
-    FutureProvider.family<ResultadoCatalogo, FiltroMateriales>((ref, filtro) async {
-  if (ref.watch(tokenSesionProvider) == null) return const ResultadoCatalogo([]);
+    FutureProvider.family<ResultadoCatalogo, FiltroMateriales>((
+      ref,
+      filtro,
+    ) async {
+      if (ref.watch(tokenSesionProvider) == null)
+        return const ResultadoCatalogo([]);
 
-  final cache = ref.read(catalogoCacheProvider);
-  final copia = cache.leer();
+      final cache = ref.read(catalogoCacheProvider);
+      final copia = cache.leer();
 
-  try {
-    final materiales = await ref.read(materialRepositoryProvider).listar(
-          texto: filtro.texto,
-          tipo: filtro.tipo,
-          estado: filtro.estado,
-          soloDisponibles: filtro.soloDisponibles,
-          // Con una copia que mostrar no vale la pena hacer esperar a la persona.
-          sinReintento: copia != null,
+      try {
+        final materiales = await ref
+            .read(materialRepositoryProvider)
+            .listar(
+              texto: filtro.texto,
+              tipo: filtro.tipo,
+              estado: filtro.estado,
+              soloDisponibles: filtro.soloDisponibles,
+              // Con una copia que mostrar no vale la pena hacer esperar a la persona.
+              sinReintento: copia != null,
+            );
+        if (_esCatalogoCompleto(filtro)) await cache.guardar(materiales);
+        return ResultadoCatalogo(materiales);
+      } on DioException catch (error) {
+        if (copia == null || !_esFallaDeRed(error)) rethrow;
+        estadoConexion.reconectando(0, _intentosAntesDeAvisar);
+        return ResultadoCatalogo(
+          filtrarMateriales(copia.materiales, filtro),
+          guardadoEn: copia.fecha,
         );
-    if (_esCatalogoCompleto(filtro)) await cache.guardar(materiales);
-    return ResultadoCatalogo(materiales);
-  } on DioException catch (error) {
-    if (copia == null || !_esFallaDeRed(error)) rethrow;
-    estadoConexion.reconectando(0, _intentosAntesDeAvisar);
-    return ResultadoCatalogo(
-      filtrarMateriales(copia.materiales, filtro),
-      guardadoEn: copia.fecha,
-    );
-  }
-});
+      }
+    });
 
 /// Solo el catálogo sin ningún filtro sirve como copia completa.
 bool _esCatalogoCompleto(FiltroMateriales filtro) =>
@@ -87,7 +93,9 @@ List<MaterialBiblioteca> filtrarMateriales(
           (filtro.estado == null || m.estado == filtro.estado) &&
           (!filtro.soloDisponibles || m.sePuedeSolicitar) &&
           (texto.isEmpty ||
-              _sinTildes('${m.titulo} ${m.codigo} ${m.autor ?? ''}').contains(texto)))
+              _sinTildes(
+                '${m.titulo} ${m.codigo} ${m.autor ?? ''}',
+              ).contains(texto)))
         m,
   ];
 }

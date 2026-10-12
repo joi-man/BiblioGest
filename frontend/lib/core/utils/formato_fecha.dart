@@ -1,11 +1,16 @@
 import 'package:intl/intl.dart';
 
-/// Formatos de fecha y hora para mostrar en pantalla, siempre en hora local.
+/// Formatos de fecha y hora para mostrar en pantalla, siempre en hora de Paraguay.
 ///
-/// El backend entrega las fechas en UTC con sufijo `Z`; `DateTime.parse` las
-/// convierte y aquí se pasan a la hora del dispositivo.
+/// El backend entrega las fechas en UTC con sufijo `Z`. Paraguay usa UTC-3 todo el
+/// año (desde octubre de 2024 no cambia de horario), así que se muestra igual en
+/// cualquier dispositivo, sin depender de su zona horaria.
 class FormatoFecha {
   FormatoFecha._();
+
+  /// Pasa un instante a la hora de pared de Paraguay.
+  static DateTime enParaguay(DateTime fecha) =>
+      fecha.toUtc().subtract(const Duration(hours: 3));
 
   static final DateFormat _fechaHora = DateFormat("d MMM yyyy, HH:mm", 'es');
   static final DateFormat _fecha = DateFormat("d MMM yyyy", 'es');
@@ -13,13 +18,13 @@ class FormatoFecha {
 
   /// Ejemplo: `10 oct 2026, 14:30`.
   static String fechaHora(DateTime fecha) =>
-      _fechaHora.format(fecha.toLocal());
+      _fechaHora.format(enParaguay(fecha));
 
   /// Ejemplo: `10 oct 2026`.
-  static String soloFecha(DateTime fecha) => _fecha.format(fecha.toLocal());
+  static String soloFecha(DateTime fecha) => _fecha.format(enParaguay(fecha));
 
   /// Ejemplo: `14:30`.
-  static String soloHora(DateTime fecha) => _hora.format(fecha.toLocal());
+  static String soloHora(DateTime fecha) => _hora.format(enParaguay(fecha));
 
   /// Texto corto sobre cuánto falta o cuánto se pasó de [limite].
   ///

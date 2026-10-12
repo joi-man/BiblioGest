@@ -6,24 +6,29 @@ import 'package:frontend/features/materials/data/models/material_etiquetas.dart'
 /// el cuerpo de la petición. Así el diálogo solo se ocupa de dibujar.
 class ControladoresMaterial {
   ControladoresMaterial([MaterialBiblioteca? material])
-      : codigo = TextEditingController(text: material?.codigo),
-        titulo = TextEditingController(text: material?.titulo),
-        autor = TextEditingController(text: material?.autor),
-        isbn = TextEditingController(text: material?.isbn),
-        editorial = TextEditingController(text: material?.editorial),
-        anio = TextEditingController(text: material?.anioPublicacion?.toString()),
-        paginas = TextEditingController(text: material?.numeroPaginas?.toString()),
-        descripcion = TextEditingController(text: material?.descripcion),
-        formato = TextEditingController(text: material?.formato),
-        duracion = TextEditingController(text: material?.duracion),
-        marca = TextEditingController(text: material?.marca),
-        modelo = TextEditingController(text: material?.modelo),
-        numeroSerie = TextEditingController(text: material?.numeroSerie),
-        ubicacion = TextEditingController(text: material?.ubicacion),
-        accesorios = TextEditingController(text: material?.accesorios),
-        valor = TextEditingController(text: material?.valorReferencial?.toString()),
-        plazoHoras = TextEditingController(
-            text: material?.plazoPrestamoHoras?.toString());
+    : codigo = TextEditingController(text: material?.codigo),
+      titulo = TextEditingController(text: material?.titulo),
+      autor = TextEditingController(text: material?.autor),
+      isbn = TextEditingController(text: material?.isbn),
+      editorial = TextEditingController(text: material?.editorial),
+      anio = TextEditingController(text: material?.anioPublicacion?.toString()),
+      paginas = TextEditingController(
+        text: material?.numeroPaginas?.toString(),
+      ),
+      descripcion = TextEditingController(text: material?.descripcion),
+      formato = TextEditingController(text: material?.formato),
+      duracion = TextEditingController(text: material?.duracion),
+      marca = TextEditingController(text: material?.marca),
+      modelo = TextEditingController(text: material?.modelo),
+      numeroSerie = TextEditingController(text: material?.numeroSerie),
+      ubicacion = TextEditingController(text: material?.ubicacion),
+      accesorios = TextEditingController(text: material?.accesorios),
+      valor = TextEditingController(
+        text: material?.valorReferencial?.toString(),
+      ),
+      plazoHoras = TextEditingController(
+        text: material?.plazoPrestamoHoras?.toString(),
+      );
 
   final TextEditingController codigo;
   final TextEditingController titulo;
@@ -45,9 +50,23 @@ class ControladoresMaterial {
 
   void dispose() {
     for (final c in [
-      codigo, titulo, autor, isbn, editorial, anio, paginas, descripcion,
-      formato, duracion, marca, modelo, numeroSerie, ubicacion, accesorios,
-      valor, plazoHoras,
+      codigo,
+      titulo,
+      autor,
+      isbn,
+      editorial,
+      anio,
+      paginas,
+      descripcion,
+      formato,
+      duracion,
+      marca,
+      modelo,
+      numeroSerie,
+      ubicacion,
+      accesorios,
+      valor,
+      plazoHoras,
     ]) {
       c.dispose();
     }

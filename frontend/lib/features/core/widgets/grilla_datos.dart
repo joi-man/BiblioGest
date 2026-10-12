@@ -61,17 +61,21 @@ class GrillaDatos<T> extends StatelessWidget {
                 columns: [
                   for (final columna in columnas)
                     DataColumn(
-                        label: Text(columna.titulo), numeric: columna.numerica),
+                      label: Text(columna.titulo),
+                      numeric: columna.numerica,
+                    ),
                   if (acciones != null)
                     const DataColumn(label: SizedBox.shrink()),
                 ],
                 rows: [
                   for (final fila in filas)
-                    DataRow(cells: [
-                      for (final columna in columnas)
-                        DataCell(columna.celda(fila)),
-                      if (acciones != null) DataCell(acciones!(fila)),
-                    ]),
+                    DataRow(
+                      cells: [
+                        for (final columna in columnas)
+                          DataCell(columna.celda(fila)),
+                        if (acciones != null) DataCell(acciones!(fila)),
+                      ],
+                    ),
                 ],
               ),
             ),

@@ -18,7 +18,7 @@ import 'package:frontend/features/core/widgets/estado_vacio.dart';
 import 'package:frontend/features/core/widgets/grilla_datos.dart';
 import 'package:frontend/features/core/widgets/valor_asincrono.dart';
 
-enum _AccionUsuario { editar, eliminar }
+enum _AccionUsuario { editar, suspender, eliminar }
 
 /// Administración de usuarios: grilla paginada con búsqueda, filtros y
 /// exportación a Excel y PDF.
@@ -45,6 +45,32 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
     );
   }
 
+  /// Suspende o reactiva la cuenta. Un usuario suspendido pierde su sesión al
+  /// instante y no puede volver a entrar hasta que se lo reactive.
+  Future<void> _cambiarSuspension(Usuario usuario) async {
+    final suspender = usuario.activo;
+    if (suspender) {
+      final confirmado = await confirmarAccion(
+        context,
+        etiquetaConfirmar: 'Suspender',
+        titulo: 'Suspender usuario',
+        mensaje:
+            '¿Suspender a "${usuario.nombre} ${usuario.apellido}"? Si tiene una sesión '
+            'abierta, se cerrará y no podrá entrar hasta que lo reactives.',
+      );
+      if (!confirmado || !mounted) return;
+    }
+    final token = ref.read(tokenSesionProvider);
+    if (token == null) return;
+
+    await ejecutarAccion(context, () async {
+      await ref.read(usuarioRepositoryProvider).actualizar(usuario.id, {
+        'activo': !suspender,
+      }, token);
+      _recargar();
+    }, exito: suspender ? 'Usuario suspendido' : 'Usuario reactivado');
+  }
+
   Future<void> _eliminar(Usuario usuario) async {
     final confirmado = await confirmarEliminar(
       context,
@@ -54,14 +80,10 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
     final token = ref.read(tokenSesionProvider);
     if (!confirmado || !mounted || token == null) return;
 
-    await ejecutarAccion(
-      context,
-      () async {
-        await ref.read(usuarioRepositoryProvider).eliminar(usuario.id, token);
-        _recargar();
-      },
-      exito: 'Usuario eliminado',
-    );
+    await ejecutarAccion(context, () async {
+      await ref.read(usuarioRepositoryProvider).eliminar(usuario.id, token);
+      _recargar();
+    }, exito: 'Usuario eliminado');
   }
 
   /// Si la página actual quedó vacía (se borró su último usuario), retrocede.
@@ -89,13 +111,14 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
             acciones: [
               BotonExportar(
                 nombreBase: 'usuarios',
-                obtenerArchivo: (formato) =>
-                    ref.read(usuarioRepositoryProvider).exportar(
-                          formato,
-                          texto: _consulta.texto,
-                          rol: _consulta.rol,
-                          activo: _consulta.activo,
-                        ),
+                obtenerArchivo: (formato) => ref
+                    .read(usuarioRepositoryProvider)
+                    .exportar(
+                      formato,
+                      texto: _consulta.texto,
+                      rol: _consulta.rol,
+                      activo: _consulta.activo,
+                    ),
               ),
               FilledButton.icon(
                 onPressed: _abrirFormulario,
@@ -176,7 +199,8 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
   Widget _celdaNombre(Usuario usuario) {
     final colores = context.colores;
     final textos = Theme.of(context).textTheme;
-    final iniciales = '${_inicial(usuario.nombre)}${_inicial(usuario.apellido)}';
+    final iniciales =
+        '${_inicial(usuario.nombre)}${_inicial(usuario.apellido)}';
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -194,8 +218,10 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${usuario.nombre} ${usuario.apellido}',
-                style: textos.titleSmall),
+            Text(
+              '${usuario.nombre} ${usuario.apellido}',
+              style: textos.titleSmall,
+            ),
             Text(
               '@${usuario.username}',
               style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
@@ -222,7 +248,7 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Text(usuario.activo ? 'Activo' : 'Inactivo'),
+        Text(usuario.activo ? 'Activo' : 'Suspendido'),
       ],
     );
   }
@@ -232,11 +258,22 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
       tooltip: 'Más acciones',
       onSelected: (accion) => switch (accion) {
         _AccionUsuario.editar => _abrirFormulario(usuario),
+        _AccionUsuario.suspender => _cambiarSuspension(usuario),
         _AccionUsuario.eliminar => _eliminar(usuario),
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: _AccionUsuario.editar, child: Text('Editar')),
-        PopupMenuItem(value: _AccionUsuario.eliminar, child: Text('Eliminar')),
+      itemBuilder: (_) => [
+        const PopupMenuItem(
+          value: _AccionUsuario.editar,
+          child: Text('Editar'),
+        ),
+        PopupMenuItem(
+          value: _AccionUsuario.suspender,
+          child: Text(usuario.activo ? 'Suspender' : 'Reactivar'),
+        ),
+        const PopupMenuItem(
+          value: _AccionUsuario.eliminar,
+          child: Text('Eliminar'),
+        ),
       ],
     );
   }

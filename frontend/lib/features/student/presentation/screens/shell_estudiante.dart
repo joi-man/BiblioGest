@@ -68,7 +68,10 @@ class _ShellEstudianteState extends ConsumerState<ShellEstudiante>
     ref.invalidate(catalogoEstudianteProvider);
   }
 
-  void _avisarNovedades(AsyncValue<List<Prestamo>>? antes, AsyncValue<List<Prestamo>> ahora) {
+  void _avisarNovedades(
+    AsyncValue<List<Prestamo>>? antes,
+    AsyncValue<List<Prestamo>> ahora,
+  ) {
     final previas = antes?.value;
     final nuevas = ahora.value;
     if (previas == null || nuevas == null) return;

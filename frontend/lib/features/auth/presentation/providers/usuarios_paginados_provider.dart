@@ -41,20 +41,16 @@ class ConsultaUsuarios {
   }
 
   ConsultaUsuarios enPagina(int nueva) => ConsultaUsuarios(
-        texto: texto,
-        rol: rol,
-        activo: activo,
-        pagina: nueva,
-        tamano: tamano,
-      );
+    texto: texto,
+    rol: rol,
+    activo: activo,
+    pagina: nueva,
+    tamano: tamano,
+  );
 
   /// Cambia las filas por página y vuelve a la primera.
-  ConsultaUsuarios conTamano(int nuevo) => ConsultaUsuarios(
-        texto: texto,
-        rol: rol,
-        activo: activo,
-        tamano: nuevo,
-      );
+  ConsultaUsuarios conTamano(int nuevo) =>
+      ConsultaUsuarios(texto: texto, rol: rol, activo: activo, tamano: nuevo);
 
   @override
   bool operator ==(Object other) =>
@@ -71,17 +67,26 @@ class ConsultaUsuarios {
 
 /// Una página de usuarios según la [ConsultaUsuarios]. Se recarga al cambiar la sesión.
 final usuariosPaginadosProvider =
-    FutureProvider.family<PaginaResultado<Usuario>, ConsultaUsuarios>(
-        (ref, consulta) async {
-  if (ref.watch(tokenSesionProvider) == null) {
-    return const PaginaResultado(
-        items: [], total: 0, pagina: 1, tamano: 10, totalPaginas: 0);
-  }
-  return ref.read(usuarioRepositoryProvider).buscar(
-        texto: consulta.texto,
-        rol: consulta.rol,
-        activo: consulta.activo,
-        pagina: consulta.pagina,
-        tamano: consulta.tamano,
-      );
-});
+    FutureProvider.family<PaginaResultado<Usuario>, ConsultaUsuarios>((
+      ref,
+      consulta,
+    ) async {
+      if (ref.watch(tokenSesionProvider) == null) {
+        return const PaginaResultado(
+          items: [],
+          total: 0,
+          pagina: 1,
+          tamano: 10,
+          totalPaginas: 0,
+        );
+      }
+      return ref
+          .read(usuarioRepositoryProvider)
+          .buscar(
+            texto: consulta.texto,
+            rol: consulta.rol,
+            activo: consulta.activo,
+            pagina: consulta.pagina,
+            tamano: consulta.tamano,
+          );
+    });

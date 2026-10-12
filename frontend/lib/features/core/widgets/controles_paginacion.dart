@@ -21,10 +21,9 @@ class ControlesPaginacion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colores = context.colores;
-    final estiloTexto = Theme.of(context)
-        .textTheme
-        .bodyMedium
-        ?.copyWith(color: colores.tintaSuave);
+    final estiloTexto = Theme.of(
+      context,
+    ).textTheme.bodyMedium?.copyWith(color: colores.tintaSuave);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -39,8 +38,9 @@ class ControlesPaginacion extends StatelessWidget {
         children: [
           Text('Filas por página', style: estiloTexto),
           DropdownButton<int>(
-            value:
-                tamanosDePagina.contains(pagina.tamano) ? pagina.tamano : null,
+            value: tamanosDePagina.contains(pagina.tamano)
+                ? pagina.tamano
+                : null,
             underline: const SizedBox.shrink(),
             items: [
               for (final tamano in tamanosDePagina)

@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'archivo_preferencias_stub.dart' if (dart.library.io) 'archivo_preferencias_io.dart';
+import 'archivo_preferencias_stub.dart'
+    if (dart.library.io) 'archivo_preferencias_io.dart';
 
 /// Abre los ajustes de la aplicación sin que un archivo dañado impida arrancar.
 ///

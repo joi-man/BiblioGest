@@ -81,7 +81,8 @@ class DetalleMaterialHoja extends StatelessWidget {
                 ),
               ],
             ),
-            if (material.descripcion != null && material.descripcion!.isNotEmpty) ...[
+            if (material.descripcion != null &&
+                material.descripcion!.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(material.descripcion!, style: textos.bodyMedium),
             ],
@@ -111,7 +112,9 @@ class DetalleMaterialHoja extends StatelessWidget {
 
   Widget _boton(BuildContext context) {
     if (!material.esPrestable) {
-      return const _Aviso('Este material es solo para consulta en la biblioteca.');
+      return const _Aviso(
+        'Este material es solo para consulta en la biblioteca.',
+      );
     }
     if (!material.sePuedeSolicitar) {
       return _Aviso(
@@ -124,7 +127,9 @@ class DetalleMaterialHoja extends StatelessWidget {
         Navigator.pop(context);
       },
       icon: Icon(seleccionado ? Icons.remove : Icons.add),
-      label: Text(seleccionado ? 'Quitar de mi reserva' : 'Agregar a mi reserva'),
+      label: Text(
+        seleccionado ? 'Quitar de mi reserva' : 'Agregar a mi reserva',
+      ),
     );
   }
 }
@@ -139,10 +144,9 @@ class _Aviso extends StatelessWidget {
     return Text(
       texto,
       textAlign: TextAlign.center,
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium
-          ?.copyWith(color: context.colores.tintaSuave),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: context.colores.tintaSuave),
     );
   }
 }

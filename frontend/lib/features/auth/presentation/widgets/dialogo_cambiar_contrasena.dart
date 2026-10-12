@@ -18,10 +18,12 @@ class _DialogoCambiarContrasena extends ConsumerStatefulWidget {
   const _DialogoCambiarContrasena();
 
   @override
-  ConsumerState<_DialogoCambiarContrasena> createState() => _DialogoCambiarContrasenaState();
+  ConsumerState<_DialogoCambiarContrasena> createState() =>
+      _DialogoCambiarContrasenaState();
 }
 
-class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContrasena> {
+class _DialogoCambiarContrasenaState
+    extends ConsumerState<_DialogoCambiarContrasena> {
   final _formKey = GlobalKey<FormState>();
   final _actual = TextEditingController();
   final _nueva = TextEditingController();
@@ -43,7 +45,9 @@ class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContra
 
     final cambiada = await ejecutarAccion(
       context,
-      () => ref.read(authRepositoryProvider).cambiarContrasena(
+      () => ref
+          .read(authRepositoryProvider)
+          .cambiarContrasena(
             contrasenaActual: _actual.text,
             nuevaContrasena: _nueva.text,
           ),
@@ -58,7 +62,8 @@ class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContra
     }
   }
 
-  InputDecoration _decoracion(String etiqueta, {Widget? sufijo}) => InputDecoration(
+  InputDecoration _decoracion(String etiqueta, {Widget? sufijo}) =>
+      InputDecoration(
         labelText: etiqueta,
         prefixIcon: const Icon(Icons.lock_outline),
         suffixIcon: sufijo,
@@ -83,14 +88,20 @@ class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContra
                   decoration: _decoracion(
                     'Contraseña actual',
                     sufijo: IconButton(
-                      tooltip: _ocultar ? 'Mostrar contraseñas' : 'Ocultar contraseñas',
-                      icon: Icon(_ocultar
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
+                      tooltip: _ocultar
+                          ? 'Mostrar contraseñas'
+                          : 'Ocultar contraseñas',
+                      icon: Icon(
+                        _ocultar
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                       onPressed: () => setState(() => _ocultar = !_ocultar),
                     ),
                   ),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Escribe tu contraseña actual' : null,
+                  validator: (v) => (v == null || v.isEmpty)
+                      ? 'Escribe tu contraseña actual'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -98,8 +109,10 @@ class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContra
                   obscureText: _ocultar,
                   decoration: _decoracion('Contraseña nueva'),
                   validator: (v) {
-                    if (v == null || v.length < 6) return 'Debe tener al menos 6 caracteres';
-                    if (v == _actual.text) return 'Debe ser distinta de la actual';
+                    if (v == null || v.length < 6)
+                      return 'Debe tener al menos 6 caracteres';
+                    if (v == _actual.text)
+                      return 'Debe ser distinta de la actual';
                     return null;
                   },
                 ),
@@ -109,7 +122,8 @@ class _DialogoCambiarContrasenaState extends ConsumerState<_DialogoCambiarContra
                   obscureText: _ocultar,
                   onFieldSubmitted: (_) => _guardar(),
                   decoration: _decoracion('Repite la contraseña nueva'),
-                  validator: (v) => v != _nueva.text ? 'Las contraseñas no coinciden' : null,
+                  validator: (v) =>
+                      v != _nueva.text ? 'Las contraseñas no coinciden' : null,
                 ),
               ],
             ),

@@ -127,14 +127,22 @@ class ShellNavegacion extends ConsumerWidget {
   static const double _anchoMinimoEscritorio = 900;
 
   /// Índice del destino cuya ruta coincide con la ubicación actual.
-  int _indiceSeleccionado(BuildContext context, List<DestinoNavegacion> destinos) {
+  int _indiceSeleccionado(
+    BuildContext context,
+    List<DestinoNavegacion> destinos,
+  ) {
     final ubicacion = GoRouterState.of(context).uri.path;
-    final indice =
-        destinos.indexWhere((d) => d.ruta != '/' && ubicacion.startsWith(d.ruta));
+    final indice = destinos.indexWhere(
+      (d) => d.ruta != '/' && ubicacion.startsWith(d.ruta),
+    );
     return indice == -1 ? 0 : indice;
   }
 
-  void _alSeleccionar(BuildContext context, List<DestinoNavegacion> destinos, int indice) {
+  void _alSeleccionar(
+    BuildContext context,
+    List<DestinoNavegacion> destinos,
+    int indice,
+  ) {
     context.go(destinos[indice].ruta);
   }
 
@@ -170,7 +178,10 @@ class ShellNavegacion extends ConsumerWidget {
   }
 
   Widget _conMenuLateral(
-      BuildContext context, List<DestinoNavegacion> destinos, int indice) {
+    BuildContext context,
+    List<DestinoNavegacion> destinos,
+    int indice,
+  ) {
     final colores = context.colores;
 
     return Scaffold(
@@ -184,10 +195,9 @@ class ShellNavegacion extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
                 'BiblioGest',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: colores.acento),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: colores.acento),
               ),
             ),
             trailing: const Expanded(
@@ -224,7 +234,10 @@ class ShellNavegacion extends ConsumerWidget {
   }
 
   Widget _conBarraInferior(
-      BuildContext context, List<DestinoNavegacion> destinos, int indice) {
+    BuildContext context,
+    List<DestinoNavegacion> destinos,
+    int indice,
+  ) {
     return Scaffold(
       // SafeArea: en el teléfono la barra de estado no debe tapar el encabezado.
       body: SafeArea(bottom: false, child: hijo),

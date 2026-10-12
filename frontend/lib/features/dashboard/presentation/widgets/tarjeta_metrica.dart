@@ -26,7 +26,9 @@ class TarjetaMetrica extends StatelessWidget {
     final colores = context.colores;
     final textos = Theme.of(context).textTheme;
     // Un valor en cero no necesita llamar la atención.
-    final colorNumero = valor == 0 ? colores.tintaSuave : (color ?? colores.tinta);
+    final colorNumero = valor == 0
+        ? colores.tintaSuave
+        : (color ?? colores.tinta);
 
     return Card(
       clipBehavior: Clip.antiAlias,

@@ -9,7 +9,9 @@ typedef _Ticks = int Function();
 Future<int?> instanteArranqueSo() async {
   if (!Platform.isWindows) return null;
   try {
-    final ticks = DynamicLibrary.open('kernel32.dll').lookupFunction<_TicksNativo, _Ticks>('GetTickCount64');
+    final ticks = DynamicLibrary.open(
+      'kernel32.dll',
+    ).lookupFunction<_TicksNativo, _Ticks>('GetTickCount64');
     return DateTime.now().millisecondsSinceEpoch - ticks();
   } catch (_) {
     return null;

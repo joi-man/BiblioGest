@@ -176,6 +176,7 @@ def actualizar_usuario(
     telefono: Optional[str] = None,
     activo: Optional[bool] = None,
     usuario_admin: Optional[Usuario] = None,
+    contrasena: Optional[str] = None,
 ) -> Usuario:
     """Actualizar un usuario existente."""
     usuario = obtener_usuario_por_id(db, usuario_id)
@@ -210,7 +211,14 @@ def actualizar_usuario(
     if telefono is not None:
         usuario.telefono = telefono
     if activo is not None:
+        if not activo and usuario_admin is not None and usuario.id == usuario_admin.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No puedes suspender tu propia cuenta",
+            )
         usuario.activo = activo
+    if contrasena:
+        usuario.contrasena_hash = hashear_contrasena(contrasena)
     
     usuario.fecha_actualizacion = datetime.utcnow()
     db.commit()
@@ -222,7 +230,7 @@ def actualizar_usuario(
         accion="UPDATE",
         tabla_afectada="usuarios",
         registro_id=usuario.id,
-        detalles={"correo_electronico": usuario.correo_electronico},
+        detalles={"correo_electronico": usuario.correo_electronico, "activo": usuario.activo},
     )
     
     return usuario

@@ -38,11 +38,11 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
   final Map<String, MaterialBiblioteca> _seleccion = {};
 
   FiltroMateriales get _filtro => (
-        texto: _texto,
-        tipo: _tipo,
-        estado: null,
-        soloDisponibles: _soloDisponibles,
-      );
+    texto: _texto,
+    tipo: _tipo,
+    estado: null,
+    soloDisponibles: _soloDisponibles,
+  );
 
   void _alternar(MaterialBiblioteca material) {
     setState(() {
@@ -69,7 +69,9 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
 
     final enviada = await ejecutarAccion(
       context,
-      () => ref.read(accionesPrestamoProvider).solicitar(_seleccion.keys.toList()),
+      () => ref
+          .read(accionesPrestamoProvider)
+          .solicitar(_seleccion.keys.toList()),
       exito: 'Reserva enviada. El bibliotecario la revisará y te avisaremos',
     );
 
@@ -103,7 +105,8 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
               alReintentar: () => ref.invalidate(catalogoEstudianteProvider),
               construir: (resultado) => Column(
                 children: [
-                  if (resultado.desdeCache) _AvisoCopia(fecha: resultado.guardadoEn!),
+                  if (resultado.desdeCache)
+                    _AvisoCopia(fecha: resultado.guardadoEn!),
                   Expanded(child: _lista(resultado.materiales)),
                 ],
               ),
@@ -191,7 +194,9 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
           children: [
             Expanded(
               child: Text(
-                cantidad == 1 ? '1 material elegido' : '$cantidad materiales elegidos',
+                cantidad == 1
+                    ? '1 material elegido'
+                    : '$cantidad materiales elegidos',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),

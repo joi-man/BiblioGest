@@ -69,18 +69,14 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
     );
     final repositorio = ref.read(materialRepositoryProvider);
 
-    final guardado = await ejecutarAccion(
-      context,
-      () async {
-        if (_esNuevo) {
-          await repositorio.crear(datos);
-        } else {
-          await repositorio.actualizar(widget.material!.id, datos);
-        }
-        ref.invalidate(materialesProvider);
-      },
-      exito: 'Material guardado',
-    );
+    final guardado = await ejecutarAccion(context, () async {
+      if (_esNuevo) {
+        await repositorio.crear(datos);
+      } else {
+        await repositorio.actualizar(widget.material!.id, datos);
+      }
+      ref.invalidate(materialesProvider);
+    }, exito: 'Material guardado');
 
     if (!mounted) return;
     if (guardado) {
@@ -164,44 +160,80 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
   }
 
   List<Widget> _camposBibliograficos() => [
-        CampoTexto(etiqueta: 'Autor', controlador: _c.autor, maxCaracteres: 255),
-        _fila([
-          CampoTexto(etiqueta: 'ISBN', controlador: _c.isbn, maxCaracteres: 20),
-          CampoTexto(etiqueta: 'Editorial', controlador: _c.editorial, maxCaracteres: 200),
-        ]),
-        _fila([
-          CampoTexto(etiqueta: 'Año de publicación', controlador: _c.anio, soloDigitos: true, maxCaracteres: 4),
-          CampoTexto(etiqueta: 'Número de páginas', controlador: _c.paginas, soloDigitos: true, maxCaracteres: 5),
-        ]),
-      ];
+    CampoTexto(etiqueta: 'Autor', controlador: _c.autor, maxCaracteres: 255),
+    _fila([
+      CampoTexto(etiqueta: 'ISBN', controlador: _c.isbn, maxCaracteres: 20),
+      CampoTexto(
+        etiqueta: 'Editorial',
+        controlador: _c.editorial,
+        maxCaracteres: 200,
+      ),
+    ]),
+    _fila([
+      CampoTexto(
+        etiqueta: 'Año de publicación',
+        controlador: _c.anio,
+        soloDigitos: true,
+        maxCaracteres: 4,
+      ),
+      CampoTexto(
+        etiqueta: 'Número de páginas',
+        controlador: _c.paginas,
+        soloDigitos: true,
+        maxCaracteres: 5,
+      ),
+    ]),
+  ];
 
   List<Widget> _camposMedio() => [
-        _fila([
-          CampoTexto(etiqueta: 'Formato', controlador: _c.formato, maxCaracteres: 50),
-          CampoTexto(etiqueta: 'Duración', controlador: _c.duracion, maxCaracteres: 50, ayuda: 'Ej: 120 min'),
-        ]),
-      ];
+    _fila([
+      CampoTexto(
+        etiqueta: 'Formato',
+        controlador: _c.formato,
+        maxCaracteres: 50,
+      ),
+      CampoTexto(
+        etiqueta: 'Duración',
+        controlador: _c.duracion,
+        maxCaracteres: 50,
+        ayuda: 'Ej: 120 min',
+      ),
+    ]),
+  ];
 
   List<Widget> _camposEquipo() => [
-        _fila([
-          CampoTexto(etiqueta: 'Marca', controlador: _c.marca, maxCaracteres: 100),
-          CampoTexto(etiqueta: 'Modelo', controlador: _c.modelo, maxCaracteres: 100),
-        ]),
-        CampoTexto(etiqueta: 'Número de serie', controlador: _c.numeroSerie, maxCaracteres: 100),
-        CampoTexto(
-          etiqueta: 'Accesorios incluidos',
-          controlador: _c.accesorios,
-          maxLineas: 2,
-          maxCaracteres: 500,
-          ayuda: 'Ej: cable HDMI, control remoto, maletín',
-        ),
-      ];
+    _fila([
+      CampoTexto(etiqueta: 'Marca', controlador: _c.marca, maxCaracteres: 100),
+      CampoTexto(
+        etiqueta: 'Modelo',
+        controlador: _c.modelo,
+        maxCaracteres: 100,
+      ),
+    ]),
+    CampoTexto(
+      etiqueta: 'Número de serie',
+      controlador: _c.numeroSerie,
+      maxCaracteres: 100,
+    ),
+    CampoTexto(
+      etiqueta: 'Accesorios incluidos',
+      controlador: _c.accesorios,
+      maxLineas: 2,
+      maxCaracteres: 500,
+      ayuda: 'Ej: cable HDMI, control remoto, maletín',
+    ),
+  ];
 
   List<Widget> _camposGestion() {
     final plazoCategoria = _plazoDeLaCategoria();
     return [
       _fila([
-        CampoTexto(etiqueta: 'Ubicación', controlador: _c.ubicacion, maxCaracteres: 150, ayuda: 'Ej: Estante B3'),
+        CampoTexto(
+          etiqueta: 'Ubicación',
+          controlador: _c.ubicacion,
+          maxCaracteres: 150,
+          ayuda: 'Ej: Estante B3',
+        ),
         _selectorCondicion(),
       ]),
       _fila([
@@ -225,7 +257,9 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
         title: const Text('Se puede prestar'),
-        subtitle: const Text('Desactívalo para material de consulta solo en sala'),
+        subtitle: const Text(
+          'Desactívalo para material de consulta solo en sala',
+        ),
         value: _esPrestable,
         onChanged: (v) => setState(() => _esPrestable = v),
       ),

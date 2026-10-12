@@ -125,7 +125,7 @@ def test_vencidos_exporta_a_csv_con_el_filtro_aplicado(
     lineas = respuesta.content.decode("utf-8-sig").strip().split("\r\n")
     assert lineas[0] == "Persona;Documento;Correo;Teléfono;Materiales pendientes;Fecha límite;Días de atraso"
     assert len(lineas) == 2  # encabezado + el unico vencido del rango
-    assert lineas[1].startswith("Ana Prueba;D-003;ana@prueba.com;;Rayuela (L-1);17/10/2026 12:00;")
+    assert lineas[1].startswith("Ana Prueba;D-003;ana@prueba.com;;Rayuela (L-1);17/10/2026 09:00;")
 
 
 def test_los_reportes_tambien_se_exportan_a_excel_y_pdf(

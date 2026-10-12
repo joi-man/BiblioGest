@@ -14,11 +14,31 @@ class PanelEstadoMateriales extends StatelessWidget {
     final textos = Theme.of(context).textTheme;
 
     final partes = [
-      (nombre: 'Disponibles', cantidad: materiales.disponibles, color: colores.disponible),
-      (nombre: 'Reservados', cantidad: materiales.reservados, color: colores.reservado),
-      (nombre: 'Prestados', cantidad: materiales.prestados, color: colores.prestado),
-      (nombre: 'Vencidos', cantidad: materiales.vencidos, color: colores.vencido),
-      (nombre: 'Fuera de servicio', cantidad: materiales.fueraDeServicio, color: colores.fueraDeServicio),
+      (
+        nombre: 'Disponibles',
+        cantidad: materiales.disponibles,
+        color: colores.disponible,
+      ),
+      (
+        nombre: 'Reservados',
+        cantidad: materiales.reservados,
+        color: colores.reservado,
+      ),
+      (
+        nombre: 'Prestados',
+        cantidad: materiales.prestados,
+        color: colores.prestado,
+      ),
+      (
+        nombre: 'Vencidos',
+        cantidad: materiales.vencidos,
+        color: colores.vencido,
+      ),
+      (
+        nombre: 'Fuera de servicio',
+        cantidad: materiales.fueraDeServicio,
+        color: colores.fueraDeServicio,
+      ),
     ];
 
     return Card(
@@ -29,7 +49,10 @@ class PanelEstadoMateriales extends StatelessWidget {
           children: [
             Text('Inventario', style: textos.titleLarge),
             const SizedBox(height: 4),
-            Text('${materiales.total} unidades registradas', style: textos.bodySmall),
+            Text(
+              '${materiales.total} unidades registradas',
+              style: textos.bodySmall,
+            ),
             const SizedBox(height: 16),
             _barra(partes),
             const SizedBox(height: 16),
@@ -44,10 +67,16 @@ class PanelEstadoMateriales extends StatelessWidget {
                       Container(
                         width: 10,
                         height: 10,
-                        decoration: BoxDecoration(color: p.color, shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: p.color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text('${p.nombre}: ${p.cantidad}', style: textos.bodyMedium),
+                      Text(
+                        '${p.nombre}: ${p.cantidad}',
+                        style: textos.bodyMedium,
+                      ),
                     ],
                   ),
               ],

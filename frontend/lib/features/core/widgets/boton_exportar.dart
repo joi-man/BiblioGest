@@ -51,7 +51,8 @@ class _BotonExportarState extends State<BotonExportar> {
   /// Por ejemplo `usuarios_20261011.xlsx`.
   String _nombreArchivo(FormatoExportacion formato) {
     final hoy = DateTime.now();
-    final fecha = '${hoy.year}${hoy.month.toString().padLeft(2, '0')}'
+    final fecha =
+        '${hoy.year}${hoy.month.toString().padLeft(2, '0')}'
         '${hoy.day.toString().padLeft(2, '0')}';
     return '${widget.nombreBase}_$fecha.${formato.extension}';
   }
@@ -68,14 +69,11 @@ class _BotonExportarState extends State<BotonExportar> {
             value: formato,
             child: Row(
               children: [
-                Icon(
-                  switch (formato) {
-                    FormatoExportacion.pdf => Icons.picture_as_pdf_outlined,
-                    FormatoExportacion.csv => Icons.description_outlined,
-                    FormatoExportacion.excel => Icons.table_chart_outlined,
-                  },
-                  size: 20,
-                ),
+                Icon(switch (formato) {
+                  FormatoExportacion.pdf => Icons.picture_as_pdf_outlined,
+                  FormatoExportacion.csv => Icons.description_outlined,
+                  FormatoExportacion.excel => Icons.table_chart_outlined,
+                }, size: 20),
                 const SizedBox(width: 12),
                 Text(formato.etiqueta),
               ],

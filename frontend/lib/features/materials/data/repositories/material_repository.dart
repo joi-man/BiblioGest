@@ -64,7 +64,9 @@ class MaterialRepository {
       },
     );
     return PaginaResultado.desdeJson(
-        respuesta.data, MaterialBiblioteca.fromJson);
+      respuesta.data,
+      MaterialBiblioteca.fromJson,
+    );
   }
 
   /// Descarga todo el inventario que cumple el filtro (no solo una página).
@@ -87,14 +89,17 @@ class MaterialRepository {
   }
 
   /// Parámetros de filtro comunes a la búsqueda y a la exportación.
-  Map<String, dynamic> _filtros(String texto, TipoMaterial? tipo,
-          EstadoMaterial? estado, String? categoriaId) =>
-      {
-        if (texto.trim().isNotEmpty) 'q': texto.trim(),
-        if (tipo != null) 'tipo': tipo.valor,
-        if (estado != null) 'estado': estado.valor,
-        if (categoriaId != null) 'categoria_id': categoriaId,
-      };
+  Map<String, dynamic> _filtros(
+    String texto,
+    TipoMaterial? tipo,
+    EstadoMaterial? estado,
+    String? categoriaId,
+  ) => {
+    if (texto.trim().isNotEmpty) 'q': texto.trim(),
+    if (tipo != null) 'tipo': tipo.valor,
+    if (estado != null) 'estado': estado.valor,
+    if (categoriaId != null) 'categoria_id': categoriaId,
+  };
 
   Future<MaterialBiblioteca> crear(Map<String, dynamic> datos) async {
     final respuesta = await _dio.post('/api/materiales/', data: datos);
@@ -102,7 +107,9 @@ class MaterialRepository {
   }
 
   Future<MaterialBiblioteca> actualizar(
-      String id, Map<String, dynamic> datos) async {
+    String id,
+    Map<String, dynamic> datos,
+  ) async {
     final respuesta = await _dio.put('/api/materiales/$id', data: datos);
     return MaterialBiblioteca.fromJson(respuesta.data);
   }

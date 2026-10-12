@@ -20,8 +20,10 @@ class LocalRepository {
 
   /// Crea el administrador de un equipo que trabajará sin servidor.
   Future<EstadoLocal> configurarSoloLocal(Map<String, dynamic> datos) async {
-    final respuesta =
-        await _dio.post('/api/local/configurar-solo-local', data: datos);
+    final respuesta = await _dio.post(
+      '/api/local/configurar-solo-local',
+      data: datos,
+    );
     return EstadoLocal.fromJson(respuesta.data);
   }
 

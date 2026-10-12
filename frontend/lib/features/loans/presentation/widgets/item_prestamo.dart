@@ -22,7 +22,11 @@ class ItemPrestamo extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(material.tipoMaterial.icono, size: 20, color: colores.tintaSuave),
+          Icon(
+            material.tipoMaterial.icono,
+            size: 20,
+            color: colores.tintaSuave,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

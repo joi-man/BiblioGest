@@ -14,7 +14,10 @@ class CatalogoCache {
   static const _claveFecha = 'catalogo_cache_fecha';
 
   /// Guarda el catálogo completo (sin filtros) recién descargado.
-  Future<void> guardar(List<MaterialBiblioteca> materiales, {DateTime? ahora}) async {
+  Future<void> guardar(
+    List<MaterialBiblioteca> materiales, {
+    DateTime? ahora,
+  }) async {
     final contenido = jsonEncode([for (final m in materiales) m.toJson()]);
     await _preferencias.setString(_claveMateriales, contenido);
     await _preferencias.setString(
@@ -31,7 +34,9 @@ class CatalogoCache {
 
     try {
       final lista = (jsonDecode(contenido) as List)
-          .map((json) => MaterialBiblioteca.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => MaterialBiblioteca.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
       return (materiales: lista, fecha: fecha);
     } catch (_) {

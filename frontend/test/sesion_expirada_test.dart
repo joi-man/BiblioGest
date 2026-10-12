@@ -22,7 +22,7 @@ class _AdaptadorFalso implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-DioClient _cliente(int codigo, {required void Function() alExpirar}) {
+DioClient _cliente(int codigo, {required void Function(String?) alExpirar}) {
   final cliente = DioClient('http://servidor')
     ..alSesionExpirada = alExpirar;
   cliente.dio.httpClientAdapter = _AdaptadorFalso(codigo);
@@ -40,7 +40,7 @@ Future<void> _pedir(DioClient cliente, String ruta) async {
 void main() {
   test('un 401 con sesión iniciada avisa que la sesión terminó', () async {
     var avisos = 0;
-    final cliente = _cliente(401, alExpirar: () => avisos++)..setToken('token');
+    final cliente = _cliente(401, alExpirar: (_) => avisos++)..setToken('token');
 
     await _pedir(cliente, '/api/materiales/');
 
@@ -49,7 +49,7 @@ void main() {
 
   test('un 401 al iniciar sesión (clave incorrecta) no cierra nada', () async {
     var avisos = 0;
-    final cliente = _cliente(401, alExpirar: () => avisos++)..setToken('token');
+    final cliente = _cliente(401, alExpirar: (_) => avisos++)..setToken('token');
 
     await _pedir(cliente, '/api/auth/login');
 
@@ -58,7 +58,7 @@ void main() {
 
   test('un 401 sin sesión no avisa', () async {
     var avisos = 0;
-    final cliente = _cliente(401, alExpirar: () => avisos++);
+    final cliente = _cliente(401, alExpirar: (_) => avisos++);
 
     await _pedir(cliente, '/api/materiales/');
 
@@ -67,10 +67,22 @@ void main() {
 
   test('otros errores no cierran la sesión', () async {
     var avisos = 0;
-    final cliente = _cliente(500, alExpirar: () => avisos++)..setToken('token');
+    final cliente = _cliente(500, alExpirar: (_) => avisos++)..setToken('token');
 
     await _pedir(cliente, '/api/materiales/');
 
     expect(avisos, 0);
+  });
+
+  test('un 401 entrega el motivo que explica el servidor', () async {
+    String? motivo;
+    final cliente = DioClient('http://servidor')
+      ..alSesionExpirada = (m) => motivo = m;
+    cliente.setToken('token');
+    cliente.dio.httpClientAdapter = _AdaptadorFalso(401);
+
+    await _pedir(cliente, '/api/materiales/');
+
+    expect(motivo, 'x');
   });
 }

@@ -12,7 +12,9 @@ class BotonModoTema extends ConsumerWidget {
 
     return IconButton(
       tooltip: esOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
-      icon: Icon(esOscuro ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+      icon: Icon(
+        esOscuro ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+      ),
       onPressed: () => ref.read(modoTemaProvider.notifier).alternar(),
     );
   }

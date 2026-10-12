@@ -19,7 +19,11 @@ class ListaConflictos extends ConsumerWidget {
     ref.invalidate(conflictosProvider);
   }
 
-  Future<void> _reintentar(BuildContext context, WidgetRef ref, ConflictoLocal conflicto) async {
+  Future<void> _reintentar(
+    BuildContext context,
+    WidgetRef ref,
+    ConflictoLocal conflicto,
+  ) async {
     final exito = await ejecutarAccion(
       context,
       () => ref.read(localRepositoryProvider).reintentarConflicto(conflicto.id),
@@ -28,11 +32,16 @@ class ListaConflictos extends ConsumerWidget {
     if (exito) _recargar(ref);
   }
 
-  Future<void> _descartar(BuildContext context, WidgetRef ref, ConflictoLocal conflicto) async {
+  Future<void> _descartar(
+    BuildContext context,
+    WidgetRef ref,
+    ConflictoLocal conflicto,
+  ) async {
     final confirmado = await confirmarAccion(
       context,
       titulo: 'Descartar mis cambios',
-      mensaje: 'Se deshará lo que hiciste sin conexión ("${conflicto.descripcion}") y '
+      mensaje:
+          'Se deshará lo que hiciste sin conexión ("${conflicto.descripcion}") y '
           'se recuperará la versión del servidor. Esto no se puede deshacer.',
       etiquetaConfirmar: 'Descartar',
     );
@@ -71,15 +80,25 @@ class ListaConflictos extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning_amber_outlined, color: colores.reservado),
+                      Icon(
+                        Icons.warning_amber_outlined,
+                        color: colores.reservado,
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(conflicto.descripcion, style: textos.titleSmall)),
+                      Expanded(
+                        child: Text(
+                          conflicto.descripcion,
+                          style: textos.titleSmall,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     FormatoFecha.fechaHora(conflicto.creadoEn),
-                    style: textos.bodySmall?.copyWith(color: colores.tintaSuave),
+                    style: textos.bodySmall?.copyWith(
+                      color: colores.tintaSuave,
+                    ),
                   ),
                   if (conflicto.mensaje != null) ...[
                     const SizedBox(height: 8),
