@@ -25,10 +25,12 @@ class GuardiaCierreVentana extends ConsumerStatefulWidget {
   final bool? _habilitado;
 
   bool get habilitado =>
-      _habilitado ?? (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows);
+      _habilitado ??
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows);
 
   @override
-  ConsumerState<GuardiaCierreVentana> createState() => _GuardiaCierreVentanaState();
+  ConsumerState<GuardiaCierreVentana> createState() =>
+      _GuardiaCierreVentanaState();
 }
 
 class _GuardiaCierreVentanaState extends ConsumerState<GuardiaCierreVentana> {
@@ -98,11 +100,13 @@ class _DialogoSalida extends StatelessWidget {
           child: const Text('Cancelar'),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(EleccionSalida.mantenerSesion),
+          onPressed: () =>
+              Navigator.of(context).pop(EleccionSalida.mantenerSesion),
           child: const Text('No cerrar sesión'),
         ),
         FilledButton(
-          onPressed: () => Navigator.of(context).pop(EleccionSalida.cerrarSesion),
+          onPressed: () =>
+              Navigator.of(context).pop(EleccionSalida.cerrarSesion),
           child: const Text('Cerrar sesión'),
         ),
       ],

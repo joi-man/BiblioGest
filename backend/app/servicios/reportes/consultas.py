@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import Select
 
 from app.core.constantes_prestamo import PRESTAMO_VENCIDO
+from app.core.hora_paraguay import inicio_de_dia_utc
 from app.core.paginacion import paginar
 from app.modelos.devolucion import Devolucion
 from app.modelos.material import Material
@@ -33,12 +34,13 @@ class FiltrosReporte:
 
 
 def _inicio(dia: date) -> datetime:
-    return datetime.combine(dia, time.min)
+    """Las fechas del filtro son dias de Paraguay: el dia empieza a las 03:00 UTC."""
+    return inicio_de_dia_utc(dia)
 
 
 def _fin_exclusivo(dia: date) -> datetime:
     """Primer instante despues del dia indicado (asi `hasta` incluye todo ese dia)."""
-    return datetime.combine(dia + timedelta(days=1), time.min)
+    return inicio_de_dia_utc(dia + timedelta(days=1))
 
 
 def _en_rango(consulta: Select, columna, filtros: FiltrosReporte) -> Select:

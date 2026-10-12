@@ -28,12 +28,18 @@ abstract class InstaladorActualizaciones {
 
   /// Descarga el instalador (o reutiliza uno ya descargado y verificado) y
   /// devuelve su ruta. Comprueba tamaño y huella SHA-256 antes de entregarlo.
-  Future<String> descargar(Manifiesto manifiesto, {required void Function(double) alProgreso});
+  Future<String> descargar(
+    Manifiesto manifiesto, {
+    required void Function(double) alProgreso,
+  });
 
   /// Ejecuta el instalador sobre la instalación actual y cierra la aplicación.
   /// Los datos de la biblioteca no se tocan. [cerrarBackend] debe terminar el
   /// backend local para que el instalador pueda reemplazar sus archivos.
-  Future<void> instalar(String ruta, {required Future<void> Function() cerrarBackend});
+  Future<void> instalar(
+    String ruta, {
+    required Future<void> Function() cerrarBackend,
+  });
 
   /// Cierra la aplicación (y su backend local).
   Future<void> salir({required Future<void> Function() cerrarBackend});

@@ -9,6 +9,9 @@ from app.core.config import configuracion
 from app.servicios import bitacora_servicio
 
 
+MENSAJE_SUSPENDIDO = "Tu cuenta esta suspendida. Contacta al administrador de la biblioteca."
+
+
 def autenticar_usuario(
     db: Session,
     correo_o_usuario: str,
@@ -35,15 +38,6 @@ def autenticar_usuario(
         )
         return None
     
-    if not usuario.activo:
-        bitacora_servicio.registrar_login_fallido(
-            db=db,
-            correo_electronico=correo_o_usuario,
-            ip_address=ip_address,
-            user_agent=user_agent,
-        )
-        return None
-    
     if not verificar_contrasena(contrasena, usuario.contrasena_hash):
         bitacora_servicio.registrar_login_fallido(
             db=db,
@@ -52,6 +46,20 @@ def autenticar_usuario(
             user_agent=user_agent,
         )
         return None
+
+    # Se avisa de la suspension solo con la contrasena correcta, para no revelar
+    # a un tercero que la cuenta existe.
+    if not usuario.activo:
+        bitacora_servicio.registrar_login_fallido(
+            db=db,
+            correo_electronico=correo_o_usuario,
+            ip_address=ip_address,
+            user_agent=user_agent,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=MENSAJE_SUSPENDIDO,
+        )
     
     bitacora_servicio.registrar_login(
         db=db,

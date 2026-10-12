@@ -50,5 +50,4 @@ class PaginaResultado<T> {
 
   bool get hayAnterior => pagina > 1;
   bool get haySiguiente => pagina < totalPaginas;
-
 }

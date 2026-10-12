@@ -26,19 +26,22 @@ class FiltroPrestamos {
       other.masAntiguosPrimero == masAntiguosPrimero;
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(estados), texto, masAntiguosPrimero);
+  int get hashCode =>
+      Object.hash(Object.hashAll(estados), texto, masAntiguosPrimero);
 }
 
 /// Préstamos del personal que cumplen un [FiltroPrestamos].
 final prestamosProvider =
     FutureProvider.family<List<Prestamo>, FiltroPrestamos>((ref, filtro) async {
-  if (ref.watch(tokenSesionProvider) == null) return [];
-  return ref.read(prestamoRepositoryProvider).listar(
-        estados: filtro.estados,
-        texto: filtro.texto,
-        masAntiguosPrimero: filtro.masAntiguosPrimero,
-      );
-});
+      if (ref.watch(tokenSesionProvider) == null) return [];
+      return ref
+          .read(prestamoRepositoryProvider)
+          .listar(
+            estados: filtro.estados,
+            texto: filtro.texto,
+            masAntiguosPrimero: filtro.masAntiguosPrimero,
+          );
+    });
 
 /// Solicitudes y préstamos de la persona que tiene la sesión iniciada.
 final misSolicitudesProvider = FutureProvider<List<Prestamo>>((ref) async {

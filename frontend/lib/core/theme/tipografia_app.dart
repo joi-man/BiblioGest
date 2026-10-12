@@ -31,8 +31,12 @@ class TipografiaApp {
       );
     }
 
-    TextStyle sans(double tamano, FontWeight peso,
-        {Color? color, double altura = 1.4}) {
+    TextStyle sans(
+      double tamano,
+      FontWeight peso, {
+      Color? color,
+      double altura = 1.4,
+    }) {
       return TextStyle(
         fontFamily: FamiliasTipograficas.sans,
         fontSize: tamano,

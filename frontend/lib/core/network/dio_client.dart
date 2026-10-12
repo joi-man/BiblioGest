@@ -16,7 +16,7 @@ class DioClient {
 
   /// Se invoca cuando el servidor rechaza la sesión actual (token vencido o de
   /// un usuario que ya no existe). Quien lo asigna debe volver al inicio de sesión.
-  void Function()? alSesionExpirada;
+  void Function(String? motivo)? alSesionExpirada;
 
   /// [baseUrl] es la dirección de la API (el backend local o el servidor).
   /// Con [reintentar], las fallas de red se reintentan con esperas crecientes
@@ -25,8 +25,12 @@ class DioClient {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(milliseconds: ApiConstants.connectTimeout),
-        receiveTimeout: const Duration(milliseconds: ApiConstants.receiveTimeout),
+        connectTimeout: const Duration(
+          milliseconds: ApiConstants.connectTimeout,
+        ),
+        receiveTimeout: const Duration(
+          milliseconds: ApiConstants.receiveTimeout,
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -55,7 +59,7 @@ class DioClient {
 class _AuthInterceptor extends Interceptor {
   _AuthInterceptor(this._obtenerAlSesionExpirada);
 
-  final void Function()? Function() _obtenerAlSesionExpirada;
+  final void Function(String? motivo)? Function() _obtenerAlSesionExpirada;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -70,7 +74,12 @@ class _AuthInterceptor extends Interceptor {
     final habiaSesion = err.requestOptions.headers['Authorization'] != null;
     final esDeAutenticacion = err.requestOptions.path.startsWith('/api/auth/');
     if (err.response?.statusCode == 401 && habiaSesion && !esDeAutenticacion) {
-      _obtenerAlSesionExpirada()?.call();
+      final datos = err.response?.data;
+      _obtenerAlSesionExpirada()?.call(
+        datos is Map && datos['detail'] is String
+            ? datos['detail'] as String
+            : null,
+      );
     }
     handler.next(err);
   }

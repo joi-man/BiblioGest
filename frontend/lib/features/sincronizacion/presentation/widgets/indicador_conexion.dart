@@ -27,20 +27,35 @@ class IndicadorConexion extends ConsumerWidget {
         onPressed: () => context.go('/sync'),
         icon: Badge(
           isLabelVisible: estado.conflictos > 0 || estado.pendientes > 0,
-          backgroundColor: estado.conflictos > 0 ? colores.vencido : colores.reservado,
-          label: Text('${estado.conflictos > 0 ? estado.conflictos : estado.pendientes}'),
+          backgroundColor: estado.conflictos > 0
+              ? colores.vencido
+              : colores.reservado,
+          label: Text(
+            '${estado.conflictos > 0 ? estado.conflictos : estado.pendientes}',
+          ),
           child: Icon(icono, color: color),
         ),
       ),
     );
   }
 
-  (IconData, Color, String) _apariencia(EstadoLocal estado, ColoresApp colores) {
+  (IconData, Color, String) _apariencia(
+    EstadoLocal estado,
+    ColoresApp colores,
+  ) {
     if (!estado.tieneServidor) {
-      return (Icons.computer_outlined, colores.tintaSuave, 'Trabajando solo en este equipo');
+      return (
+        Icons.computer_outlined,
+        colores.tintaSuave,
+        'Trabajando solo en este equipo',
+      );
     }
     if (estado.conflictos > 0) {
-      return (Icons.warning_amber_outlined, colores.vencido, '${estado.conflictos} cambios por revisar');
+      return (
+        Icons.warning_amber_outlined,
+        colores.vencido,
+        '${estado.conflictos} cambios por revisar',
+      );
     }
     if (estado.sincronizando) {
       return (Icons.sync, colores.prestado, 'Sincronizando…');
@@ -49,13 +64,15 @@ class IndicadorConexion extends ConsumerWidget {
       return (
         Icons.cloud_off_outlined,
         colores.reservado,
-        'Sin conexión · ${estado.pendientes} cambios por enviar'
+        'Sin conexión · ${estado.pendientes} cambios por enviar',
       );
     }
     return (
       Icons.cloud_done_outlined,
       colores.disponible,
-      estado.pendientes == 0 ? 'Todo sincronizado' : '${estado.pendientes} cambios por enviar'
+      estado.pendientes == 0
+          ? 'Todo sincronizado'
+          : '${estado.pendientes} cambios por enviar',
     );
   }
 }

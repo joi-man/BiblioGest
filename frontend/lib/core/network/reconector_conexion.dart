@@ -20,8 +20,8 @@ class ReconectorConexion {
     this.intervalo = const Duration(seconds: 10),
     this.intentosAntesDeAvisar = 5,
     this.alRecuperar,
-  })  : _dio = dio,
-        _estado = estado;
+  }) : _dio = dio,
+       _estado = estado;
 
   final Dio _dio;
   final EstadoConexion _estado;

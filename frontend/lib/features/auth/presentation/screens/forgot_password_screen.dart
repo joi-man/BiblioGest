@@ -36,15 +36,19 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       await ref.read(authRepositoryProvider).solicitarRecuperacion(correo);
       if (!mounted) return;
       context.mostrarInfo(
-          'Si el correo esta registrado, recibiras un codigo de 6 digitos');
+        'Si el correo esta registrado, recibiras un codigo de 6 digitos',
+      );
       context.go('/reset-password', extra: correo);
     } catch (error) {
       if (mounted) {
         // 503: el ejecutable no pudo llegar al servidor que envía el código.
-        final sinServidor = error is DioException && error.response?.statusCode == 503;
-        context.mostrarError(sinServidor
-            ? mensajeDeError(error)
-            : 'No se pudo enviar la solicitud. Intenta de nuevo');
+        final sinServidor =
+            error is DioException && error.response?.statusCode == 503;
+        context.mostrarError(
+          sinServidor
+              ? mensajeDeError(error)
+              : 'No se pudo enviar la solicitud. Intenta de nuevo',
+        );
       }
     } finally {
       if (mounted) setState(() => _cargando = false);

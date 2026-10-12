@@ -46,16 +46,20 @@ class PrestamoRepository {
     DateTime? fechaDevolucionEsperada,
     bool omitirValidacionesUsuario = false,
   }) async {
-    final respuesta = await _dio.post('/api/prestamos/directo', data: {
-      'usuario_id': usuarioId,
-      'material_ids': materialIds,
-      if (observaciones != null && observaciones.isNotEmpty)
-        'observaciones': observaciones,
-      if (fechaDevolucionEsperada != null)
-        'fecha_devolucion_esperada':
-            fechaDevolucionEsperada.toUtc().toIso8601String(),
-      'omitir_validaciones_usuario': omitirValidacionesUsuario,
-    });
+    final respuesta = await _dio.post(
+      '/api/prestamos/directo',
+      data: {
+        'usuario_id': usuarioId,
+        'material_ids': materialIds,
+        if (observaciones != null && observaciones.isNotEmpty)
+          'observaciones': observaciones,
+        if (fechaDevolucionEsperada != null)
+          'fecha_devolucion_esperada': fechaDevolucionEsperada
+              .toUtc()
+              .toIso8601String(),
+        'omitir_validaciones_usuario': omitirValidacionesUsuario,
+      },
+    );
     return Prestamo.fromJson(respuesta.data);
   }
 
@@ -65,19 +69,25 @@ class PrestamoRepository {
   }
 
   Future<Prestamo> rechazar(String id, String motivo) async {
-    final respuesta =
-        await _dio.post('/api/prestamos/$id/rechazar', data: {'motivo': motivo});
+    final respuesta = await _dio.post(
+      '/api/prestamos/$id/rechazar',
+      data: {'motivo': motivo},
+    );
     return Prestamo.fromJson(respuesta.data);
   }
 
   /// Entrega los materiales. Sobre una solicitud pendiente la aprueba y entrega.
-  Future<Prestamo> entregar(String id, {DateTime? fechaDevolucionEsperada}) async {
+  Future<Prestamo> entregar(
+    String id, {
+    DateTime? fechaDevolucionEsperada,
+  }) async {
     final respuesta = await _dio.post(
       '/api/prestamos/$id/entregar',
       data: {
         if (fechaDevolucionEsperada != null)
-          'fecha_devolucion_esperada':
-              fechaDevolucionEsperada.toUtc().toIso8601String(),
+          'fecha_devolucion_esperada': fechaDevolucionEsperada
+              .toUtc()
+              .toIso8601String(),
       },
     );
     return Prestamo.fromJson(respuesta.data);
@@ -96,11 +106,14 @@ class PrestamoRepository {
     required String motivo,
     bool omitirValidacionesUsuario = false,
   }) async {
-    final respuesta = await _dio.post('/api/prestamos/$id/ceder', data: {
-      'usuario_id': usuarioId,
-      'motivo': motivo,
-      'omitir_validaciones_usuario': omitirValidacionesUsuario,
-    });
+    final respuesta = await _dio.post(
+      '/api/prestamos/$id/ceder',
+      data: {
+        'usuario_id': usuarioId,
+        'motivo': motivo,
+        'omitir_validaciones_usuario': omitirValidacionesUsuario,
+      },
+    );
     return Prestamo.fromJson(respuesta.data);
   }
 
@@ -108,12 +121,18 @@ class PrestamoRepository {
   // Usuario sobre sus propias solicitudes (app móvil del estudiante)
   // ---------------------------------------------------------------------
 
-  Future<Prestamo> solicitar(List<String> materialIds, {String? observaciones}) async {
-    final respuesta = await _dio.post('/api/solicitudes/', data: {
-      'material_ids': materialIds,
-      if (observaciones != null && observaciones.isNotEmpty)
-        'observaciones': observaciones,
-    });
+  Future<Prestamo> solicitar(
+    List<String> materialIds, {
+    String? observaciones,
+  }) async {
+    final respuesta = await _dio.post(
+      '/api/solicitudes/',
+      data: {
+        'material_ids': materialIds,
+        if (observaciones != null && observaciones.isNotEmpty)
+          'observaciones': observaciones,
+      },
+    );
     return Prestamo.fromJson(respuesta.data);
   }
 

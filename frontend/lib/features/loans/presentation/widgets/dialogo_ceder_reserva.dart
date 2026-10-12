@@ -27,7 +27,8 @@ class _DialogoCederReserva extends ConsumerStatefulWidget {
   final Prestamo reserva;
 
   @override
-  ConsumerState<_DialogoCederReserva> createState() => _DialogoCederReservaState();
+  ConsumerState<_DialogoCederReserva> createState() =>
+      _DialogoCederReservaState();
 }
 
 class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
@@ -48,7 +49,9 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
 
     final cedida = await ejecutarAccion(
       context,
-      () => ref.read(accionesPrestamoProvider).ceder(
+      () => ref
+          .read(accionesPrestamoProvider)
+          .ceder(
             widget.reserva.id,
             usuarioId: _usuario!.id,
             motivo: _motivo.text.trim(),
@@ -101,11 +104,13 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
                     for (final u in usuarios.value ?? const <Usuario>[])
                       if (u.id != reserva.usuario.id) u,
                   ],
-                  itemAsString: (u) => '${u.nombre} ${u.apellido} · ${u.numeroDocumento}',
+                  itemAsString: (u) =>
+                      '${u.nombre} ${u.apellido} · ${u.numeroDocumento}',
                   compareFn: (a, b) => a.id == b.id,
-                  filterFn: (u, filtro) => '${u.nombre} ${u.apellido} ${u.numeroDocumento} ${u.username}'
-                      .toLowerCase()
-                      .contains(filtro.toLowerCase()),
+                  filterFn: (u, filtro) =>
+                      '${u.nombre} ${u.apellido} ${u.numeroDocumento} ${u.username}'
+                          .toLowerCase()
+                          .contains(filtro.toLowerCase()),
                   onChanged: (u) => setState(() => _usuario = u),
                   popupProps: const PopupProps.dialog(
                     showSearchBox: true,
@@ -114,7 +119,9 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
                       child: Text('¿A quién se le presta?'),
                     ),
                     searchFieldProps: TextFieldProps(
-                      decoration: InputDecoration(hintText: 'Nombre, documento o usuario'),
+                      decoration: InputDecoration(
+                        hintText: 'Nombre, documento o usuario',
+                      ),
                     ),
                   ),
                   decoratorProps: const DropDownDecoratorProps(
@@ -131,7 +138,8 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
                     labelText: 'Motivo *',
                     helperText: '${reserva.usuario.nombre} verá este mensaje.',
                   ),
-                  validator: (valor) => (valor == null || valor.trim().length < 10)
+                  validator: (valor) =>
+                      (valor == null || valor.trim().length < 10)
                       ? 'Explica el motivo (al menos 10 caracteres)'
                       : null,
                 ),

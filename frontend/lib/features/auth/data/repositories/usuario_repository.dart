@@ -66,10 +66,10 @@ class UsuarioRepository {
 
   /// Parámetros de filtro comunes a la búsqueda y a la exportación.
   Map<String, dynamic> _filtros(String texto, String? rol, bool? activo) => {
-        if (texto.trim().isNotEmpty) 'q': texto.trim(),
-        if (rol != null) 'rol': rol,
-        if (activo != null) 'activo': activo,
-      };
+    if (texto.trim().isNotEmpty) 'q': texto.trim(),
+    if (rol != null) 'rol': rol,
+    if (activo != null) 'activo': activo,
+  };
 
   Future<Usuario> obtenerPorId(String id, String token) async {
     final response = await _dio.get(
@@ -88,8 +88,11 @@ class UsuarioRepository {
     return Usuario.fromJson(response.data);
   }
 
-  Future<Usuario> actualizar(String id, Map<String, dynamic> datos,
-      String token) async {
+  Future<Usuario> actualizar(
+    String id,
+    Map<String, dynamic> datos,
+    String token,
+  ) async {
     final response = await _dio.put(
       '/api/usuarios/$id',
       data: datos,

@@ -23,7 +23,10 @@ class CategoriasScreen extends ConsumerWidget {
   }
 
   Future<void> _eliminar(
-      BuildContext context, WidgetRef ref, Categoria categoria) async {
+    BuildContext context,
+    WidgetRef ref,
+    Categoria categoria,
+  ) async {
     final confirmado = await confirmarEliminar(
       context,
       titulo: 'Eliminar categoría',
@@ -31,14 +34,10 @@ class CategoriasScreen extends ConsumerWidget {
     );
     if (!confirmado || !context.mounted) return;
 
-    await ejecutarAccion(
-      context,
-      () async {
-        await ref.read(categoriaRepositoryProvider).eliminar(categoria.id);
-        ref.invalidate(categoriasProvider);
-      },
-      exito: 'Categoría eliminada',
-    );
+    await ejecutarAccion(context, () async {
+      await ref.read(categoriaRepositoryProvider).eliminar(categoria.id);
+      ref.invalidate(categoriasProvider);
+    }, exito: 'Categoría eliminada');
   }
 
   @override
@@ -71,7 +70,11 @@ class CategoriasScreen extends ConsumerWidget {
     );
   }
 
-  Widget _lista(BuildContext context, WidgetRef ref, List<Categoria> categorias) {
+  Widget _lista(
+    BuildContext context,
+    WidgetRef ref,
+    List<Categoria> categorias,
+  ) {
     if (categorias.isEmpty) {
       return const EstadoVacio(
         titulo: 'No hay categorías',
@@ -88,12 +91,16 @@ class CategoriasScreen extends ConsumerWidget {
         final categoria = categorias[indice];
         return Card(
           child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            title: Text(categoria.nombre,
-                style: Theme.of(context).textTheme.titleMedium),
-            subtitle: categoria.descripcion == null ||
-                    categoria.descripcion!.isEmpty
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 6,
+            ),
+            title: Text(
+              categoria.nombre,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            subtitle:
+                categoria.descripcion == null || categoria.descripcion!.isEmpty
                 ? null
                 : Text(categoria.descripcion!),
             trailing: Row(

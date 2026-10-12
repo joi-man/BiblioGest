@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'arranque_so.dart';
 
+/// Vigencia de la sesión guardada en el navegador: algo menos que el token (60 min).
+const vigenciaSesionWeb = Duration(minutes: 55);
+
 /// Sesión que se conserva al cerrar la ventana sin cerrar sesión.
 ///
 /// Se puede recuperar al volver a abrir la aplicación mientras no pase
@@ -14,12 +17,15 @@ class SesionGuardada {
     this._preferencias, {
     DateTime Function()? ahora,
     Future<int?> Function()? arranqueSo,
-  })  : _ahora = ahora ?? DateTime.now,
-        _arranqueSo = arranqueSo ?? instanteArranqueSo;
+    Duration? vigencia,
+  }) : _ahora = ahora ?? DateTime.now,
+       _vigencia = vigencia ?? duracion,
+       _arranqueSo = arranqueSo ?? instanteArranqueSo;
 
   final SharedPreferences _preferencias;
   final DateTime Function() _ahora;
   final Future<int?> Function() _arranqueSo;
+  final Duration _vigencia;
 
   /// Tiempo que se mantiene la sesión con la aplicación cerrada.
   static const duracion = Duration(minutes: 30);
@@ -42,24 +48,36 @@ class SesionGuardada {
 
   Future<void> borrar() => _preferencias.remove(_clave);
 
-  /// Devuelve la sesión guardada si todavía vale, y la elimina en cualquier caso.
-  Future<LoginResponse?> restaurar() async {
+  /// Devuelve la sesión guardada si todavía vale.
+  ///
+  /// Con [consumir] (el escritorio) la elimina en cualquier caso: se usa una sola
+  /// vez. En la web no se consume, para que F5 u otra pestaña la recuperen
+  /// mientras dure su vigencia.
+  Future<LoginResponse?> restaurar({bool consumir = true}) async {
     final texto = _preferencias.getString(_clave);
     if (texto == null) return null;
-    await borrar();
+    if (consumir) await borrar();
     try {
       final datos = jsonDecode(texto) as Map<String, dynamic>;
-      final guardadaEn = DateTime.fromMillisecondsSinceEpoch(datos['guardadaEn'] as int);
+      final guardadaEn = DateTime.fromMillisecondsSinceEpoch(
+        datos['guardadaEn'] as int,
+      );
       final transcurrido = _ahora().difference(guardadaEn);
-      if (transcurrido.isNegative || transcurrido > duracion) return null;
+      if (transcurrido.isNegative || transcurrido > _vigencia) {
+        await borrar();
+        return null;
+      }
 
       final arranqueGuardado = datos['arranque'] as int?;
       final arranqueActual = await _arranqueSo();
       if (arranqueGuardado != null && arranqueActual != null) {
         final diferencia = (arranqueActual - arranqueGuardado).abs();
-        if (diferencia > _margenArranque.inMilliseconds) return null; // el equipo se reinició
+        if (diferencia > _margenArranque.inMilliseconds)
+          return null; // el equipo se reinició
       }
-      return LoginResponse.fromJson(Map<String, dynamic>.from(datos['sesion'] as Map));
+      return LoginResponse.fromJson(
+        Map<String, dynamic>.from(datos['sesion'] as Map),
+      );
     } catch (_) {
       return null;
     }

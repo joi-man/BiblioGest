@@ -22,7 +22,8 @@ class SincronizacionScreen extends ConsumerStatefulWidget {
   const SincronizacionScreen({super.key});
 
   @override
-  ConsumerState<SincronizacionScreen> createState() => _SincronizacionScreenState();
+  ConsumerState<SincronizacionScreen> createState() =>
+      _SincronizacionScreenState();
 }
 
 class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
@@ -50,7 +51,8 @@ class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
     final confirmado = await confirmarAccion(
       context,
       titulo: 'Trabajar solo en este equipo',
-      mensaje: 'El equipo dejará de sincronizar con el servidor. Los cambios que '
+      mensaje:
+          'El equipo dejará de sincronizar con el servidor. Los cambios que '
           'aún no se enviaron se perderán para el servidor. ¿Continuar?',
       etiquetaConfirmar: 'Desconectar',
     );
@@ -116,10 +118,7 @@ class _SincronizacionScreenState extends ConsumerState<SincronizacionScreen> {
           const SizedBox(height: 24),
           ListaConflictos(conflictos: conflictos),
         ],
-        if (esAdmin) ...[
-          const SizedBox(height: 24),
-          _seccionServidor(estado),
-        ],
+        if (esAdmin) ...[const SizedBox(height: 24), _seccionServidor(estado)],
       ],
     );
   }

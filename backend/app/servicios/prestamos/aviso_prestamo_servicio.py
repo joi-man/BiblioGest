@@ -5,6 +5,7 @@ devuelve un `Aviso` simple; `enviar` lo manda despues de responder la peticion
 (BackgroundTasks), asi un SMTP lento o caido nunca demora ni rompe la operacion.
 """
 import logging
+from app.core.hora_paraguay import a_paraguay
 from dataclasses import dataclass
 from typing import Optional
 
@@ -33,7 +34,7 @@ def _saludo(prestamo: PrestamoCabecera) -> str:
 
 def aviso_aprobacion(prestamo: PrestamoCabecera) -> Aviso:
     limite = prestamo.fecha_retiro_limite
-    hasta = f" Tienes hasta el {limite:%d/%m/%Y %H:%M} (UTC) para retirarlo." if limite else ""
+    hasta = f" Tienes hasta el {a_paraguay(limite):%d/%m/%Y %H:%M} (hora de Paraguay) para retirarlo." if limite else ""
     return Aviso(
         destino=prestamo.usuario.correo_electronico,
         asunto="Tu solicitud fue aprobada - BiblioGest",

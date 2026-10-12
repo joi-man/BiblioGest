@@ -7,6 +7,8 @@ import 'package:frontend/features/returns/data/repositories/devolucion_repositor
 /// (nombre, documento, usuario o material). Texto vacío = todos.
 final devolucionesPendientesProvider =
     FutureProvider.family<List<Prestamo>, String>((ref, texto) async {
-  if (ref.watch(tokenSesionProvider) == null) return [];
-  return ref.read(devolucionRepositoryProvider).listarPendientes(texto: texto);
-});
+      if (ref.watch(tokenSesionProvider) == null) return [];
+      return ref
+          .read(devolucionRepositoryProvider)
+          .listarPendientes(texto: texto);
+    });

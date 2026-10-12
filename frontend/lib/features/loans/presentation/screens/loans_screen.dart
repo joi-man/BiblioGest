@@ -101,7 +101,8 @@ class _LoansScreenState extends ConsumerState<LoansScreen>
         children: [
           EncabezadoPagina(
             titulo: 'Préstamos',
-            subtitulo: 'Solicitudes de los usuarios y materiales en circulación',
+            subtitulo:
+                'Solicitudes de los usuarios y materiales en circulación',
             acciones: [
               FilledButton.icon(
                 onPressed: () => showDialog(

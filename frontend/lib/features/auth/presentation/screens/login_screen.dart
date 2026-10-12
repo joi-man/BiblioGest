@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -45,10 +46,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _iniciarSesion() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(authProvider.notifier).login(
-          _correoController.text.trim(),
-          _contrasenaController.text,
-        );
+    await ref
+        .read(authProvider.notifier)
+        .login(_correoController.text.trim(), _contrasenaController.text);
 
     final estado = ref.read(authProvider);
     if (!mounted) return;
@@ -56,7 +56,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.mostrarExito('Bienvenido ${estado.value!.usuario.nombre}');
       context.go('/');
     } else if (estado.hasError) {
-      context.mostrarError('Credenciales incorrectas');
+      // Si el servidor explica el motivo (cuenta suspendida) se muestra; si no, mensaje general.
+      final error = estado.error;
+      final detalle = error is DioException && error.response?.data is Map
+          ? (error.response!.data as Map)['detail']
+          : null;
+      context.mostrarError(
+        detalle is String && detalle.contains('suspendida')
+            ? detalle
+            : 'Credenciales incorrectas',
+      );
     }
   }
 
@@ -95,9 +104,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 labelText: 'Contrasena',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
-                  icon: Icon(_ocultarContrasena
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined),
+                  icon: Icon(
+                    _ocultarContrasena
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
                   onPressed: () =>
                       setState(() => _ocultarContrasena = !_ocultarContrasena),
                 ),

@@ -48,12 +48,18 @@ class PantallaArranque extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('No se pudo iniciar', style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          'No se pudo iniciar',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
         const SizedBox(height: 12),
         Text(error!, textAlign: TextAlign.center),
         if (alReintentar != null) ...[
           const SizedBox(height: 20),
-          FilledButton(onPressed: alReintentar, child: const Text('Reintentar')),
+          FilledButton(
+            onPressed: alReintentar,
+            child: const Text('Reintentar'),
+          ),
         ],
       ],
     );

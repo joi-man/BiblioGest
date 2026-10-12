@@ -56,8 +56,8 @@ class FiltrosReporte extends StatelessWidget {
     final etiquetaFecha = tipo == TipoReporte.vencidos
         ? 'Límite desde'
         : tipo == TipoReporte.devoluciones
-            ? 'Devuelto desde'
-            : 'Solicitado desde';
+        ? 'Devuelto desde'
+        : 'Solicitado desde';
     final etiquetaHasta = etiquetaFecha.replaceFirst('desde', 'hasta');
 
     return Wrap(
@@ -112,7 +112,8 @@ class FiltrosReporte extends StatelessWidget {
               etiqueta: 'Condición',
               valor: consulta.condicion,
               opciones: _condiciones,
-              alElegir: (v) => alCambiar(consulta.conFiltros(condicion: () => v)),
+              alElegir: (v) =>
+                  alCambiar(consulta.conFiltros(condicion: () => v)),
             ),
           ),
       ],
