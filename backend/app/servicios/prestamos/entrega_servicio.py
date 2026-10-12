@@ -83,15 +83,18 @@ def entregar(
     return consulta_prestamo_servicio.obtener_prestamo(db, prestamo_id)
 
 
-def crear_prestamo_directo(
+def registrar_directo(
     db: Session,
     personal: Usuario,
     datos: PrestamoDirectoCrear,
+    accion: str = "PRESTAMO_DIRECTO",
+    detalles_extra: Optional[dict] = None,
 ) -> PrestamoCabecera:
-    """Registra un prestamo en el mostrador, sin solicitud previa, ya entregado.
+    """Registra un prestamo en el mostrador, ya entregado, SIN confirmar la transaccion.
 
     El personal puede saltarse el limite de items y el bloqueo por vencidos con
-    `omitir_validaciones_usuario`; queda anotado en la bitacora.
+    `omitir_validaciones_usuario`; queda anotado en la bitacora. Lo reutiliza la
+    cesion de una reserva (ver cesion_servicio) con su propia accion de bitacora.
     """
     ahora = reloj.ahora_utc()
     _validar_fecha_limite(datos.fecha_devolucion_esperada, ahora)
@@ -126,12 +129,23 @@ def crear_prestamo_directo(
     db.add(prestamo)
     db.flush()
     auditoria_prestamo.registrar(
-        db, personal, "PRESTAMO_DIRECTO", prestamo,
+        db, personal, accion, prestamo,
         {
             "usuario_id": str(usuario.id),
             "materiales": [m.codigo for m in materiales],
             "omitio_validaciones": datos.omitir_validaciones_usuario,
+            **(detalles_extra or {}),
         },
     )
+    return prestamo
+
+
+def crear_prestamo_directo(
+    db: Session,
+    personal: Usuario,
+    datos: PrestamoDirectoCrear,
+) -> PrestamoCabecera:
+    """Registra un prestamo en el mostrador, sin solicitud previa, ya entregado."""
+    prestamo = registrar_directo(db, personal, datos)
     db.commit()
     return consulta_prestamo_servicio.obtener_prestamo(db, prestamo.id)

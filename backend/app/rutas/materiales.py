@@ -4,6 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.core.constantes_inventario import TIPOS_BIBLIOGRAFICOS
+from app.core.constantes_roles import ROLES_PERSONAL
 from app.core.database import obtener_db
 from app.core.dependencias import obtener_usuario_actual, require_role
 from app.esquemas.material import MaterialActualizar, MaterialCrear, MaterialRespuesta
@@ -33,9 +35,19 @@ def listar_materiales(
     db: Session = Depends(obtener_db),
     usuario: Usuario = Depends(obtener_usuario_actual),
 ):
-    """Lista los materiales, con busqueda y filtros opcionales."""
+    """Lista los materiales, con busqueda y filtros opcionales.
+
+    Un estudiante solo ve libros y revistas (y no las unidades fuera de servicio).
+    """
+    es_estudiante = usuario.rol not in ROLES_PERSONAL
     return material_servicio.listar_materiales(
-        db, texto=q, tipo=tipo, estado=estado, solo_disponibles=disponible
+        db,
+        texto=q,
+        tipo=tipo,
+        estado=estado,
+        solo_disponibles=disponible,
+        tipos=TIPOS_BIBLIOGRAFICOS if es_estudiante else None,
+        ocultar_fuera_de_servicio=es_estudiante,
     )
 
 
@@ -102,7 +114,9 @@ def obtener_material(
 ):
     """Obtiene un material por ID."""
     material = material_servicio.obtener_material_por_id(db, material_id)
-    if material is None:
+    if material is None or (
+        usuario.rol not in ROLES_PERSONAL and material.tipo_material not in TIPOS_BIBLIOGRAFICOS
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Material no encontrado",

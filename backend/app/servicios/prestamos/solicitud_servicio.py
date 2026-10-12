@@ -35,6 +35,7 @@ def crear_solicitud(
     ahora = reloj.ahora_utc()
 
     materiales = material_estado_servicio.bloquear_materiales(db, material_ids)
+    reglas_prestamo.validar_materiales_para_solicitante(usuario, materiales)
     reglas_prestamo.validar_usuario_puede_pedir(db, usuario, len(materiales))
     reglas_prestamo.validar_materiales_disponibles(materiales)
 
