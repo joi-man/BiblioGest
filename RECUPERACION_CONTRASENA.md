@@ -2,6 +2,27 @@
 
 Permite que un usuario restablezca su contraseña recibiendo un **código de 6 dígitos** en su correo. El envío usa **Gmail SMTP** (gratis, sin dependencias nuevas: solo `smtplib` de la biblioteca estándar).
 
+## Importante: Render (plan gratuito) bloquea el correo por Gmail
+
+Los servicios gratuitos de Render **bloquean las conexiones salientes por SMTP en los puertos 25, 465 y 587**. Con Gmail (`smtp.gmail.com:587`) el servidor no puede enviar nada y en los logs aparece `OSError: [Errno 101] Network is unreachable` en `email_servicio`. Afecta a **todos** los correos del sistema: código de recuperación y avisos de aprobación, rechazo y cesión de reservas. Funciona en tu PC (Docker local) porque no hay bloqueo.
+
+Soluciones (elige una):
+
+1. **Un servicio de correo con SMTP por el puerto 2525** (no bloqueado). Sin cambiar código, solo variables de entorno en Render. Por ejemplo Brevo (gratis, 300 correos/día): crea la cuenta, verifica el remitente (por ejemplo `systembibliogest@gmail.com`; Brevo envía un correo de confirmación), crea una *clave SMTP* y define:
+
+   | Variable | Valor |
+   |---|---|
+   | `SMTP_HOST` | `smtp-relay.brevo.com` |
+   | `SMTP_PUERTO` | `2525` |
+   | `SMTP_USUARIO` | el *login SMTP* que muestra Brevo (no es el correo remitente) |
+   | `SMTP_CLAVE` | la clave SMTP de Brevo |
+   | `SMTP_REMITENTE` | el remitente verificado |
+
+   Mailjet y SendGrid también aceptan el puerto 2525.
+2. **Pasar el servicio de Render a un plan de pago**, que no bloquea SMTP.
+
+Los logs del servidor muestran el resultado de cada envío: `Correo enviado a ...` o `Error enviando correo a ...` con el motivo.
+
 ## Flujo
 
 1. En el login, el usuario pulsa **¿Olvidaste tu contrasena?** (`/forgot-password`) e ingresa su correo.
