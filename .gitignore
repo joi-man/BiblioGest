@@ -9,6 +9,8 @@ docs/*
 !docs/actualizaciones.md
 !docs/app-movil.md
 !docs/iconos.md
+!docs/reportes.md
+!docs/despliegue.md
 *.docx
 
 # Environment and Secret files
