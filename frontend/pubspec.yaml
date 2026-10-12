@@ -1,7 +1,7 @@
 name: frontend
 description: "BiblioGest - Sistema Multiplataforma de Gestion Bibliotecaria"
 publish_to: 'none'
-version: 0.12.0+9
+version: 0.12.1+10
 
 environment:
   sdk: ^3.8.1
