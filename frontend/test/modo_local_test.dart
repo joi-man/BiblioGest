@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_test/flutter_test.dart' hide testWidgets;
+import 'package:flutter_test/flutter_test.dart' as ft show testWidgets;
 import 'package:frontend/app/app.dart';
 import 'package:frontend/app/auth_state.dart';
 import 'package:frontend/app/router.dart';
@@ -49,6 +51,19 @@ Future<void> _abrirApp(
     child: const BiblioGestApp(),
   ));
   await tester.pumpAndSettle();
+}
+
+/// Estas pruebas son del menú de escritorio: `flutter test` corre por defecto como
+/// Android, donde el personal tiene un menú móvil distinto.
+void testWidgets(String descripcion, Future<void> Function(WidgetTester) prueba) {
+  ft.testWidgets(descripcion, (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    try {
+      await prueba(tester);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
 }
 
 void main() {

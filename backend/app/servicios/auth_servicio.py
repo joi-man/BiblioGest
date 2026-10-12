@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select, or_
+from sqlalchemy import func, select, or_
 from fastapi import HTTPException, status
 from app.modelos.usuario import Usuario
 from app.core.seguridad import hashear_contrasena, verificar_contrasena, crear_token_acceso
@@ -19,12 +19,12 @@ def autenticar_usuario(
     """Autenticar usuario con correo o username y contrasena."""
     stmt = select(Usuario).where(
         or_(
-            Usuario.correo_electronico == correo_o_usuario,
+            func.lower(Usuario.correo_electronico) == correo_o_usuario.strip().lower(),
             Usuario.username == correo_o_usuario,
         ),
         Usuario.eliminado == False
     )
-    usuario = db.execute(stmt).scalar_one_or_none()
+    usuario = db.execute(stmt).scalars().first()
     
     if usuario is None:
         bitacora_servicio.registrar_login_fallido(

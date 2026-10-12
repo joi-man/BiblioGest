@@ -153,6 +153,9 @@ def olvide_contrasena(
             )
         else:
             background_tasks.add_task(_enviar_codigo, usuario, codigo)
+    else:
+        # Sin dato personal: solo para saber, en los registros, por que no llego un correo.
+        logger.info("Recuperacion pedida para un correo no registrado, inactivo o eliminado")
     return MensajeRespuesta(mensaje=MENSAJE_CODIGO)
 
 
