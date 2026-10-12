@@ -59,7 +59,7 @@ El detalle de estados y reglas (límite de items, vencidos, plazos) está en [pr
 
 ### Cómo se entera el estudiante
 
-1. **Dentro de la app:** la lista de reservas se actualiza sola cada 30 segundos y al volver a abrir la app. Cuando el bibliotecario responde, aparece un aviso ("Tu reserva de «X» fue aprobada. Pasa a retirarla.", o rechazada con su motivo).
+1. **Dentro de la app:** la lista de reservas se actualiza sola cada 30 segundos y al volver a abrir la app. El personal (web, Windows y móvil) también se actualiza solo cada 30 segundos: préstamos, devoluciones, materiales e indicadores; una solicitud nueva de un estudiante aparece sin cerrar sesión (puede tardar hasta 30 s). Cuando el bibliotecario responde, aparece un aviso ("Tu reserva de «X» fue aprobada. Pasa a retirarla.", o rechazada con su motivo).
 2. **Por correo:** al aprobar, rechazar o ceder su reserva se le envía un correo con el detalle y el motivo. (De momento los avisos son solo por correo; no hay notificaciones push.)
 
 Los correos salen del **servidor central** (SMTP, ver [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md) para configurarlo). Se envían en segundo plano: si el correo falla, la operación del bibliotecario igual se completa y el error queda en el registro del servidor.
