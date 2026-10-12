@@ -8,6 +8,7 @@ import '../features/materials/presentation/screens/materials_screen.dart';
 import '../features/materials/presentation/screens/materiales_movil_screen.dart';
 import '../features/student/presentation/screens/perfil_screen.dart';
 import '../features/loans/presentation/screens/loans_screen.dart';
+import '../features/reports/presentation/screens/reportes_screen.dart';
 import '../features/returns/presentation/screens/devoluciones_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
@@ -38,7 +39,7 @@ const _rutaConfiguracionInicial = '/configuracion-inicial';
 const _rutaSincronizacion = '/sync';
 
 /// Pantallas que el personal solo usa desde la web o el escritorio.
-const _rutasSoloEscritorio = ['/users', '/categories', _rutaSincronizacion];
+const _rutasSoloEscritorio = ['/users', '/categories', '/reports', _rutaSincronizacion];
 
 /// Página sin animación de transición, usada dentro del marco de navegación.
 Page<void> _paginaSinTransicion(Widget pantalla) {
@@ -164,6 +165,12 @@ final appRouter = GoRouter(
               textoInicial: state.uri.queryParameters['q'] ?? '',
             ),
           ),
+        ),
+        GoRoute(
+          path: '/reports',
+          name: 'reports',
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const ReportesScreen()),
         ),
         GoRoute(
           path: '/users',

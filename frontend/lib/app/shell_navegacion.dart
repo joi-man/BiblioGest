@@ -51,6 +51,12 @@ const List<DestinoNavegacion> destinosPersonal = [
     iconoActivo: Icons.assignment_return,
   ),
   DestinoNavegacion(
+    ruta: '/reports',
+    etiqueta: 'Reportes',
+    icono: Icons.assessment_outlined,
+    iconoActivo: Icons.assessment,
+  ),
+  DestinoNavegacion(
     ruta: '/users',
     etiqueta: 'Usuarios',
     icono: Icons.people_outline,

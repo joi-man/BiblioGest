@@ -51,6 +51,16 @@ def _filtro_texto(texto: str):
     return or_(del_usuario, de_un_material)
 
 
+def consulta_con_relaciones():
+    """Consulta de prestamos no eliminados con sus relaciones; la usan tambien los reportes."""
+    return _consulta_base()
+
+
+def filtro_texto(texto: str):
+    """Condicion que busca el texto en la persona o en los materiales del prestamo."""
+    return _filtro_texto(texto)
+
+
 def listar_prestamos(
     db: Session,
     estados: Optional[Sequence[str]] = None,
