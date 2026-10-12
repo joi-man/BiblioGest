@@ -97,7 +97,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Catálogo'), findsWidgets);
-      expect(find.text('Mis solicitudes'), findsOneWidget);
+      expect(find.text('Mis reservas'), findsWidgets);
     });
   });
 }

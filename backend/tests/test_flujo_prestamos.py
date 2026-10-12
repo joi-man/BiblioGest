@@ -56,7 +56,8 @@ def test_entregar_una_reserva_deja_el_prestamo_activo_con_plazo_de_la_categoria(
     cliente, db, estudiante, bibliotecario, categoria_equipos, crear_material
 ):
     proyector = crear_material(categoria_equipos, "P-1", tipo_material="proyector")
-    prestamo_id = solicitar(cliente, estudiante, proyector).json()["id"]
+    # Los equipos los pide el personal: un estudiante solo puede solicitar libros y revistas.
+    prestamo_id = solicitar(cliente, bibliotecario, proyector).json()["id"]
     accion(cliente, bibliotecario, prestamo_id, "aprobar")
 
     respuesta = accion(cliente, bibliotecario, prestamo_id, "entregar")
@@ -78,7 +79,7 @@ def test_el_plazo_propio_del_material_tiene_prioridad_sobre_la_categoria(
     alargador = crear_material(
         categoria_equipos, "A-1", tipo_material="alargador", plazo_prestamo_horas=48
     )
-    prestamo_id = solicitar(cliente, estudiante, alargador).json()["id"]
+    prestamo_id = solicitar(cliente, bibliotecario, alargador).json()["id"]
 
     cuerpo = accion(cliente, bibliotecario, prestamo_id, "entregar").json()
 

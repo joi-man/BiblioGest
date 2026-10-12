@@ -1,7 +1,7 @@
 name: frontend
 description: "BiblioGest - Sistema Multiplataforma de Gestion Bibliotecaria"
 publish_to: 'none'
-version: 0.10.4+5
+version: 0.11.0+7
 
 environment:
   sdk: ^3.8.1
@@ -37,6 +37,7 @@ dependencies:
   cryptography: ^2.9.0
   crypto: ^3.0.7
   package_info_plus: ^10.2.2
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

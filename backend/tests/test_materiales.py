@@ -56,14 +56,14 @@ def test_el_codigo_de_inventario_no_se_puede_repetir(cliente, bibliotecario, cat
 
 
 def test_buscar_por_texto_encuentra_por_serie_marca_o_titulo(
-    cliente, bibliotecario, estudiante, categoria_equipos
+    cliente, bibliotecario, categoria_equipos
 ):
     crear(cliente, bibliotecario, categoria_equipos, numero_serie="SN-777", marca="Epson")
     crear(cliente, bibliotecario, categoria_equipos, codigo="A-1", titulo="Alargador 5 m",
           tipo_material="alargador")
 
     def buscar(**params):
-        return cliente.get("/api/materiales/", params=params, headers=encabezados(estudiante)).json()
+        return cliente.get("/api/materiales/", params=params, headers=encabezados(bibliotecario)).json()
 
     assert [m["codigo"] for m in buscar(q="SN-777")] == ["P-001"]
     assert [m["codigo"] for m in buscar(q="epson")] == ["P-001"]

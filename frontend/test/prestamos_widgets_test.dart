@@ -39,6 +39,7 @@ void main() {
 
       expect(find.text('Marcar como entregado'), findsOneWidget);
       expect(find.text('Cancelar reserva'), findsOneWidget);
+      expect(find.text('Prestar a otra persona'), findsOneWidget);
       expect(find.text('Aprobar'), findsNothing);
     });
 

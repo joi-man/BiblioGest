@@ -48,6 +48,20 @@ class AuthRepository {
     );
   }
 
+  /// Cambia la contraseña de la sesión actual. Falla con 400 si la actual no coincide.
+  Future<void> cambiarContrasena({
+    required String contrasenaActual,
+    required String nuevaContrasena,
+  }) async {
+    await _dio.post(
+      '/api/auth/cambiar-contrasena',
+      data: {
+        'contrasena_actual': contrasenaActual,
+        'nueva_contrasena': nuevaContrasena,
+      },
+    );
+  }
+
   Future<Usuario> getCurrentUser(String token) async {
     final response = await _dio.get(
       '/api/auth/yo',

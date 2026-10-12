@@ -23,6 +23,13 @@ class RestablecerContrasenaRequest(BaseModel):
     nueva_contrasena: str = Field(..., min_length=6)
 
 
+class CambiarContrasenaRequest(BaseModel):
+    """Cambio de contrasena de quien tiene la sesion iniciada."""
+
+    contrasena_actual: str = Field(..., min_length=1)
+    nueva_contrasena: str = Field(..., min_length=6, max_length=72)
+
+
 class MensajeRespuesta(BaseModel):
     mensaje: str
 
