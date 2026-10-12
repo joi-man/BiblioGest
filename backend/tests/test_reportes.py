@@ -34,7 +34,7 @@ def test_el_reporte_de_prestamos_lista_columnas_y_filas(
     assert cuerpo["columnas"][:3] == ["Solicitud", "Persona", "Documento"]
     assert cuerpo["total"] == 1
     fila = cuerpo["filas"][0]
-    assert fila[1] == "Ana Prueba" and "Rayuela (L-1)" in fila[3] and fila[4] == "Activo"
+    assert fila[1] == "Ana Prueba" and "Rayuela (L-1)" in fila[3] and fila[4] == "En préstamo"
 
 
 def test_el_reporte_de_prestamos_filtra_por_estado_y_por_rango_de_fechas(
@@ -83,7 +83,7 @@ def test_vencidos_muestra_solo_los_atrasados_con_sus_dias_de_atraso(
 
     cuerpo = reporte(cliente, bibliotecario, "vencidos").json()
 
-    assert cuerpo["columnas"][-2:] == ["Fecha limite", "Dias de atraso"]
+    assert cuerpo["columnas"][-2:] == ["Fecha límite", "Días de atraso"]
     assert [f[0] for f in cuerpo["filas"]] == ["Ana Prueba"]
     assert cuerpo["filas"][0][4] == "Rayuela (L-1)"
     assert cuerpo["filas"][0][6] == "2"  # 17/10 12:00 -> 19/10 12:00
@@ -123,7 +123,7 @@ def test_vencidos_exporta_a_csv_con_el_filtro_aplicado(
     assert respuesta.headers["content-disposition"].endswith('.csv"')
     assert respuesta.content.startswith(b"\xef\xbb\xbf")  # BOM: Excel respeta las tildes
     lineas = respuesta.content.decode("utf-8-sig").strip().split("\r\n")
-    assert lineas[0] == "Persona;Documento;Correo;Telefono;Materiales pendientes;Fecha limite;Dias de atraso"
+    assert lineas[0] == "Persona;Documento;Correo;Teléfono;Materiales pendientes;Fecha límite;Días de atraso"
     assert len(lineas) == 2  # encabezado + el unico vencido del rango
     assert lineas[1].startswith("Ana Prueba;D-003;ana@prueba.com;;Rayuela (L-1);17/10/2026 12:00;")
 
@@ -154,13 +154,13 @@ def test_el_reporte_de_devoluciones_muestra_condicion_y_dias_de_retraso(
 
     todas = reporte(cliente, bibliotecario, "devoluciones").json()
     assert todas["total"] == 2
-    assert todas["columnas"][:7] == ["Fecha", "Persona", "Documento", "Material", "Codigo", "Condicion", "Dias de retraso"]
+    assert todas["columnas"][:7] == ["Fecha", "Persona", "Documento", "Material", "Código", "Condición", "Días de retraso"]
     assert "Multa" not in todas["columnas"]  # el sistema de multas esta desactivado por defecto
 
     con_dano = reporte(cliente, bibliotecario, "devoluciones", condicion="dano_menor").json()
     assert len(con_dano["filas"]) == 1
     fila = con_dano["filas"][0]
-    assert fila[1] == "Luis Prueba" and fila[3] == "El Aleph" and fila[5] == "Dano menor" and fila[6] == "2"
+    assert fila[1] == "Luis Prueba" and fila[3] == "El Aleph" and fila[5] == "Daño menor" and fila[6] == "2"
     assert fila[-1] == "Biblio Prueba"
 
 
@@ -175,7 +175,7 @@ def test_devoluciones_filtra_por_fechas_y_exporta(
     assert reporte(cliente, bibliotecario, "devoluciones", desde="2026-10-13", hasta="2026-10-13").json()["total"] == 1
 
     csv = exportar(cliente, bibliotecario, "devoluciones", formato="csv").content.decode("utf-8-sig")
-    assert csv.splitlines()[0].startswith("Fecha;Persona;Documento;Material;Codigo;Condicion")
+    assert csv.splitlines()[0].startswith("Fecha;Persona;Documento;Material;Código;Condición")
     assert len(csv.strip().splitlines()) == 2
 
 

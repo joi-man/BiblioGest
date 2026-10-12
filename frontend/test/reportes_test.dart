@@ -24,7 +24,7 @@ class _Servidor implements HttpClientAdapter {
       'titulo': 'Reporte',
       'descripcion': 'Sin filtros | Total: 1 | Horas en UTC',
       'columnas': tipo == 'vencidos'
-          ? ['Persona', 'Documento', 'Dias de atraso']
+          ? ['Persona', 'Documento', 'Días de atraso']
           : ['Solicitud', 'Persona', 'Estado'],
       'filas': [
         tipo == 'vencidos' ? ['Ana Lopez', 'D-2', '3'] : ['10/10/2026 12:00', 'Luis Perez', 'Activo'],
@@ -115,7 +115,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Ana Lopez'), findsOneWidget);
-    expect(find.text('Dias de atraso'), findsOneWidget);
+    expect(find.text('Días de atraso'), findsOneWidget);
     expect(servidor.recibidas.last.path, '/api/reportes/vencidos');
   });
 
