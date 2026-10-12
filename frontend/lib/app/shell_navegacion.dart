@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'actualizador_personal.dart';
 import '../core/local/modo_local.dart';
 import '../core/platform/plataforma.dart';
 import '../core/theme/colores_app.dart';
@@ -139,6 +140,10 @@ class ShellNavegacion extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return ActualizadorPersonal(hijo: _marco(context, ref));
+  }
+
+  Widget _marco(BuildContext context, WidgetRef ref) {
     if (esDispositivoMovil) {
       return _conBarraInferior(
         context,
