@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -16,6 +17,12 @@ from app.rutas import (
     sync,
     usuarios,
 )
+
+# Los registros INFO de la aplicacion (por ejemplo, correos enviados) deben verse en los
+# logs del servidor; por defecto Python solo muestra los de nivel WARNING.
+logging.getLogger("app").setLevel(logging.INFO)
+if not logging.getLogger().handlers:
+    logging.basicConfig(format="%(levelname)s:     %(name)s - %(message)s")
 
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
