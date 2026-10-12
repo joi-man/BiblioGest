@@ -202,7 +202,7 @@ En el emulador, `localhost` es el propio emulador: tu PC es `10.0.2.2`. Las comp
 **Avisos**
 
 - **Solo por correo; sin notificaciones push.** Con la app cerrada, el estudiante se entera por el correo. Dentro de la app, el aviso aparece al refrescarse (cada 30 s o al volver a abrirla).
-- **Depende del servidor de correo.** Sin `SMTP_CLAVE` en el servidor no sale ningún correo. Si el envío falla, la operación del bibliotecario igual se completa (solo queda el error en el registro del servidor) y no se reintenta.
+- **Depende del servidor de correo.** Sin `SMTP_CLAVE` en el servidor no sale ningún correo. **El plan gratuito de Render bloquea el SMTP de Gmail** (puertos 25, 465 y 587): hay que usar un servicio con el puerto 2525 (ver [RECUPERACION_CONTRASENA.md](../RECUPERACION_CONTRASENA.md)). Si el envío falla, la operación del bibliotecario igual se completa (solo queda el error en el registro del servidor) y no se reintenta.
 - **No se envían correos si el bibliotecario trabaja desde el ejecutable sin conexión** y sincroniza después: el cambio llega al servidor, pero el correo se genera al ejecutar la acción en el servidor, no al sincronizar. El estudiante igual lo ve en la app.
 - Las horas de los correos van en UTC.
 
