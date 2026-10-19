@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.esquemas.autor import AutorResumen
 from app.core.constantes_inventario import (
     CONDICIONES_MATERIAL,
     ESTADOS_MATERIAL,
@@ -13,6 +14,7 @@ from app.core.constantes_inventario import (
 
 # Maximo de horas de plazo permitido: un año.
 _MAX_HORAS_PLAZO = 24 * 365
+_MAX_EJEMPLARES = 10000
 
 
 class MaterialBase(BaseModel):
@@ -30,6 +32,9 @@ class MaterialBase(BaseModel):
     editorial: Optional[str] = None
     anio_publicacion: Optional[int] = None
     numero_paginas: Optional[int] = None
+    # Obras de varios tomos: cada tomo es un material con su codigo y su cantidad.
+    tomo: Optional[str] = Field(None, max_length=20)
+    total_tomos: Optional[int] = Field(None, ge=1, le=999)
 
     # Campos de medios (dvd, cd, audiolibros)
     formato: Optional[str] = None
@@ -47,12 +52,22 @@ class MaterialBase(BaseModel):
     valor_referencial: Optional[float] = Field(None, ge=0)
     es_prestable: bool = True
     plazo_prestamo_horas: Optional[int] = Field(None, ge=1, le=_MAX_HORAS_PLAZO)
+    # Ejemplares que tiene la biblioteca de este material.
+    cantidad_total: int = Field(1, ge=1, le=_MAX_EJEMPLARES)
 
     imagen_url: Optional[str] = None
 
 
 class MaterialCrear(MaterialBase):
-    """Datos para registrar una nueva unidad de material."""
+    """Datos para registrar un material con sus ejemplares y autores.
+
+    Los autores pueden indicarse por ID (`autores_ids`, ya existentes) y/o por
+    nombre (`autores_nuevos`, se crean si no existen), asi se cargan en el
+    mismo paso. Sigue aceptandose `autor` como texto ("A; B") por compatibilidad.
+    """
+
+    autores_ids: Optional[List[UUID]] = None
+    autores_nuevos: Optional[List[str]] = None
 
 
 class MaterialActualizar(BaseModel):
@@ -68,6 +83,8 @@ class MaterialActualizar(BaseModel):
     editorial: Optional[str] = None
     anio_publicacion: Optional[int] = None
     numero_paginas: Optional[int] = None
+    tomo: Optional[str] = Field(None, max_length=20)
+    total_tomos: Optional[int] = Field(None, ge=1, le=999)
     formato: Optional[str] = None
     duracion: Optional[str] = None
     marca: Optional[str] = Field(None, max_length=100)
@@ -80,6 +97,12 @@ class MaterialActualizar(BaseModel):
     es_prestable: Optional[bool] = None
     plazo_prestamo_horas: Optional[int] = Field(None, ge=1, le=_MAX_HORAS_PLAZO)
     imagen_url: Optional[str] = None
+    cantidad_total: Optional[int] = Field(None, ge=1, le=_MAX_EJEMPLARES)
+    # Ejemplares fuera de servicio. `estado` se acepta por compatibilidad: "fuera_de_servicio"
+    # deja sin servicio todos los ejemplares libres y "disponible" los vuelve a habilitar.
+    cantidad_fuera_servicio: Optional[int] = Field(None, ge=0, le=_MAX_EJEMPLARES)
+    autores_ids: Optional[List[UUID]] = None
+    autores_nuevos: Optional[List[str]] = None
 
 
 class MaterialRespuesta(MaterialBase):
@@ -89,5 +112,11 @@ class MaterialRespuesta(MaterialBase):
 
     id: UUID
     estado: str
+    autores: List[AutorResumen] = []
+    cantidad_reservada: int
+    cantidad_prestada: int
+    cantidad_vencida: int
+    cantidad_fuera_servicio: int
+    cantidad_disponible: int
     fecha_creacion: datetime
     fecha_actualizacion: datetime

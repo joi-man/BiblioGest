@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from typing import Dict, Tuple
 
+from app.modelos.autor import Autor, MaterialAutor
 from app.modelos.bitacora import BitacoraAccion
 from app.modelos.categoria import Categoria
 from app.modelos.devolucion import Devolucion
@@ -34,7 +35,9 @@ class TablaSync:
 TABLAS: Tuple[TablaSync, ...] = (
     TablaSync("categorias", Categoria, "Categoria", "nombre", roles_subida=SOLO_ADMIN),
     TablaSync("usuarios", Usuario, "Usuario", "username", roles_subida=SOLO_ADMIN),
+    TablaSync("autores", Autor, "Autor", "nombre"),
     TablaSync("materiales", Material, "Material", "codigo"),
+    TablaSync("materiales_autores", MaterialAutor, "Autor de un material", "id"),
     TablaSync("prestamos_cabecera", PrestamoCabecera, "Prestamo", "estado"),
     TablaSync("prestamos_detalle", PrestamoDetalle, "Item de prestamo", "id"),
     TablaSync("devoluciones", Devolucion, "Devolucion", "condicion"),

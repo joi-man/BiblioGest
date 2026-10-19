@@ -55,6 +55,13 @@ LIBROS = [
     ("L-015", "Pedro Páramo", "Juan Rulfo", "Literatura", "Fondo de Cultura Económica", "978-9681632724"),
     ("L-016", "Arquitectura de software", "Mark Richards", "Informática", "O'Reilly", "978-1492043454"),
 ]
+# Obras de varios autores (separados por ";") y de varios tomos: (código, título, autores, tomo, de cuántos)
+OBRAS_ESPECIALES = [
+    ("L-017", "Buenos Aires: guía de lectura", "Jorge Luis Borges; Adolfo Bioy Casares", None, None),
+    ("L-018", "Historia de la literatura universal", "Martín de Riquer; José Maria Valverde", "1", 3),
+    ("L-019", "Historia de la literatura universal", "Martín de Riquer; José Maria Valverde", "2", 3),
+    ("L-020", "Historia de la literatura universal", "Martín de Riquer; José Maria Valverde", "3", 3),
+]
 REVISTAS = [
     ("R-001", "National Geographic en español", "Varios"),
     ("R-002", "Muy Interesante", "Varios"),
@@ -136,8 +143,17 @@ def main():
         if cod in materiales:
             continue
         materiales[cod] = api.llamar("POST", "/api/materiales/", token, {
-            "codigo": cod, "titulo": titulo, "tipo_material": "libro", "autor": autor, "editorial": editorial,
-            "isbn": isbn, "categoria_id": categorias[cat], "ubicacion": f"Estante {int(cod[-3:]) % 6 + 1}",
+            "codigo": cod, "titulo": titulo, "tipo_material": "libro", "autores_nuevos": [autor], "editorial": editorial,
+            "cantidad_total": 1 + int(cod[-3:]) % 3, "isbn": isbn, "categoria_id": categorias[cat], "ubicacion": f"Estante {int(cod[-3:]) % 6 + 1}",
+        })["id"]
+        nuevos += 1
+    for cod, titulo, autores, tomo, total_tomos in OBRAS_ESPECIALES:
+        if cod in materiales:
+            continue
+        materiales[cod] = api.llamar("POST", "/api/materiales/", token, {
+            "codigo": cod, "titulo": titulo, "tipo_material": "libro",
+            "autores_nuevos": [a.strip() for a in autores.split(";")], "tomo": tomo, "total_tomos": total_tomos,
+            "cantidad_total": 2, "categoria_id": categorias["Literatura"], "ubicacion": "Estante 2",
         })["id"]
         nuevos += 1
     for cod, titulo, autor in REVISTAS:

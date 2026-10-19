@@ -52,13 +52,14 @@ class MaterialRepository {
     TipoMaterial? tipo,
     EstadoMaterial? estado,
     String? categoriaId,
+    String? autorId,
     int pagina = 1,
     int tamano = 10,
   }) async {
     final respuesta = await _dio.get(
       '/api/materiales/buscar',
       queryParameters: {
-        ..._filtros(texto, tipo, estado, categoriaId),
+        ..._filtros(texto, tipo, estado, categoriaId, autorId),
         'pagina': pagina,
         'tamano': tamano,
       },
@@ -76,11 +77,12 @@ class MaterialRepository {
     TipoMaterial? tipo,
     EstadoMaterial? estado,
     String? categoriaId,
+    String? autorId,
   }) async {
     final respuesta = await _dio.get<List<int>>(
       '/api/materiales/exportar',
       queryParameters: {
-        ..._filtros(texto, tipo, estado, categoriaId),
+        ..._filtros(texto, tipo, estado, categoriaId, autorId),
         'formato': formato.extension,
       },
       options: Options(responseType: ResponseType.bytes),
@@ -94,11 +96,13 @@ class MaterialRepository {
     TipoMaterial? tipo,
     EstadoMaterial? estado,
     String? categoriaId,
+    String? autorId,
   ) => {
     if (texto.trim().isNotEmpty) 'q': texto.trim(),
     if (tipo != null) 'tipo': tipo.valor,
     if (estado != null) 'estado': estado.valor,
     if (categoriaId != null) 'categoria_id': categoriaId,
+    if (autorId != null) 'autor_id': autorId,
   };
 
   Future<MaterialBiblioteca> crear(Map<String, dynamic> datos) async {

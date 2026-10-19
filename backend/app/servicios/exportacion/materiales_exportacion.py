@@ -14,10 +14,19 @@ COLUMNAS = [
     "Modelo",
     "Serie",
     "Ubicacion",
+    "Ejemplares",
     "Estado",
     "Condicion",
     "Prestable",
 ]
+
+
+def _titulo(material: Material) -> str:
+    """El titulo, con el tomo si la obra tiene varios."""
+    if not material.tomo:
+        return material.titulo
+    total = f" de {material.total_tomos}" if material.total_tomos else ""
+    return f"{material.titulo} (Tomo {material.tomo}{total})"
 
 
 def _autor_o_marca(material: Material) -> str:
@@ -32,17 +41,18 @@ def tabla_de_materiales(
     estado: Optional[str] = None,
     categoria: Optional[str] = None,
 ) -> TablaExportable:
-    """Una fila por unidad fisica del inventario."""
+    """Una fila por material, con sus ejemplares disponibles y totales."""
     filas = [
         [
             m.codigo,
-            m.titulo,
+            _titulo(m),
             etiqueta(m.tipo_material),
             m.categoria.nombre if m.categoria else "",
             _autor_o_marca(m),
             texto(m.modelo),
             texto(m.numero_serie),
             texto(m.ubicacion),
+            f"{m.cantidad_disponible} de {m.cantidad_total}",
             etiqueta(m.estado),
             etiqueta(m.condicion),
             si_no(m.es_prestable),

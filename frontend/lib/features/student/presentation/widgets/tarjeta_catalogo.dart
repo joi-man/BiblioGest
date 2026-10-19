@@ -3,6 +3,7 @@ import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/tipografia_app.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/student/presentation/widgets/chip_estado_estudiante.dart';
 
 /// Un material del catálogo, tal como lo ve el estudiante.
@@ -26,7 +27,10 @@ class TarjetaCatalogo extends StatelessWidget {
 
   String get _detalle {
     final partes = <String?>[
-      if (material.esBibliografico) material.autor,
+      if (material.esBibliografico) ...[
+        material.autoresTexto,
+        material.etiquetaTomo,
+      ],
       if (material.esEquipo) ...[material.marca, material.modelo],
       material.tipoMaterial.etiqueta,
       material.ubicacion,
@@ -86,6 +90,15 @@ class TarjetaCatalogo extends StatelessWidget {
                       children: [
                         ChipEstadoEstudiante(estado: material.estado),
                         const SizedBox(width: 8),
+                        if (material.esPrestable &&
+                            material.ejemplaresLibres > 0 &&
+                            material.cantidadTotal > 1) ...[
+                          Text(
+                            material.ejemplaresDisponibles,
+                            style: textos.labelMedium,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         Text(
                           material.codigo,
                           style: TipografiaApp.codigo(

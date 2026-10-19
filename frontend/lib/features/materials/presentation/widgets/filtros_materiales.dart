@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/features/authors/presentation/widgets/buscador_autores.dart';
 import 'package:frontend/features/categories/presentation/providers/categorias_provider.dart';
 import 'package:frontend/features/core/widgets/barra_busqueda.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
 import 'package:frontend/features/materials/presentation/providers/inventario_provider.dart';
 
-/// Búsqueda por texto, tipo, categoría y estado para la grilla del inventario.
+/// Búsqueda por texto, autor, tipo, categoría y estado para la grilla del inventario.
 class FiltrosMateriales extends ConsumerWidget {
   const FiltrosMateriales({
     super.key,
@@ -27,15 +28,37 @@ class FiltrosMateriales extends ConsumerWidget {
         SizedBox(
           width: 360,
           child: BarraBusqueda(
-            sugerencia: 'Buscar por título, código, autor, marca o serie',
+            sugerencia: 'Título, autor, código, ISBN...',
             textoInicial: consulta.texto,
             alCambiar: (texto) => alCambiar(consulta.conFiltros(texto: texto)),
           ),
         ),
+        SizedBox(width: 240, child: _filtroAutor()),
         SizedBox(width: 180, child: _selectorTipo()),
         SizedBox(width: 200, child: _selectorCategoria(ref)),
         SizedBox(width: 190, child: _selectorEstado()),
       ],
+    );
+  }
+
+  /// Con un autor elegido se muestra como chip; si no, un campo para buscarlo.
+  Widget _filtroAutor() {
+    final autor = consulta.autor;
+    if (autor != null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: InputChip(
+          avatar: const Icon(Icons.person_outline, size: 18),
+          label: Text(autor.nombre, overflow: TextOverflow.ellipsis),
+          onDeleted: () => alCambiar(consulta.conFiltros(autor: () => null)),
+          deleteButtonTooltipMessage: 'Quitar filtro de autor',
+        ),
+      );
+    }
+    return BuscadorAutores(
+      etiqueta: 'Autor',
+      sugerencia: 'Filtrar por autor',
+      alElegir: (a) => alCambiar(consulta.conFiltros(autor: () => a)),
     );
   }
 

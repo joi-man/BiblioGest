@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/modelos/pagina_resultado.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
+import 'package:frontend/features/authors/data/models/autor.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/repositories/material_repository.dart';
 
@@ -16,6 +17,7 @@ class ConsultaInventario {
     this.tipo,
     this.estado,
     this.categoriaId,
+    this.autor,
     this.pagina = 1,
     this.tamano = 10,
   });
@@ -24,6 +26,9 @@ class ConsultaInventario {
   final TipoMaterial? tipo;
   final EstadoMaterial? estado;
   final String? categoriaId;
+
+  /// Solo los materiales de este autor.
+  final Autor? autor;
   final int pagina;
   final int tamano;
 
@@ -35,12 +40,14 @@ class ConsultaInventario {
     TipoMaterial? Function()? tipo,
     EstadoMaterial? Function()? estado,
     String? Function()? categoriaId,
+    Autor? Function()? autor,
   }) {
     return ConsultaInventario(
       texto: texto ?? this.texto,
       tipo: tipo != null ? tipo() : this.tipo,
       estado: estado != null ? estado() : this.estado,
       categoriaId: categoriaId != null ? categoriaId() : this.categoriaId,
+      autor: autor != null ? autor() : this.autor,
       tamano: tamano,
     );
   }
@@ -50,6 +57,7 @@ class ConsultaInventario {
     tipo: tipo,
     estado: estado,
     categoriaId: categoriaId,
+    autor: autor,
     pagina: nueva,
     tamano: tamano,
   );
@@ -60,6 +68,7 @@ class ConsultaInventario {
     tipo: tipo,
     estado: estado,
     categoriaId: categoriaId,
+    autor: autor,
     tamano: nuevo,
   );
 
@@ -70,12 +79,13 @@ class ConsultaInventario {
       other.tipo == tipo &&
       other.estado == estado &&
       other.categoriaId == categoriaId &&
+      other.autor?.id == autor?.id &&
       other.pagina == pagina &&
       other.tamano == tamano;
 
   @override
   int get hashCode =>
-      Object.hash(texto, tipo, estado, categoriaId, pagina, tamano);
+      Object.hash(texto, tipo, estado, categoriaId, autor?.id, pagina, tamano);
 }
 
 /// Una página del inventario según la [ConsultaInventario]. Se recarga al cambiar la sesión.
@@ -100,6 +110,7 @@ final inventarioPaginadoProvider =
             tipo: consulta.tipo,
             estado: consulta.estado,
             categoriaId: consulta.categoriaId,
+            autorId: consulta.autor?.id,
             pagina: consulta.pagina,
             tamano: consulta.tamano,
           );

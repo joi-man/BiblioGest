@@ -18,6 +18,7 @@ class CampoTexto extends StatelessWidget {
     this.ayuda,
     this.habilitado = true,
     this.mayusculas = false,
+    this.validador,
   });
 
   final String etiqueta;
@@ -34,6 +35,9 @@ class CampoTexto extends StatelessWidget {
   final String? ayuda;
   final bool habilitado;
   final bool mayusculas;
+
+  /// Validación extra, que se aplica después de la de [requerido].
+  final String? Function(String? valor)? validador;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +63,7 @@ class CampoTexto extends StatelessWidget {
         if (requerido && (valor == null || valor.trim().isEmpty)) {
           return '$etiqueta es obligatorio';
         }
-        return null;
+        return validador?.call(valor);
       },
     );
   }

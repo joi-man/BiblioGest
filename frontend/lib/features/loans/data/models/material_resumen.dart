@@ -16,6 +16,10 @@ class MaterialResumen with _$MaterialResumen {
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible)
     required EstadoMaterial estado,
     String? ubicacion,
+
+    /// Solo en obras de varios tomos.
+    String? tomo,
+    @JsonKey(name: 'total_tomos') int? totalTomos,
   }) = _MaterialResumen;
 
   factory MaterialResumen.fromJson(Map<String, dynamic> json) =>
