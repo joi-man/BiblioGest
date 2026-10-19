@@ -5,6 +5,7 @@ import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
 import 'package:frontend/features/loans/data/models/prestamo.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
 import 'dialogo_ceder_reserva.dart';
+import 'dialogo_entrega.dart';
 import 'dialogo_rechazo.dart';
 
 /// Botones de acción de un préstamo, según el paso del flujo en que está.
@@ -27,6 +28,11 @@ class BotonesPrestamo extends ConsumerWidget {
       alignment: WrapAlignment.end,
       children: switch (prestamo.estado) {
         EstadoPrestamo.pendiente => [
+          TextButton.icon(
+            onPressed: () => _entregarConFecha(context, acciones),
+            icon: const Icon(Icons.event_outlined, size: 18),
+            label: const Text('Elegir fecha de devolución'),
+          ),
           OutlinedButton(
             onPressed: () => _rechazar(context, acciones),
             child: const Text('Rechazar'),
@@ -45,6 +51,11 @@ class BotonesPrestamo extends ConsumerWidget {
           ),
         ],
         EstadoPrestamo.aprobado => [
+          TextButton.icon(
+            onPressed: () => _entregarConFecha(context, acciones),
+            icon: const Icon(Icons.event_outlined, size: 18),
+            label: const Text('Elegir fecha de devolución'),
+          ),
           TextButton(
             onPressed: () => cederReserva(context, prestamo),
             child: const Text('Prestar a otra persona'),
@@ -80,6 +91,24 @@ class BotonesPrestamo extends ConsumerWidget {
     return ejecutarAccion(
       context,
       () => acciones.entregar(prestamo.id),
+      exito: 'Entrega registrada',
+    );
+  }
+
+  /// Entrega pidiendo antes la fecha y hora de devolución (la entrega normal usa el plazo automático).
+  Future<void> _entregarConFecha(
+    BuildContext context,
+    AccionesPrestamo acciones,
+  ) async {
+    final eleccion = await pedirFechaDeEntrega(context, prestamo);
+    if (!eleccion.confirmado || !context.mounted) return;
+
+    await ejecutarAccion(
+      context,
+      () => acciones.entregar(
+        prestamo.id,
+        fechaDevolucionEsperada: eleccion.fecha,
+      ),
       exito: 'Entrega registrada',
     );
   }

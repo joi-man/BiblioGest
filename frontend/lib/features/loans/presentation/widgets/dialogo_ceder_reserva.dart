@@ -7,6 +7,7 @@ import 'package:frontend/features/auth/presentation/providers/usuarios_provider.
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
 import 'package:frontend/features/loans/data/models/prestamo.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
+import 'package:frontend/features/loans/presentation/widgets/campo_fecha_devolucion.dart';
 
 /// Presta a otra persona un material que está reservado para alguien más.
 ///
@@ -35,6 +36,7 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
   final _formKey = GlobalKey<FormState>();
   final _motivo = TextEditingController();
   Usuario? _usuario;
+  DateTime? _fechaLimite;
   bool _guardando = false;
 
   @override
@@ -55,6 +57,7 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
             widget.reserva.id,
             usuarioId: _usuario!.id,
             motivo: _motivo.text.trim(),
+            fechaDevolucionEsperada: _fechaLimite,
           ),
       exito: 'Material prestado. Se avisó a quien lo tenía reservado',
     );
@@ -142,6 +145,11 @@ class _DialogoCederReservaState extends ConsumerState<_DialogoCederReserva> {
                       (valor == null || valor.trim().length < 10)
                       ? 'Explica el motivo (al menos 10 caracteres)'
                       : null,
+                ),
+                const SizedBox(height: 8),
+                CampoFechaDevolucion(
+                  valor: _fechaLimite,
+                  onChanged: (f) => setState(() => _fechaLimite = f),
                 ),
               ],
             ),
