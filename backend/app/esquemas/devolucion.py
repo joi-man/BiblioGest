@@ -22,6 +22,10 @@ class DevolverItemsPeticion(BaseModel):
     """Peticion para registrar la devolucion de uno o varios items de un prestamo."""
 
     items: List[ItemDevolucion] = Field(..., min_length=1)
+    # Cuando el material se recibio antes de registrarlo. Si se omite, es el momento actual.
+    # Una fecha distinta exige un motivo y queda en la bitacora (ver devolucion_servicio).
+    fecha_devolucion: Optional[FechaUTC] = None
+    motivo_fecha: Optional[str] = Field(None, max_length=500)
 
 
 class DevolucionRespuesta(BaseModel):

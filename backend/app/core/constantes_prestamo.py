@@ -41,3 +41,10 @@ CONDICIONES_DEVOLUCION = (
 
 # Condiciones tras las cuales la unidad ya no se puede volver a prestar.
 CONDICIONES_QUE_INHABILITAN = (CONDICION_DANO_MAYOR, CONDICION_PERDIDO)
+
+# Devolucion registrada con una fecha anterior a la de hoy (el material se recibio antes de anotarlo).
+# No puede ser futura ni de hace mas de estos dias, y exige un motivo para la auditoria.
+MAX_DIAS_DEVOLUCION_RETROACTIVA = 30
+MIN_CARACTERES_MOTIVO_FECHA = 10
+# Margen para el desfase entre el reloj del equipo y el del servidor.
+TOLERANCIA_RELOJ_SEGUNDOS = 120

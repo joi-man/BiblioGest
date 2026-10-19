@@ -78,8 +78,17 @@ class AccionesPrestamo {
 
   Future<void> registrarDevolucion(
     String prestamoId,
-    List<ItemADevolver> items,
-  ) => _ejecutarYRefrescar(() => _devoluciones.registrar(prestamoId, items));
+    List<ItemADevolver> items, {
+    DateTime? fechaDevolucion,
+    String? motivoFecha,
+  }) => _ejecutarYRefrescar(
+    () => _devoluciones.registrar(
+      prestamoId,
+      items,
+      fechaDevolucion: fechaDevolucion,
+      motivoFecha: motivoFecha,
+    ),
+  );
 
   // Acciones del propio usuario (app móvil del estudiante)
 

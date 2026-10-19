@@ -47,13 +47,24 @@ class DevolucionRepository {
   }
 
   /// Registra la devolución de uno o varios items de un préstamo.
+  ///
+  /// [fechaDevolucion] es cuándo se recibió el material si no fue ahora; en ese
+  /// caso [motivoFecha] es obligatorio (queda en la bitácora de auditoría).
   Future<Prestamo> registrar(
     String prestamoId,
-    List<ItemADevolver> items,
-  ) async {
+    List<ItemADevolver> items, {
+    DateTime? fechaDevolucion,
+    String? motivoFecha,
+  }) async {
     final respuesta = await _dio.post(
       '/api/devoluciones/$prestamoId',
-      data: {'items': items.map((i) => i.toJson()).toList()},
+      data: {
+        'items': items.map((i) => i.toJson()).toList(),
+        if (fechaDevolucion != null) ...{
+          'fecha_devolucion': fechaDevolucion.toUtc().toIso8601String(),
+          'motivo_fecha': motivoFecha?.trim(),
+        },
+      },
     );
     return Prestamo.fromJson(respuesta.data);
   }
