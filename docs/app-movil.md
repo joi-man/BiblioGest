@@ -8,7 +8,7 @@ La app es un **complemento** del sistema: simple y rápida para lo del día a d�
 
 | Sección | Qué hace |
 |---|---|
-| **Catálogo** | Busca **libros y revistas** por título, autor o código. Filtra por tipo y por "solo disponibles". Ve el estado de cada uno y elige uno o varios para **reservar**. |
+| **Catálogo** | Busca **libros y revistas** por título, autor o código. Filtra por tipo y por "solo disponibles". Ve el estado de cada uno y elige uno o varios para **reservar**: al tocar «Reservar» indica **cuándo pasará a retirarlos** (fecha y hora de Paraguay, hasta 7 días adelante; propone mañana a las 9:00). |
 | **Mis reservas** | Ve todas sus reservas con su estado y la respuesta del bibliotecario. Puede cancelar una reserva pendiente o aprobada, y **volver a reservar** una rechazada o cancelada. |
 | **Perfil** | Sus datos, modo oscuro, **cambiar contraseña**, buscar e instalar **actualizaciones** y cerrar sesión. |
 

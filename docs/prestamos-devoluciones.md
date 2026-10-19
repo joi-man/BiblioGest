@@ -26,6 +26,14 @@ Cada item tiene su propia fecha y hora límite. Se calcula al entregar, en este 
 
 Ejemplo: libros 168 h, proyectores 4 h, laptops 6 h. Un mismo préstamo puede mezclar materiales con plazos distintos.
 
+### Fecha y hora de retiro que propone el estudiante
+
+Al reservar desde la app móvil, el estudiante indica **cuándo pasará a retirar** (`fecha_retiro_solicitada`): fecha y hora de Paraguay, posteriores a ese momento y con hasta 7 días de anticipación (si no, el servidor responde 400 con un mensaje claro). La app propone mañana a las 9:00. El campo es opcional para las aplicaciones anteriores, que siguen funcionando con el plazo general.
+
+- El personal la ve en la solicitud («Retiro previsto: …») para decidir y preparar el material.
+- Al **aprobar**, la reserva se sostiene hasta esa hora **más un margen** (`HORAS_GRACIA_RETIRO_PROGRAMADO`, 4 h). Si se aprueba después de la hora indicada, el margen cuenta desde la aprobación. Pasado el límite, la reserva expira y el ejemplar se libera.
+- Es una **hora propuesta**, no un compromiso de apertura: el sistema no conoce el horario de la biblioteca.
+
 ### Fecha y hora de devolución elegidas por el personal
 
 Por defecto se usa el plazo automático de arriba. El personal puede **fijar otra fecha y hora** de devolución (para todos los items del préstamo) en tres momentos:
@@ -48,7 +56,7 @@ pendiente --aprobar--> aprobado --entregar--> activo <--> vencido --> devuelto
 | Estado | Significado | Quién lo provoca |
 |---|---|---|
 | `pendiente` | El estudiante solicitó; espera revisión | Estudiante (app móvil) |
-| `aprobado` | Reservado; las unidades pasan a `reservado` y hay un plazo para retirarlas (`HORAS_RETIRO_RESERVA`, 24 h) | Personal |
+| `aprobado` | Reservado; las unidades pasan a `reservado` y hay un plazo para retirarlas (`HORAS_RETIRO_RESERVA`, 24 h; o, si el estudiante indicó cuándo retira, esa hora más `HORAS_GRACIA_RETIRO_PROGRAMADO`, 4 h) | Personal |
 | `rechazado` | No se concedió; guarda el motivo | Personal |
 | `cancelado` | Cancelado por el usuario, el personal, o porque la reserva no se retiró a tiempo | Cualquiera / sistema |
 | `activo` | Material entregado y dentro de plazo | Personal |
@@ -128,7 +136,8 @@ Variables de entorno (en `backend/.env`):
 | `PLAZO_PRESTAMO_HORAS_DEFECTO` | `168` | Plazo si ni material ni categoría lo definen |
 | `MAX_PRESTAMOS_ACTIVOS` | `3` | Items simultáneos por persona |
 | `BLOQUEAR_SI_HAY_VENCIDOS` | `True` | Impide nuevas solicitudes con préstamos vencidos |
-| `HORAS_RETIRO_RESERVA` | `24` | Tiempo para retirar una reserva aprobada |
+| `HORAS_RETIRO_RESERVA` | `24` | Tiempo para retirar una reserva aprobada sin hora de retiro indicada |
+| `HORAS_GRACIA_RETIRO_PROGRAMADO` | `4` | Margen después de la hora de retiro que indicó el estudiante, antes de liberar la reserva |
 | `MULTAS_HABILITADAS` | `False` | Activa el cálculo de multas |
 | `MULTA_POR_DIA_RETRASO` | `0` | Tarifa por día de retraso |
 | `MULTA_DANO_MENOR` / `MULTA_DANO_MAYOR` | `0` | Cargo fijo por daño |

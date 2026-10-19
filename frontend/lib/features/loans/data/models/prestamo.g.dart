@@ -20,6 +20,9 @@ _$PrestamoImpl _$$PrestamoImplFromJson(
       .map((e) => PrestamoDetalle.fromJson(e as Map<String, dynamic>))
       .toList(),
   fechaSolicitud: DateTime.parse(json['fecha_solicitud'] as String),
+  fechaRetiroSolicitada: json['fecha_retiro_solicitada'] == null
+      ? null
+      : DateTime.parse(json['fecha_retiro_solicitada'] as String),
   fechaRetiroLimite: json['fecha_retiro_limite'] == null
       ? null
       : DateTime.parse(json['fecha_retiro_limite'] as String),
@@ -42,23 +45,25 @@ _$PrestamoImpl _$$PrestamoImplFromJson(
   motivoRechazo: json['motivo_rechazo'] as String?,
 );
 
-Map<String, dynamic> _$$PrestamoImplToJson(_$PrestamoImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'estado': _$EstadoPrestamoEnumMap[instance.estado]!,
-      'usuario': instance.usuario,
-      'detalles': instance.detalles,
-      'fecha_solicitud': instance.fechaSolicitud.toIso8601String(),
-      'fecha_retiro_limite': instance.fechaRetiroLimite?.toIso8601String(),
-      'fecha_prestamo': instance.fechaPrestamo?.toIso8601String(),
-      'fecha_devolucion_esperada': instance.fechaDevolucionEsperada
-          ?.toIso8601String(),
-      'fecha_devolucion_real': instance.fechaDevolucionReal?.toIso8601String(),
-      'aprobado_por': instance.aprobadoPor,
-      'entregado_por': instance.entregadoPor,
-      'observaciones': instance.observaciones,
-      'motivo_rechazo': instance.motivoRechazo,
-    };
+Map<String, dynamic> _$$PrestamoImplToJson(
+  _$PrestamoImpl instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'estado': _$EstadoPrestamoEnumMap[instance.estado]!,
+  'usuario': instance.usuario,
+  'detalles': instance.detalles,
+  'fecha_solicitud': instance.fechaSolicitud.toIso8601String(),
+  'fecha_retiro_solicitada': instance.fechaRetiroSolicitada?.toIso8601String(),
+  'fecha_retiro_limite': instance.fechaRetiroLimite?.toIso8601String(),
+  'fecha_prestamo': instance.fechaPrestamo?.toIso8601String(),
+  'fecha_devolucion_esperada': instance.fechaDevolucionEsperada
+      ?.toIso8601String(),
+  'fecha_devolucion_real': instance.fechaDevolucionReal?.toIso8601String(),
+  'aprobado_por': instance.aprobadoPor,
+  'entregado_por': instance.entregadoPor,
+  'observaciones': instance.observaciones,
+  'motivo_rechazo': instance.motivoRechazo,
+};
 
 const _$EstadoPrestamoEnumMap = {
   EstadoPrestamo.pendiente: 'pendiente',

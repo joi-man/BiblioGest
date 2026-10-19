@@ -24,7 +24,9 @@ class AutorRepository {
         'limite': limite,
       },
     );
-    return (respuesta.data as List).map((json) => Autor.fromJson(json)).toList();
+    return (respuesta.data as List)
+        .map((json) => Autor.fromJson(json))
+        .toList();
   }
 
   /// Una página de autores con búsqueda por nombre.
@@ -45,12 +47,18 @@ class AutorRepository {
   }
 
   Future<Autor> crear(String nombre) async {
-    final respuesta = await _dio.post('/api/autores/', data: {'nombre': nombre});
+    final respuesta = await _dio.post(
+      '/api/autores/',
+      data: {'nombre': nombre},
+    );
     return Autor.fromJson(respuesta.data);
   }
 
   Future<Autor> actualizar(String id, String nombre) async {
-    final respuesta = await _dio.put('/api/autores/$id', data: {'nombre': nombre});
+    final respuesta = await _dio.put(
+      '/api/autores/$id',
+      data: {'nombre': nombre},
+    );
     return Autor.fromJson(respuesta.data);
   }
 

@@ -126,9 +126,12 @@ class PrestamoRepository {
   // Usuario sobre sus propias solicitudes (app móvil del estudiante)
   // ---------------------------------------------------------------------
 
+  /// Pide en préstamo o reserva los materiales. [fechaRetiro] es cuándo la persona
+  /// dice que pasará a retirarlos.
   Future<Prestamo> solicitar(
     List<String> materialIds, {
     String? observaciones,
+    DateTime? fechaRetiro,
   }) async {
     final respuesta = await _dio.post(
       '/api/solicitudes/',
@@ -136,6 +139,8 @@ class PrestamoRepository {
         'material_ids': materialIds,
         if (observaciones != null && observaciones.isNotEmpty)
           'observaciones': observaciones,
+        if (fechaRetiro != null)
+          'fecha_retiro_solicitada': fechaRetiro.toUtc().toIso8601String(),
       },
     );
     return Prestamo.fromJson(respuesta.data);

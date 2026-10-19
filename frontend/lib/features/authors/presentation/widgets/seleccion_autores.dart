@@ -69,8 +69,7 @@ class SeleccionAutores {
   /// La coma no separa: "García Márquez, Gabriel" es un solo autor.
   static List<String> dividirNombres(String texto) => [
     for (final parte in texto.split(';'))
-      if (parte.trim().isNotEmpty)
-        parte.trim().replaceAll(RegExp(r'\s+'), ' '),
+      if (parte.trim().isNotEmpty) parte.trim().replaceAll(RegExp(r'\s+'), ' '),
   ];
 
   @override

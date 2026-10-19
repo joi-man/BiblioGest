@@ -11,12 +11,21 @@ class MetaPrestamo extends StatelessWidget {
   String get _texto {
     switch (prestamo.estado) {
       case EstadoPrestamo.pendiente:
-        return 'Solicitado ${FormatoFecha.fechaHora(prestamo.fechaSolicitud)}';
+        final prevista = prestamo.fechaRetiroSolicitada;
+        final solicitado =
+            'Solicitado ${FormatoFecha.fechaHora(prestamo.fechaSolicitud)}';
+        return prevista == null
+            ? solicitado
+            : '$solicitado\nRetiro previsto: ${FormatoFecha.fechaHora(prevista)}';
       case EstadoPrestamo.aprobado:
         final limite = prestamo.fechaRetiroLimite;
-        return limite == null
+        final prevista = prestamo.fechaRetiroSolicitada;
+        final hasta = limite == null
             ? 'Aprobado'
             : 'Retirar antes de ${FormatoFecha.fechaHora(limite)}';
+        return prevista == null
+            ? hasta
+            : 'Retiro previsto: ${FormatoFecha.fechaHora(prevista)}\n$hasta';
       case EstadoPrestamo.activo:
       case EstadoPrestamo.vencido:
         final entrega = prestamo.fechaPrestamo;

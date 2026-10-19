@@ -12,6 +12,7 @@ import 'package:frontend/features/materials/data/models/material_etiquetas.dart'
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
 import 'package:frontend/features/student/presentation/providers/catalogo_provider.dart';
 import 'package:frontend/features/student/presentation/widgets/detalle_material_hoja.dart';
+import 'package:frontend/features/student/presentation/widgets/hoja_fecha_retiro.dart';
 import 'package:frontend/features/student/presentation/widgets/tarjeta_catalogo.dart';
 
 /// Tipos de material que el estudiante puede ver y reservar.
@@ -65,13 +66,22 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
   }
 
   Future<void> _reservar() async {
+    final titulos = _seleccion.values.map((m) => m.titulo).toList();
+    final retiro = await pedirFechaRetiro(
+      context,
+      resumen: titulos.length == 1
+          ? titulos.first
+          : '${titulos.first} y ${titulos.length - 1} más',
+    );
+    if (retiro == null || !mounted) return;
+
     setState(() => _enviando = true);
 
     final enviada = await ejecutarAccion(
       context,
       () => ref
           .read(accionesPrestamoProvider)
-          .solicitar(_seleccion.keys.toList()),
+          .solicitar(_seleccion.keys.toList(), fechaRetiro: retiro),
       exito: 'Reserva enviada. El bibliotecario la revisará y te avisaremos',
     );
 

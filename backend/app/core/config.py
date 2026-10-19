@@ -33,6 +33,8 @@ class Configuracion(BaseSettings):
     MAX_PRESTAMOS_ACTIVOS: int = 3  # items que un usuario puede tener a la vez (reservados o prestados)
     BLOQUEAR_SI_HAY_VENCIDOS: bool = True  # impide nuevas solicitudes si tiene prestamos vencidos
     HORAS_RETIRO_RESERVA: int = 24  # tiempo para retirar una reserva aprobada antes de que expire
+    # Si el usuario indico cuando va a retirar, la reserva se sostiene hasta esa hora mas este margen.
+    HORAS_GRACIA_RETIRO_PROGRAMADO: int = 4
 
     # Multas (opcionales: con MULTAS_HABILITADAS=False el sistema nunca calcula ni muestra multas)
     MULTAS_HABILITADAS: bool = False

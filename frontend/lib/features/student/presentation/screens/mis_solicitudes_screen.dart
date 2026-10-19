@@ -8,6 +8,7 @@ import 'package:frontend/features/loans/data/models/prestamo.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
 import 'package:frontend/features/loans/presentation/providers/prestamos_provider.dart';
 import 'package:frontend/features/loans/presentation/widgets/tarjeta_prestamo.dart';
+import 'package:frontend/features/student/presentation/widgets/hoja_fecha_retiro.dart';
 
 /// Las solicitudes y préstamos del propio estudiante, con su estado.
 class MisSolicitudesScreen extends ConsumerWidget {
@@ -28,11 +29,17 @@ class MisSolicitudesScreen extends ConsumerWidget {
     WidgetRef ref,
     Prestamo prestamo,
   ) async {
+    final retiro = await pedirFechaRetiro(
+      context,
+      resumen: prestamo.resumenMateriales,
+    );
+    if (retiro == null || !context.mounted) return;
+
     await ejecutarAccion(
       context,
       () => ref.read(accionesPrestamoProvider).solicitar([
         for (final d in prestamo.detalles) d.material.id,
-      ]),
+      ], fechaRetiro: retiro),
       exito: 'Reserva enviada. El bibliotecario la revisará y te avisaremos',
     );
   }
