@@ -53,6 +53,8 @@ vercel link --project bibliogest --yes     # solo la primera vez en cada equipo
 vercel deploy --prod --yes
 ```
 
+> **Enlaza siempre antes de publicar.** `vercel link --project bibliogest --yes` guarda el enlace dentro de `build\web`, que se borra al limpiar la compilación. Si se publica sin enlace, Vercel **crea un proyecto nuevo** (con otro nombre y otra dirección) en lugar de actualizar `bibliogest`.
+
 Requiere la CLI de Vercel con la sesión iniciada (`vercel login`). `web/vercel.json` hace que cualquier ruta (por ejemplo `/login`) cargue la aplicación. Para automatizarlo habría que conectar el repositorio a Vercel y compilar con GitHub Actions.
 
 ## Windows y Android
