@@ -48,12 +48,14 @@ class AccionesPrestamo {
     String id, {
     required String usuarioId,
     required String motivo,
+    DateTime? fechaDevolucionEsperada,
     bool omitirValidacionesUsuario = false,
   }) => _ejecutarYRefrescar(
     () => _prestamos.ceder(
       id,
       usuarioId: usuarioId,
       motivo: motivo,
+      fechaDevolucionEsperada: fechaDevolucionEsperada,
       omitirValidacionesUsuario: omitirValidacionesUsuario,
     ),
   );

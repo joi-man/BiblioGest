@@ -26,6 +26,16 @@ Cada item tiene su propia fecha y hora límite. Se calcula al entregar, en este 
 
 Ejemplo: libros 168 h, proyectores 4 h, laptops 6 h. Un mismo préstamo puede mezclar materiales con plazos distintos.
 
+### Fecha y hora de devolución elegidas por el personal
+
+Por defecto se usa el plazo automático de arriba. El personal puede **fijar otra fecha y hora** de devolución (para todos los items del préstamo) en tres momentos:
+
+- **Préstamo directo:** el campo está visible en el formulario, como parte de la confirmación (persona, materiales y fecha: tres pasos).
+- **Entregar una solicitud** (pendiente o aprobada): botón «Elegir fecha de devolución» junto a «Entregar ahora». Entregar sin elegir sigue siendo un solo clic.
+- **Prestar una reserva a otra persona** (cesión).
+
+Reglas: la fecha debe ser posterior a este momento y no pasar de un año (si no, se muestra un mensaje claro y el servidor responde 400 con el mismo texto). La fecha y la hora que se eligen son **de Paraguay** aunque el dispositivo tenga otra zona horaria; se envían al servidor en UTC (`fecha_devolucion_esperada`).
+
 ## Flujo de un préstamo
 
 ```

@@ -12,7 +12,7 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
   - `develop`: Rama por defecto e integración; los Pull Requests apuntan aquí.
   - `feature/*`, `fix/*`, `docs/*`: Ramas de trabajo que salen de `develop`.
   - Versiones `vX.Y.Z` etiquetadas en `main`. Ver [docs/versionado.md](docs/versionado.md).
-- **Versión actual:** 0.14.0
+- **Versión actual:** 0.15.0
 
 ---
 
@@ -100,10 +100,12 @@ python -m pytest                      # pruebas sin base de datos (SQLite en mem
 ```bash
 cd frontend
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs   # modelos Freezed
+dart run build_runner build --delete-conflicting-outputs   # modelos Freezed (ver nota abajo si se cuelga)
 flutter run -d chrome                 # personal de la biblioteca (web)
 flutter test
 ```
+
+> **`build_runner` se cuelga con Flutter 3.47:** el analizador (`analyzer 7.6.0`) no lee el código fuente de ese Flutter. Los archivos generados (`*.freezed.dart`, `*.g.dart`) están versionados, así que solo hace falta regenerarlos al cambiar un modelo. Para hacerlo, usa un Flutter anterior (por ejemplo 3.35.x: `git clone -b 3.35.7 https://github.com/flutter/flutter C:lutter_3_35`) en una copia temporal del proyecto, ejecuta allí `dart run build_runner build --delete-conflicting-outputs` y copia de vuelta solo los archivos generados de los modelos que cambiaste. Subir `build_runner` y `freezed` a sus versiones actuales exige reescribir todos los modelos (freezed 3 y 4 cambian la sintaxis).
 
 Los estudiantes solo usan la app móvil. Para probar su vista en el navegador:
 `flutter run -d chrome --dart-define=PERMITIR_ESTUDIANTE_EN_ESCRITORIO=true`.
