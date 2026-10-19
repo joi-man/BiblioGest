@@ -6,13 +6,6 @@ from sqlalchemy.orm import Session
 
 from app.core import reloj
 from app.core.hora_paraguay import inicio_de_hoy_utc
-from app.core.constantes_inventario import (
-    ESTADO_DISPONIBLE,
-    ESTADO_FUERA_DE_SERVICIO,
-    ESTADO_PRESTADO,
-    ESTADO_RESERVADO,
-    ESTADO_VENCIDO,
-)
 from app.core.constantes_prestamo import (
     PRESTAMO_ACTIVO,
     PRESTAMO_APROBADO,
@@ -32,14 +25,23 @@ def _contar_por(db: Session, columna, *condiciones) -> dict[str, int]:
 
 
 def _resumen_materiales(db: Session) -> ResumenMateriales:
-    por_estado = _contar_por(db, Material.estado, Material.eliminado == False)  # noqa: E712
+    """Cuenta ejemplares (no titulos): un material con 5 copias suma 5."""
+    total, reservada, prestada, vencida, fuera = db.execute(
+        select(
+            func.coalesce(func.sum(Material.cantidad_total), 0),
+            func.coalesce(func.sum(Material.cantidad_reservada), 0),
+            func.coalesce(func.sum(Material.cantidad_prestada), 0),
+            func.coalesce(func.sum(Material.cantidad_vencida), 0),
+            func.coalesce(func.sum(Material.cantidad_fuera_servicio), 0),
+        ).where(Material.eliminado == False)  # noqa: E712
+    ).one()
     return ResumenMateriales(
-        total=sum(por_estado.values()),
-        disponibles=por_estado.get(ESTADO_DISPONIBLE, 0),
-        reservados=por_estado.get(ESTADO_RESERVADO, 0),
-        prestados=por_estado.get(ESTADO_PRESTADO, 0),
-        vencidos=por_estado.get(ESTADO_VENCIDO, 0),
-        fuera_de_servicio=por_estado.get(ESTADO_FUERA_DE_SERVICIO, 0),
+        total=total,
+        disponibles=max(0, total - reservada - prestada - vencida - fuera),
+        reservados=reservada,
+        prestados=prestada,
+        vencidos=vencida,
+        fuera_de_servicio=fuera,
     )
 
 

@@ -40,6 +40,12 @@ const List<DestinoNavegacion> destinosPersonal = [
     iconoActivo: Icons.menu_book,
   ),
   DestinoNavegacion(
+    ruta: '/authors',
+    etiqueta: 'Autores',
+    icono: Icons.history_edu_outlined,
+    iconoActivo: Icons.history_edu,
+  ),
+  DestinoNavegacion(
     ruta: '/loans',
     etiqueta: 'Préstamos',
     icono: Icons.assignment_outlined,
@@ -72,7 +78,7 @@ const List<DestinoNavegacion> destinosPersonal = [
 ];
 
 /// Destinos del personal en el teléfono: solo lo esencial para atender el
-/// mostrador. Usuarios, categorías, exportaciones y sincronización quedan para
+/// mostrador. Usuarios, categorías, autores, exportaciones y sincronización quedan para
 /// la web y el escritorio.
 const List<DestinoNavegacion> destinosPersonalMovil = [
   DestinoNavegacion(

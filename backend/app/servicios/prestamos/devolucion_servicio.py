@@ -106,6 +106,7 @@ def devolver_items(
         material_estado_servicio.recibir(material, item.condicion)
 
     estado_prestamo_servicio.recalcular(prestamo, ahora)
+    material_estado_servicio.recalcular(db, list(materiales.values()), ahora)
 
     auditoria_prestamo.registrar(
         db, personal, "DEVOLUCION_REGISTRADA", prestamo,

@@ -9,6 +9,7 @@ import 'package:frontend/features/core/widgets/estado_vacio.dart';
 import 'package:frontend/features/core/widgets/valor_asincrono.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
 
 /// Inventario para el personal en el teléfono: solo consulta.
@@ -40,13 +41,13 @@ class _MaterialesMovilScreenState extends ConsumerState<MaterialesMovilScreen> {
           EncabezadoPagina(
             titulo: 'Materiales',
             subtitulo: materiales.whenOrNull(
-              data: (lista) => '${lista.length} unidades',
+              data: (lista) => '${lista.length} materiales',
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: BarraBusqueda(
-              sugerencia: 'Título, código, autor o marca...',
+              sugerencia: 'Título, autor, código, ISBN...',
               alCambiar: (texto) => setState(() => _texto = texto),
             ),
           ),
@@ -119,7 +120,10 @@ class _TarjetaMaterial extends StatelessWidget {
     final colores = context.colores;
     final textos = Theme.of(context).textTheme;
     final detalle = [
-      if (material.esBibliografico) material.autor,
+      if (material.esBibliografico) ...[
+        material.autoresTexto,
+        material.etiquetaTomo,
+      ],
       if (material.esEquipo) ...[material.marca, material.modelo],
       material.tipoMaterial.etiqueta,
       material.ubicacion,
@@ -153,6 +157,11 @@ class _TarjetaMaterial extends StatelessWidget {
                   Row(
                     children: [
                       ChipEstado(estado: material.estado.valor),
+                      const SizedBox(width: 8),
+                      Text(
+                        material.ejemplaresCorto,
+                        style: textos.labelMedium,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         material.codigo,

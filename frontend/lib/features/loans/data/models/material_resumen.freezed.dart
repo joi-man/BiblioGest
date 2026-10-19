@@ -30,6 +30,11 @@ mixin _$MaterialResumen {
   EstadoMaterial get estado => throw _privateConstructorUsedError;
   String? get ubicacion => throw _privateConstructorUsedError;
 
+  /// Solo en obras de varios tomos.
+  String? get tomo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_tomos')
+  int? get totalTomos => throw _privateConstructorUsedError;
+
   /// Serializes this MaterialResumen to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -55,6 +60,8 @@ abstract class $MaterialResumenCopyWith<$Res> {
     TipoMaterial tipoMaterial,
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) EstadoMaterial estado,
     String? ubicacion,
+    String? tomo,
+    @JsonKey(name: 'total_tomos') int? totalTomos,
   });
 }
 
@@ -79,6 +86,8 @@ class _$MaterialResumenCopyWithImpl<$Res, $Val extends MaterialResumen>
     Object? tipoMaterial = null,
     Object? estado = null,
     Object? ubicacion = freezed,
+    Object? tomo = freezed,
+    Object? totalTomos = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -106,6 +115,14 @@ class _$MaterialResumenCopyWithImpl<$Res, $Val extends MaterialResumen>
                 ? _value.ubicacion
                 : ubicacion // ignore: cast_nullable_to_non_nullable
                       as String?,
+            tomo: freezed == tomo
+                ? _value.tomo
+                : tomo // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            totalTomos: freezed == totalTomos
+                ? _value.totalTomos
+                : totalTomos // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -129,6 +146,8 @@ abstract class _$$MaterialResumenImplCopyWith<$Res>
     TipoMaterial tipoMaterial,
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) EstadoMaterial estado,
     String? ubicacion,
+    String? tomo,
+    @JsonKey(name: 'total_tomos') int? totalTomos,
   });
 }
 
@@ -152,6 +171,8 @@ class __$$MaterialResumenImplCopyWithImpl<$Res>
     Object? tipoMaterial = null,
     Object? estado = null,
     Object? ubicacion = freezed,
+    Object? tomo = freezed,
+    Object? totalTomos = freezed,
   }) {
     return _then(
       _$MaterialResumenImpl(
@@ -179,6 +200,14 @@ class __$$MaterialResumenImplCopyWithImpl<$Res>
             ? _value.ubicacion
             : ubicacion // ignore: cast_nullable_to_non_nullable
                   as String?,
+        tomo: freezed == tomo
+            ? _value.tomo
+            : tomo // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        totalTomos: freezed == totalTomos
+            ? _value.totalTomos
+            : totalTomos // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -195,6 +224,8 @@ class _$MaterialResumenImpl implements _MaterialResumen {
     required this.tipoMaterial,
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) required this.estado,
     this.ubicacion,
+    this.tomo,
+    @JsonKey(name: 'total_tomos') this.totalTomos,
   });
 
   factory _$MaterialResumenImpl.fromJson(Map<String, dynamic> json) =>
@@ -215,9 +246,16 @@ class _$MaterialResumenImpl implements _MaterialResumen {
   @override
   final String? ubicacion;
 
+  /// Solo en obras de varios tomos.
+  @override
+  final String? tomo;
+  @override
+  @JsonKey(name: 'total_tomos')
+  final int? totalTomos;
+
   @override
   String toString() {
-    return 'MaterialResumen(id: $id, codigo: $codigo, titulo: $titulo, tipoMaterial: $tipoMaterial, estado: $estado, ubicacion: $ubicacion)';
+    return 'MaterialResumen(id: $id, codigo: $codigo, titulo: $titulo, tipoMaterial: $tipoMaterial, estado: $estado, ubicacion: $ubicacion, tomo: $tomo, totalTomos: $totalTomos)';
   }
 
   @override
@@ -232,7 +270,10 @@ class _$MaterialResumenImpl implements _MaterialResumen {
                 other.tipoMaterial == tipoMaterial) &&
             (identical(other.estado, estado) || other.estado == estado) &&
             (identical(other.ubicacion, ubicacion) ||
-                other.ubicacion == ubicacion));
+                other.ubicacion == ubicacion) &&
+            (identical(other.tomo, tomo) || other.tomo == tomo) &&
+            (identical(other.totalTomos, totalTomos) ||
+                other.totalTomos == totalTomos));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -245,6 +286,8 @@ class _$MaterialResumenImpl implements _MaterialResumen {
     tipoMaterial,
     estado,
     ubicacion,
+    tomo,
+    totalTomos,
   );
 
   /// Create a copy of MaterialResumen
@@ -274,6 +317,8 @@ abstract class _MaterialResumen implements MaterialResumen {
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible)
     required final EstadoMaterial estado,
     final String? ubicacion,
+    final String? tomo,
+    @JsonKey(name: 'total_tomos') final int? totalTomos,
   }) = _$MaterialResumenImpl;
 
   factory _MaterialResumen.fromJson(Map<String, dynamic> json) =
@@ -293,6 +338,13 @@ abstract class _MaterialResumen implements MaterialResumen {
   EstadoMaterial get estado;
   @override
   String? get ubicacion;
+
+  /// Solo en obras de varios tomos.
+  @override
+  String? get tomo;
+  @override
+  @JsonKey(name: 'total_tomos')
+  int? get totalTomos;
 
   /// Create a copy of MaterialResumen
   /// with the given fields replaced by the non-null parameter values.

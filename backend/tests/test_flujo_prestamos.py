@@ -179,7 +179,7 @@ def test_no_se_puede_aprobar_dos_veces_la_misma_unidad(
     conflicto = accion(cliente, bibliotecario, segunda, "aprobar")
 
     assert conflicto.status_code == 409
-    assert "no esta disponible" in conflicto.json()["detail"]
+    assert "no tiene ejemplares disponibles" in conflicto.json()["detail"]
 
 
 def test_un_material_solo_de_sala_no_se_puede_solicitar(

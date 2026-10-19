@@ -66,14 +66,13 @@ def entregar(
     materiales = material_estado_servicio.bloquear_materiales(
         db, [d.material_id for d in prestamo.detalles]
     )
-    for material in materiales:
-        material_estado_servicio.entregar(material)
 
     _fijar_plazos(prestamo, ahora, fecha_devolucion_esperada)
     prestamo.fecha_prestamo = ahora
     prestamo.fecha_retiro_limite = None
     prestamo.entregado_por_id = personal.id
     estado_prestamo_servicio.recalcular(prestamo, ahora)
+    material_estado_servicio.recalcular(db, materiales, ahora)  # reservados -> prestados
 
     auditoria_prestamo.registrar(
         db, personal, "PRESTAMO_ENTREGADO", prestamo,
@@ -117,9 +116,6 @@ def registrar_directo(
     prestamo = prestamo_factory.nuevo_prestamo(
         usuario.id, materiales, PRESTAMO_ACTIVO, ahora, datos.observaciones
     )
-    for material in materiales:
-        material_estado_servicio.entregar_directo(material)
-
     _fijar_plazos(prestamo, ahora, datos.fecha_devolucion_esperada)
     prestamo.fecha_prestamo = ahora
     prestamo.aprobado_por_id = personal.id
@@ -128,6 +124,7 @@ def registrar_directo(
 
     db.add(prestamo)
     db.flush()
+    material_estado_servicio.recalcular(db, materiales, ahora)
     auditoria_prestamo.registrar(
         db, personal, accion, prestamo,
         {

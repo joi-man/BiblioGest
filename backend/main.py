@@ -5,8 +5,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import configuracion
 from app.core.database import SesionLocal, engine, Base, es_modo_local
+from app.core.migracion_autores import actualizar_esquema_materiales
 from app.rutas import (
     auth,
+    autores,
     categorias,
     dashboard,
     devoluciones,
@@ -27,6 +29,10 @@ if not logging.getLogger().handlers:
 
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
+# Pone al dia una base creada antes de los autores y las cantidades (repetible; no hace nada
+# si ya esta al dia). Tambien lo hace la migracion de Alembic en el servidor.
+with engine.begin() as _conexion:
+    actualizar_esquema_materiales(_conexion)
 
 
 @asynccontextmanager
@@ -64,6 +70,7 @@ app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(materiales.router)
 app.include_router(categorias.router)
+app.include_router(autores.router)
 app.include_router(solicitudes.router)
 app.include_router(prestamos.router)
 app.include_router(devoluciones.router)

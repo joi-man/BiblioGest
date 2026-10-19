@@ -28,10 +28,11 @@ router = APIRouter(prefix="/api/materiales", tags=["Materiales"])
 
 @router.get("/", response_model=List[MaterialRespuesta])
 def listar_materiales(
-    q: Optional[str] = Query(None, description="Texto a buscar en titulo, codigo, autor, marca, modelo o serie"),
+    q: Optional[str] = Query(None, description="Palabras a buscar en titulo, autor, codigo, ISBN, editorial, marca, modelo o serie"),
     tipo: Optional[str] = Query(None, description="Tipo de material, por ejemplo 'proyector'"),
     estado: Optional[str] = Query(None, description="Estado del material"),
-    disponible: bool = Query(False, description="Solo unidades prestables y disponibles ahora"),
+    disponible: bool = Query(False, description="Solo materiales prestables con algun ejemplar libre"),
+    autor_id: Optional[UUID] = Query(None, description="Solo materiales de este autor"),
     db: Session = Depends(obtener_db),
     usuario: Usuario = Depends(obtener_usuario_actual),
 ):
@@ -48,15 +49,17 @@ def listar_materiales(
         solo_disponibles=disponible,
         tipos=TIPOS_BIBLIOGRAFICOS if es_estudiante else None,
         ocultar_fuera_de_servicio=es_estudiante,
+        autor_id=autor_id,
     )
 
 
 @router.get("/buscar", response_model=Pagina[MaterialRespuesta])
 def buscar_materiales(
-    q: Optional[str] = Query(None, description="Texto a buscar en titulo, codigo, autor, marca, modelo o serie"),
+    q: Optional[str] = Query(None, description="Palabras a buscar en titulo, autor, codigo, ISBN, editorial, marca, modelo o serie"),
     tipo: Optional[str] = Query(None),
     estado: Optional[str] = Query(None),
     categoria_id: Optional[UUID] = Query(None),
+    autor_id: Optional[UUID] = Query(None, description="Solo materiales de este autor"),
     paginacion: ParametrosPagina = Depends(parametros_pagina),
     db: Session = Depends(obtener_db),
     usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
@@ -70,6 +73,7 @@ def buscar_materiales(
         tipo=tipo,
         estado=estado,
         categoria_id=categoria_id,
+        autor_id=autor_id,
     )
     return armar_pagina(
         [MaterialRespuesta.model_validate(m) for m in materiales], total, paginacion
@@ -83,6 +87,7 @@ def exportar_materiales(
     tipo: Optional[str] = Query(None),
     estado: Optional[str] = Query(None),
     categoria_id: Optional[UUID] = Query(None),
+    autor_id: Optional[UUID] = Query(None),
     db: Session = Depends(obtener_db),
     usuario: Usuario = Depends(require_role(["admin", "bibliotecario"])),
 ):
@@ -93,6 +98,7 @@ def exportar_materiales(
         tipo=tipo,
         estado=estado,
         categoria_id=categoria_id,
+        autor_id=autor_id,
         limite=MAX_FILAS_EXPORTACION,
     )
     categoria = db.get(Categoria, categoria_id) if categoria_id else None

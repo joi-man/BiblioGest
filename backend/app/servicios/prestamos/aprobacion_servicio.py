@@ -24,7 +24,7 @@ def aplicar_aprobacion(
     personal: Usuario,
     ahora: datetime,
 ) -> None:
-    """Reserva las unidades y marca la solicitud como `aprobado`. No confirma la transaccion.
+    """Reserva un ejemplar de cada material y marca la solicitud como `aprobado`. No confirma la transaccion.
 
     Se separa de `aprobar` para que la entrega pueda aprobar y entregar en un
     solo paso (ver entrega_servicio).
@@ -35,12 +35,11 @@ def aplicar_aprobacion(
         db, [d.material_id for d in prestamo.detalles]
     )
     reglas_prestamo.validar_materiales_disponibles(materiales)
-    for material in materiales:
-        material_estado_servicio.reservar(material)
 
     prestamo.estado = PRESTAMO_APROBADO
     prestamo.aprobado_por_id = personal.id
     prestamo.fecha_retiro_limite = ahora + timedelta(hours=configuracion.HORAS_RETIRO_RESERVA)
+    material_estado_servicio.recalcular(db, materiales, ahora)  # los ejemplares quedan reservados
 
 
 def aprobar(db: Session, prestamo_id: UUID, personal: Usuario) -> PrestamoCabecera:

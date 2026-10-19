@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/features/authors/presentation/widgets/seleccion_autores.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
 
@@ -8,7 +9,6 @@ class ControladoresMaterial {
   ControladoresMaterial([MaterialBiblioteca? material])
     : codigo = TextEditingController(text: material?.codigo),
       titulo = TextEditingController(text: material?.titulo),
-      autor = TextEditingController(text: material?.autor),
       isbn = TextEditingController(text: material?.isbn),
       editorial = TextEditingController(text: material?.editorial),
       anio = TextEditingController(text: material?.anioPublicacion?.toString()),
@@ -28,11 +28,18 @@ class ControladoresMaterial {
       ),
       plazoHoras = TextEditingController(
         text: material?.plazoPrestamoHoras?.toString(),
-      );
+      ),
+      cantidad = TextEditingController(
+        text: (material?.cantidadTotal ?? 1).toString(),
+      ),
+      fueraServicio = TextEditingController(
+        text: (material?.cantidadFueraServicio ?? 0).toString(),
+      ),
+      tomo = TextEditingController(text: material?.tomo),
+      totalTomos = TextEditingController(text: material?.totalTomos?.toString());
 
   final TextEditingController codigo;
   final TextEditingController titulo;
-  final TextEditingController autor;
   final TextEditingController isbn;
   final TextEditingController editorial;
   final TextEditingController anio;
@@ -48,11 +55,18 @@ class ControladoresMaterial {
   final TextEditingController valor;
   final TextEditingController plazoHoras;
 
+  /// Ejemplares que tiene la biblioteca de este material.
+  final TextEditingController cantidad;
+
+  /// Ejemplares fuera de servicio (solo se pide al editar).
+  final TextEditingController fueraServicio;
+  final TextEditingController tomo;
+  final TextEditingController totalTomos;
+
   void dispose() {
     for (final c in [
       codigo,
       titulo,
-      autor,
       isbn,
       editorial,
       anio,
@@ -67,6 +81,10 @@ class ControladoresMaterial {
       accesorios,
       valor,
       plazoHoras,
+      cantidad,
+      fueraServicio,
+      tomo,
+      totalTomos,
     ]) {
       c.dispose();
     }
@@ -77,7 +95,9 @@ class ControladoresMaterial {
   /// Los campos que no corresponden al [tipo] elegido (por ejemplo "autor"
   /// en un proyector) se envían vacíos para que no queden datos viejos.
   /// El código solo se envía al crear: no se puede cambiar después.
+  /// Los autores se envían siempre: el material queda con exactamente [autores].
   Map<String, dynamic> aPeticion({
+    required SeleccionAutores autores,
     required TipoMaterial tipo,
     required String categoriaId,
     required CondicionMaterial condicion,
@@ -100,7 +120,12 @@ class ControladoresMaterial {
       'ubicacion': _texto(ubicacion),
       'valor_referencial': _decimal(valor),
       'plazo_prestamo_horas': _entero(plazoHoras),
-      'autor': bibliografico ? _texto(autor) : null,
+      'cantidad_total': _entero(cantidad) ?? 1,
+      // Los ejemplares fuera de servicio solo se corrigen al editar.
+      if (!esNuevo) 'cantidad_fuera_servicio': _entero(fueraServicio) ?? 0,
+      ...(bibliografico ? autores : const SeleccionAutores()).aPeticion(),
+      'tomo': bibliografico ? _texto(tomo) : null,
+      'total_tomos': bibliografico ? _entero(totalTomos) : null,
       'isbn': bibliografico ? _texto(isbn) : null,
       'editorial': bibliografico ? _texto(editorial) : null,
       'anio_publicacion': bibliografico ? _entero(anio) : null,

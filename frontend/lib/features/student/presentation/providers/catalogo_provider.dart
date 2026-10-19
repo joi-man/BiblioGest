@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/network/estado_conexion.dart';
 import 'package:frontend/core/theme/modo_tema_provider.dart';
+import 'package:frontend/core/utils/texto_busqueda.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/materials/data/repositories/material_repository.dart';
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
 import 'package:frontend/features/student/data/catalogo_cache.dart';
@@ -86,24 +88,17 @@ List<MaterialBiblioteca> filtrarMateriales(
   List<MaterialBiblioteca> materiales,
   FiltroMateriales filtro,
 ) {
-  final texto = _sinTildes(filtro.texto.trim());
   return [
     for (final m in materiales)
       if ((filtro.tipo == null || m.tipoMaterial == filtro.tipo) &&
           (filtro.estado == null || m.estado == filtro.estado) &&
           (!filtro.soloDisponibles || m.sePuedeSolicitar) &&
-          (texto.isEmpty ||
-              _sinTildes(
-                '${m.titulo} ${m.codigo} ${m.autor ?? ''}',
-              ).contains(texto)))
+          // Todas las palabras deben aparecer, igual que en la búsqueda del servidor.
+          coincideConTodasLasPalabras(
+            '${m.titulo} ${m.autoresTexto} ${m.etiquetaTomo} ${m.codigo} '
+            '${m.isbn ?? ''} ${m.editorial ?? ''}',
+            filtro.texto,
+          ))
         m,
   ];
 }
-
-String _sinTildes(String texto) => texto
-    .toLowerCase()
-    .replaceAll(RegExp('[áàä]'), 'a')
-    .replaceAll(RegExp('[éèë]'), 'e')
-    .replaceAll(RegExp('[íìï]'), 'i')
-    .replaceAll(RegExp('[óòö]'), 'o')
-    .replaceAll(RegExp('[úùü]'), 'u');
