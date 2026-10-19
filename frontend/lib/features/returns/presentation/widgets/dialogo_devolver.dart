@@ -7,7 +7,9 @@ import 'package:frontend/features/loans/data/models/devolucion.dart';
 import 'package:frontend/features/loans/data/models/prestamo.dart';
 import 'package:frontend/features/loans/data/models/prestamo_detalle.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
+import 'package:frontend/features/returns/data/models/fecha_recepcion.dart';
 import 'package:frontend/features/returns/data/repositories/devolucion_repository.dart';
+import 'package:frontend/features/returns/presentation/widgets/campo_fecha_recepcion.dart';
 
 /// Diálogo para recibir materiales de un préstamo.
 ///
@@ -28,6 +30,9 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
   late final Map<String, bool> _seleccionado;
   late final Map<String, CondicionDevolucion> _condicion;
   final _observaciones = TextEditingController();
+  final _motivoFecha = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  DateTime? _recibidoEn;
   bool _guardando = false;
 
   @override
@@ -41,12 +46,14 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
   @override
   void dispose() {
     _observaciones.dispose();
+    _motivoFecha.dispose();
     super.dispose();
   }
 
   int get _cantidad => _seleccionado.values.where((v) => v).length;
 
   Future<void> _registrar() async {
+    if (!_formKey.currentState!.validate()) return;
     setState(() => _guardando = true);
 
     final observaciones = _observaciones.text.trim();
@@ -64,7 +71,12 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
       context,
       () => ref
           .read(accionesPrestamoProvider)
-          .registrarDevolucion(widget.prestamo.id, items),
+          .registrarDevolucion(
+            widget.prestamo.id,
+            items,
+            fechaDevolucion: _recibidoEn,
+            motivoFecha: _recibidoEn == null ? null : _motivoFecha.text,
+          ),
       exito: items.length == _pendientes.length
           ? 'Devolución registrada'
           : 'Devolución parcial registrada',
@@ -100,21 +112,44 @@ class _DialogoDevolverState extends ConsumerState<DialogoDevolver> {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  for (final detalle in _pendientes) _filaItem(detalle),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _observaciones,
-                    maxLines: 2,
-                    maxLength: 500,
-                    decoration: const InputDecoration(
-                      labelText: 'Observaciones',
-                      helperText: 'Se guardan en cada item devuelto',
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    for (final detalle in _pendientes) _filaItem(detalle),
+                    const SizedBox(height: 12),
+                    CampoFechaRecepcion(
+                      valor: _recibidoEn,
+                      entrega: widget.prestamo.fechaPrestamo,
+                      onChanged: (f) => setState(() => _recibidoEn = f),
                     ),
-                  ),
-                ],
+                    if (_recibidoEn != null) ...[
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _motivoFecha,
+                        maxLines: 2,
+                        maxLength: 500,
+                        decoration: const InputDecoration(
+                          labelText: 'Motivo de la fecha *',
+                          helperText:
+                              'Queda registrado en la bitácora junto con tu usuario',
+                        ),
+                        validator: FechaRecepcion.validarMotivo,
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    TextField(
+                      controller: _observaciones,
+                      maxLines: 2,
+                      maxLength: 500,
+                      decoration: const InputDecoration(
+                        labelText: 'Observaciones',
+                        helperText: 'Se guardan en cada item devuelto',
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             _acciones(),
