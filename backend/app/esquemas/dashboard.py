@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class ResumenMateriales(BaseModel):
-    """Cantidad de unidades por estado."""
+    """Cantidad de ejemplares por estado."""
 
     total: int
     disponibles: int

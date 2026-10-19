@@ -7,7 +7,9 @@ import 'package:frontend/features/auth/data/models/usuario.dart';
 import 'package:frontend/features/auth/presentation/providers/usuarios_provider.dart';
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
+import 'package:frontend/core/utils/texto_busqueda.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
 
 /// Registra un préstamo en el mostrador, sin solicitud previa.
@@ -171,21 +173,27 @@ class _DialogoPrestamoDirectoState
         const SizedBox(height: 16),
         DropdownSearch<MaterialBiblioteca>.multiSelection(
           items: (filtro, _) async => materiales.value ?? [],
-          itemAsString: (m) => '${m.titulo} · ${m.codigo}',
+          itemAsString: (m) =>
+              '${m.tituloConTomo} · ${m.codigo} · ${m.ejemplaresCorto}',
           compareFn: (a, b) => a.id == b.id,
-          filterFn: (m, filtro) => _coincide(
-            '${m.titulo} ${m.codigo} ${m.marca ?? ''} ${m.modelo ?? ''}',
+          filterFn: (m, filtro) => coincideConTodasLasPalabras(
+            '${m.titulo} ${m.autoresTexto} ${m.etiquetaTomo} ${m.codigo} '
+            '${m.isbn ?? ''} ${m.marca ?? ''} ${m.modelo ?? ''}',
             filtro,
           ),
           onChanged: (lista) => setState(() => _materiales = lista),
-          popupProps: const PopupPropsMultiSelection.dialog(
+          popupProps: PopupPropsMultiSelection.dialog(
             showSearchBox: true,
-            title: Padding(
+            // Un material sin ejemplares libres no se puede elegir.
+            disabledItemFn: (m) => m.ejemplaresLibres < 1,
+            title: const Padding(
               padding: EdgeInsets.all(16),
               child: Text('Materiales disponibles'),
             ),
-            searchFieldProps: TextFieldProps(
-              decoration: InputDecoration(hintText: 'Título, código o marca'),
+            searchFieldProps: const TextFieldProps(
+              decoration: InputDecoration(
+                hintText: 'Título, autor, código o marca',
+              ),
             ),
           ),
           decoratorProps: const DropDownDecoratorProps(

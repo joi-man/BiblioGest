@@ -1,5 +1,6 @@
 from .usuario import Usuario
 from .categoria import Categoria
+from .autor import Autor, MaterialAutor
 from .material import Material
 from .prestamo_cabecera import PrestamoCabecera
 from .prestamo_detalle import PrestamoDetalle
@@ -15,6 +16,8 @@ __all__ = [
     "CodigoRecuperacion",
     "Usuario",
     "Categoria",
+    "Autor",
+    "MaterialAutor",
     "Material",
     "PrestamoCabecera",
     "PrestamoDetalle",

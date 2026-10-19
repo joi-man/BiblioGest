@@ -30,6 +30,8 @@ class MaterialResumen(BaseModel):
     tipo_material: str
     estado: str
     ubicacion: Optional[str] = None
+    tomo: Optional[str] = None
+    total_tomos: Optional[int] = None
 
 
 # ---------------------------------------------------------------------------

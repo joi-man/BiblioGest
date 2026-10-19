@@ -355,3 +355,51 @@ def test_sin_conexion_los_cambios_siguen_pendientes(tmp_path, servidor):
 
     with equipo.sesion() as db:
         assert len(_lotes(db, LOTE_PENDIENTE)) == 1
+
+
+# ------------------------------------------------------------------- autores
+def test_un_libro_con_autores_cargado_en_un_equipo_llega_al_servidor_con_sus_vinculos(tmp_path, servidor):
+    equipo = _equipo_sincronizado(tmp_path, "a", servidor)
+    with equipo.sesion() as db:
+        admin = _por_nombre(db, Usuario, "username", "admin")
+        categoria_id = db.execute(select(Categoria.id)).scalar_one()
+
+    respuesta = equipo.http.post(
+        "/api/materiales/",
+        json={
+            "codigo": "LIB-7", "titulo": "Rayuela", "tipo_material": "libro",
+            "categoria_id": str(categoria_id), "autores_nuevos": ["Julio Cortázar"], "cantidad_total": 3,
+        },
+        headers=cabeceras(admin),
+    )
+    assert respuesta.status_code == 201
+
+    resumen = equipo.motor.sincronizar()
+
+    assert resumen.conflictos == 0
+    with servidor.sesion() as db:
+        libro = _por_nombre(db, Material, "codigo", "LIB-7")
+        assert [a.nombre for a in libro.autores] == ["Julio Cortázar"]
+        assert libro.cantidad_total == 3
+        assert "cortazar" in libro.texto_busqueda
+
+
+def test_los_autores_del_servidor_llegan_al_equipo(tmp_path, servidor):
+    with servidor.sesion() as db:
+        admin = _por_nombre(db, Usuario, "username", "admin")
+        categoria_id = db.execute(select(Categoria.id)).scalar_one()
+
+    equipo = _equipo_sincronizado(tmp_path, "a", servidor)
+    servidor.http.post(
+        "/api/materiales/",
+        json={
+            "codigo": "LIB-8", "titulo": "El Aleph", "tipo_material": "libro",
+            "categoria_id": str(categoria_id), "autores_nuevos": ["Jorge Luis Borges"],
+        },
+        headers=cabeceras(admin),
+    )
+
+    equipo.motor.sincronizar()
+
+    with equipo.sesion() as db:
+        assert [a.nombre for a in _por_nombre(db, Material, "codigo", "LIB-8").autores] == ["Jorge Luis Borges"]

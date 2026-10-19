@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core import reloj
 from app.core.constantes_prestamo import PRESTAMO_APROBADO, PRESTAMO_CANCELADO
 from app.esquemas.prestamo_cabecera import CesionPeticion, PrestamoDirectoCrear
 from app.modelos.prestamo_cabecera import PrestamoCabecera
@@ -45,11 +46,11 @@ def ceder_reserva(
 
     maquina_estados.validar_transicion(reserva.estado, PRESTAMO_CANCELADO)
     material_ids = [d.material_id for d in reserva.detalles]
-    for material in material_estado_servicio.bloquear_materiales(db, material_ids):
-        material_estado_servicio.liberar(material)
+    materiales = material_estado_servicio.bloquear_materiales(db, material_ids)
 
     reserva.estado = PRESTAMO_CANCELADO
     reserva.motivo_rechazo = datos.motivo
+    material_estado_servicio.recalcular(db, materiales, reloj.ahora_utc())  # libera la reserva
     auditoria_prestamo.registrar(
         db, personal, "RESERVA_CEDIDA", reserva,
         {"motivo": datos.motivo, "cedida_a": str(datos.usuario_id)},

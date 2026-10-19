@@ -1,5 +1,12 @@
-"""Bloqueo y cambios de estado de las unidades de material durante un prestamo."""
-from typing import Iterable, List
+"""Cantidades y estado de un material segun sus prestamos.
+
+Un material puede tener varios ejemplares (`cantidad_total`). Cuantos estan
+reservados, prestados o vencidos no se lleva con contadores que suben y bajan:
+se **recalcula** contando los items de prestamo vigentes (ver `recalcular`).
+Asi el dato no se desajusta aunque falle una operacion o se sincronice un equipo.
+"""
+from datetime import datetime
+from typing import Iterable, List, Sequence
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -13,14 +20,23 @@ from app.core.constantes_inventario import (
     ESTADO_RESERVADO,
     ESTADO_VENCIDO,
 )
-from app.core.constantes_prestamo import CONDICIONES_QUE_INHABILITAN, CONDICION_DANO_MENOR
+from app.core.constantes_prestamo import (
+    CONDICIONES_QUE_INHABILITAN,
+    CONDICION_DANO_MENOR,
+    PRESTAMO_ACTIVO,
+    PRESTAMO_APROBADO,
+    PRESTAMO_VENCIDO,
+)
+from app.modelos.devolucion import Devolucion
 from app.modelos.material import Material
+from app.modelos.prestamo_cabecera import PrestamoCabecera
+from app.modelos.prestamo_detalle import PrestamoDetalle
 
 
 def bloquear_materiales(db: Session, material_ids: Iterable[UUID]) -> List[Material]:
     """Obtiene los materiales bloqueando sus filas hasta el fin de la transaccion.
 
-    El bloqueo evita que dos personas reserven la misma unidad a la vez. Se
+    El bloqueo evita que dos personas reserven el ultimo ejemplar a la vez. Se
     ordenan por ID para que dos transacciones nunca se bloqueen entre si.
     Lanza 404 si alguno no existe.
     """
@@ -43,60 +59,93 @@ def bloquear_materiales(db: Session, material_ids: Iterable[UUID]) -> List[Mater
     return materiales
 
 
-def _exigir_estado(material: Material, permitidos: tuple[str, ...], accion: str) -> None:
-    """Lanza 409 si la unidad no esta en alguno de los estados esperados."""
-    if material.estado not in permitidos:
+def exigir_disponible(material: Material) -> None:
+    """Lanza 409 si no queda ningun ejemplar disponible."""
+    if not material.es_prestable:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"'{material.titulo}' ({material.codigo}) es solo para consulta en sala",
+        )
+    if material.cantidad_disponible < 1:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                f"No se puede {accion} '{material.titulo}' ({material.codigo}): "
-                f"su estado es '{material.estado}'"
+                f"'{material.titulo}' ({material.codigo}) no tiene ejemplares disponibles "
+                f"(estado: {material.estado})"
             ),
         )
 
 
-def reservar(material: Material) -> None:
-    """disponible -> reservado (solicitud aprobada, pendiente de retiro)."""
-    _exigir_estado(material, (ESTADO_DISPONIBLE,), "reservar")
-    material.estado = ESTADO_RESERVADO
+def derivar_estado(material: Material) -> str:
+    """Estado a mostrar: disponible mientras quede un ejemplar; si no, el mas urgente."""
+    if material.cantidad_disponible > 0:
+        return ESTADO_DISPONIBLE
+    if material.cantidad_vencida > 0:
+        return ESTADO_VENCIDO
+    if material.cantidad_prestada > 0:
+        return ESTADO_PRESTADO
+    if material.cantidad_reservada > 0:
+        return ESTADO_RESERVADO
+    return ESTADO_FUERA_DE_SERVICIO
 
 
-def liberar(material: Material) -> None:
-    """reservado -> disponible (la reserva se cancela o expira)."""
-    if material.estado == ESTADO_RESERVADO:
-        material.estado = ESTADO_DISPONIBLE
+def recalcular(db: Session, materiales: Sequence[Material], ahora: datetime) -> None:
+    """Cuenta los ejemplares reservados, prestados y vencidos de cada material.
 
+    Mira los items de prestamo que todavia no se devolvieron: en una reserva
+    aprobada cuentan como reservados; en un prestamo entregado, como prestados
+    o vencidos si ya pasaron de plazo. Despues deja el estado al dia. No
+    confirma la transaccion.
+    """
+    if not materiales:
+        return
+    db.flush()  # los cambios de prestamos de esta operacion aun no estan en la base
 
-def entregar(material: Material) -> None:
-    """reservado -> prestado (el usuario retira el material)."""
-    _exigir_estado(material, (ESTADO_RESERVADO,), "entregar")
-    material.estado = ESTADO_PRESTADO
+    consulta = (
+        select(
+            PrestamoDetalle.material_id,
+            PrestamoCabecera.estado,
+            PrestamoDetalle.fecha_devolucion_esperada,
+        )
+        .join(PrestamoCabecera, PrestamoCabecera.id == PrestamoDetalle.prestamo_cabecera_id)
+        .where(
+            PrestamoDetalle.material_id.in_([m.id for m in materiales]),
+            PrestamoDetalle.eliminado == False,  # noqa: E712
+            PrestamoCabecera.eliminado == False,  # noqa: E712
+            PrestamoCabecera.estado.in_((PRESTAMO_APROBADO, PRESTAMO_ACTIVO, PRESTAMO_VENCIDO)),
+            ~PrestamoDetalle.devolucion.has(Devolucion.eliminado == False),  # noqa: E712
+        )
+    )
+    cuentas = {m.id: [0, 0, 0] for m in materiales}  # reservada, prestada, vencida
+    for material_id, estado, fecha_limite in db.execute(consulta).all():
+        if estado == PRESTAMO_APROBADO:
+            cuentas[material_id][0] += 1
+        elif fecha_limite is not None and fecha_limite < ahora:
+            cuentas[material_id][2] += 1
+        else:
+            cuentas[material_id][1] += 1
 
-
-def entregar_directo(material: Material) -> None:
-    """disponible -> prestado (prestamo en mostrador sin reserva previa)."""
-    _exigir_estado(material, (ESTADO_DISPONIBLE,), "prestar")
-    material.estado = ESTADO_PRESTADO
-
-
-def marcar_vencido(material: Material) -> None:
-    """prestado -> vencido (paso el plazo de devolucion)."""
-    if material.estado == ESTADO_PRESTADO:
-        material.estado = ESTADO_VENCIDO
+    for material in materiales:
+        reservada, prestada, vencida = cuentas[material.id]
+        material.cantidad_reservada = reservada
+        material.cantidad_prestada = prestada
+        material.cantidad_vencida = vencida
+        material.estado = derivar_estado(material)
 
 
 def recibir(material: Material, condicion: str) -> None:
-    """Deja la unidad lista tras una devolucion segun la condicion en que llega.
+    """Anota la condicion en que vuelve un ejemplar. Luego hay que llamar a `recalcular`.
 
-    - Danos mayores o perdida: queda fuera de servicio y con condicion 'malo'.
-    - Dano menor: vuelve a estar disponible con condicion 'regular'.
-    - Buen estado: vuelve a estar disponible sin cambios.
+    - Danos mayores o perdida: ese ejemplar queda fuera de servicio.
+    - Dano menor: vuelve a estar disponible.
+    Si el material tiene un solo ejemplar, su condicion fisica tambien se actualiza.
     """
-    _exigir_estado(material, (ESTADO_PRESTADO, ESTADO_VENCIDO), "recibir")
+    un_solo_ejemplar = material.cantidad_total == 1
     if condicion in CONDICIONES_QUE_INHABILITAN:
-        material.estado = ESTADO_FUERA_DE_SERVICIO
-        material.condicion = "malo"
-        return
-    if condicion == CONDICION_DANO_MENOR:
+        material.cantidad_fuera_servicio = min(
+            material.cantidad_total, material.cantidad_fuera_servicio + 1
+        )
+        if un_solo_ejemplar:
+            material.condicion = "malo"
+    elif condicion == CONDICION_DANO_MENOR and un_solo_ejemplar:
         material.condicion = "regular"
-    material.estado = ESTADO_DISPONIBLE

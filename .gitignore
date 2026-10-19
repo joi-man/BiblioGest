@@ -12,6 +12,7 @@ docs/*
 !docs/reportes.md
 !docs/despliegue.md
 !docs/versionado.md
+!docs/autores-y-ejemplares.md
 !docs/despliegue.md
 *.docx
 

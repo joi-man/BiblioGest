@@ -17,6 +17,7 @@ from app.core.seguridad import crear_token_acceso, hashear_contrasena
 from app.modelos import Usuario
 from app.rutas import (
     auth,
+    autores,
     categorias,
     dashboard,
     devoluciones,

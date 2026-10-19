@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import configuracion
-from app.core.constantes_inventario import ESTADO_DISPONIBLE, TIPOS_BIBLIOGRAFICOS
+from app.core.constantes_inventario import TIPOS_BIBLIOGRAFICOS
 from app.core.constantes_roles import ROLES_PERSONAL
 from app.core.constantes_prestamo import (
     ESTADOS_QUE_OCUPAN_UNIDADES,
@@ -79,15 +79,15 @@ def validar_usuario_puede_pedir(db: Session, usuario: Usuario, cantidad_nueva: i
 
 
 def validar_materiales_disponibles(materiales: Sequence[Material]) -> None:
-    """Cada material debe ser prestable y estar disponible en este momento."""
+    """Cada material debe ser prestable y tener al menos un ejemplar disponible ahora."""
     for material in materiales:
         if not material.es_prestable:
             raise _conflicto(
                 f"'{material.titulo}' ({material.codigo}) es solo para consulta en sala"
             )
-        if material.estado != ESTADO_DISPONIBLE:
+        if material.cantidad_disponible < 1:
             raise _conflicto(
-                f"'{material.titulo}' ({material.codigo}) no esta disponible "
+                f"'{material.titulo}' ({material.codigo}) no tiene ejemplares disponibles "
                 f"(estado: {material.estado})"
             )
 

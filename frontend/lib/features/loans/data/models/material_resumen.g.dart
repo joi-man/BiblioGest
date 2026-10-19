@@ -23,6 +23,8 @@ _$MaterialResumenImpl _$$MaterialResumenImplFromJson(
     unknownValue: EstadoMaterial.disponible,
   ),
   ubicacion: json['ubicacion'] as String?,
+  tomo: json['tomo'] as String?,
+  totalTomos: (json['total_tomos'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$$MaterialResumenImplToJson(
@@ -34,6 +36,8 @@ Map<String, dynamic> _$$MaterialResumenImplToJson(
   'tipo_material': _$TipoMaterialEnumMap[instance.tipoMaterial]!,
   'estado': _$EstadoMaterialEnumMap[instance.estado]!,
   'ubicacion': instance.ubicacion,
+  'tomo': instance.tomo,
+  'total_tomos': instance.totalTomos,
 };
 
 const _$TipoMaterialEnumMap = {

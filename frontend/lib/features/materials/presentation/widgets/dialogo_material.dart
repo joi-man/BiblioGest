@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/features/authors/presentation/providers/autores_paginados_provider.dart';
+import 'package:frontend/features/authors/presentation/widgets/selector_autores.dart';
+import 'package:frontend/features/authors/presentation/widgets/seleccion_autores.dart';
 import 'package:frontend/features/categories/presentation/providers/categorias_provider.dart';
 import 'package:frontend/features/core/widgets/campo_texto.dart';
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
@@ -12,8 +15,9 @@ import 'selector_categoria.dart';
 
 /// Formulario para crear o editar una unidad de material.
 ///
-/// Los campos cambian según el tipo: un libro pide autor e ISBN, un
-/// proyector pide marca, modelo, número de serie y accesorios.
+/// Los campos cambian según el tipo: un libro pide autores, tomo e ISBN, un
+/// proyector pide marca, modelo, número de serie y accesorios. Los autores se
+/// eligen (o se crean) en el mismo formulario.
 class DialogoMaterial extends ConsumerStatefulWidget {
   const DialogoMaterial({super.key, this.material});
 
@@ -31,6 +35,7 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
   late CondicionMaterial _condicion;
   late bool _esPrestable;
   String? _categoriaId;
+  late SeleccionAutores _autores;
   bool _guardando = false;
 
   bool get _esNuevo => widget.material == null;
@@ -48,6 +53,7 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
     _condicion = material?.condicion ?? CondicionMaterial.bueno;
     _esPrestable = material?.esPrestable ?? true;
     _categoriaId = material?.categoriaId;
+    _autores = SeleccionAutores(existentes: material?.autores ?? const []);
   }
 
   @override
@@ -61,6 +67,7 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
     setState(() => _guardando = true);
 
     final datos = _c.aPeticion(
+      autores: _autores,
       tipo: _tipo,
       categoriaId: _categoriaId!,
       condicion: _condicion,
@@ -76,6 +83,8 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
         await repositorio.actualizar(widget.material!.id, datos);
       }
       ref.invalidate(materialesProvider);
+      // Un autor nuevo pasa a existir al guardar el material.
+      ref.invalidate(autoresPaginadosProvider);
     }, exito: 'Material guardado');
 
     if (!mounted) return;
@@ -160,7 +169,27 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
   }
 
   List<Widget> _camposBibliograficos() => [
-    CampoTexto(etiqueta: 'Autor', controlador: _c.autor, maxCaracteres: 255),
+    SelectorAutores(
+      seleccion: _autores,
+      alCambiar: (nueva) => setState(() => _autores = nueva),
+    ),
+    _fila([
+      CampoTexto(
+        etiqueta: 'Tomo',
+        controlador: _c.tomo,
+        maxCaracteres: 20,
+        ayuda: 'Solo si es una obra de varios tomos. Ej: 2',
+      ),
+      CampoTexto(
+        etiqueta: 'Total de tomos',
+        controlador: _c.totalTomos,
+        soloDigitos: true,
+        maxCaracteres: 3,
+        validador: (v) => v != null && v.isNotEmpty && int.parse(v) < 1
+            ? 'Debe ser 1 o más'
+            : null,
+      ),
+    ]),
     _fila([
       CampoTexto(etiqueta: 'ISBN', controlador: _c.isbn, maxCaracteres: 20),
       CampoTexto(
@@ -227,6 +256,7 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
   List<Widget> _camposGestion() {
     final plazoCategoria = _plazoDeLaCategoria();
     return [
+      _filaEjemplares(),
       _fila([
         CampoTexto(
           etiqueta: 'Ubicación',
@@ -264,6 +294,41 @@ class _DialogoMaterialState extends ConsumerState<DialogoMaterial> {
         onChanged: (v) => setState(() => _esPrestable = v),
       ),
     ];
+  }
+
+  /// Cantidad de ejemplares y, al editar, cuántos están fuera de servicio.
+  Widget _filaEjemplares() {
+    final material = widget.material;
+    return _fila([
+      CampoTexto(
+        etiqueta: 'Cantidad de ejemplares',
+        controlador: _c.cantidad,
+        requerido: true,
+        soloDigitos: true,
+        maxCaracteres: 5,
+        ayuda: material == null || material.ejemplaresEnUso == 0
+            ? 'Copias que tiene la biblioteca'
+            : 'Ahora hay ${material.ejemplaresEnUso} reservados o prestados',
+        validador: (v) {
+          final cantidad = int.tryParse(v ?? '') ?? 0;
+          if (cantidad < 1) return 'Debe haber al menos 1 ejemplar';
+          if (material != null && cantidad < material.ejemplaresEnUso) {
+            return 'Hay ${material.ejemplaresEnUso} en uso';
+          }
+          return null;
+        },
+      ),
+      if (_esNuevo)
+        const SizedBox.shrink()
+      else
+        CampoTexto(
+          etiqueta: 'Fuera de servicio',
+          controlador: _c.fueraServicio,
+          soloDigitos: true,
+          maxCaracteres: 5,
+          ayuda: 'Ejemplares dañados o perdidos',
+        ),
+    ]);
   }
 
   /// Plazo en horas de la categoría elegida, para mostrarlo como referencia.
