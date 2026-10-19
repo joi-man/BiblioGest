@@ -30,14 +30,21 @@ mixin _$MaterialBiblioteca {
   EstadoMaterial get estado => throw _privateConstructorUsedError;
   @JsonKey(name: 'categoria_id')
   String get categoriaId => throw _privateConstructorUsedError; // Bibliográficos
+  /// Resumen en texto de los autores ("A, B"); la lista real está en [autores].
   String? get autor => throw _privateConstructorUsedError;
+  List<Autor> get autores => throw _privateConstructorUsedError;
   String? get isbn => throw _privateConstructorUsedError;
   String? get editorial => throw _privateConstructorUsedError;
   @JsonKey(name: 'anio_publicacion')
   int? get anioPublicacion => throw _privateConstructorUsedError;
   @JsonKey(name: 'numero_paginas')
   int? get numeroPaginas => throw _privateConstructorUsedError;
-  String? get descripcion => throw _privateConstructorUsedError; // Medios
+  String? get descripcion => throw _privateConstructorUsedError;
+
+  /// Obras de varios tomos: cada tomo es un material con su código y sus ejemplares.
+  String? get tomo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_tomos')
+  int? get totalTomos => throw _privateConstructorUsedError; // Medios
   String? get formato => throw _privateConstructorUsedError;
   String? get duracion => throw _privateConstructorUsedError; // Equipos
   String? get marca => throw _privateConstructorUsedError;
@@ -54,7 +61,20 @@ mixin _$MaterialBiblioteca {
   @JsonKey(name: 'es_prestable')
   bool get esPrestable => throw _privateConstructorUsedError;
   @JsonKey(name: 'plazo_prestamo_horas')
-  int? get plazoPrestamoHoras => throw _privateConstructorUsedError;
+  int? get plazoPrestamoHoras => throw _privateConstructorUsedError; // Ejemplares. Una respuesta antigua (o una copia guardada por una versión
+  // anterior de la app) no los trae: se asume un solo ejemplar.
+  @JsonKey(name: 'cantidad_total')
+  int get cantidadTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cantidad_reservada')
+  int get cantidadReservada => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cantidad_prestada')
+  int get cantidadPrestada => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cantidad_vencida')
+  int get cantidadVencida => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cantidad_fuera_servicio')
+  int get cantidadFueraServicio => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cantidad_disponible')
+  int? get cantidadDisponible => throw _privateConstructorUsedError;
   @JsonKey(name: 'imagen_url')
   String? get imagenUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'fecha_creacion')
@@ -88,11 +108,14 @@ abstract class $MaterialBibliotecaCopyWith<$Res> {
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) EstadoMaterial estado,
     @JsonKey(name: 'categoria_id') String categoriaId,
     String? autor,
+    List<Autor> autores,
     String? isbn,
     String? editorial,
     @JsonKey(name: 'anio_publicacion') int? anioPublicacion,
     @JsonKey(name: 'numero_paginas') int? numeroPaginas,
     String? descripcion,
+    String? tomo,
+    @JsonKey(name: 'total_tomos') int? totalTomos,
     String? formato,
     String? duracion,
     String? marca,
@@ -105,6 +128,12 @@ abstract class $MaterialBibliotecaCopyWith<$Res> {
     @JsonKey(name: 'valor_referencial') double? valorReferencial,
     @JsonKey(name: 'es_prestable') bool esPrestable,
     @JsonKey(name: 'plazo_prestamo_horas') int? plazoPrestamoHoras,
+    @JsonKey(name: 'cantidad_total') int cantidadTotal,
+    @JsonKey(name: 'cantidad_reservada') int cantidadReservada,
+    @JsonKey(name: 'cantidad_prestada') int cantidadPrestada,
+    @JsonKey(name: 'cantidad_vencida') int cantidadVencida,
+    @JsonKey(name: 'cantidad_fuera_servicio') int cantidadFueraServicio,
+    @JsonKey(name: 'cantidad_disponible') int? cantidadDisponible,
     @JsonKey(name: 'imagen_url') String? imagenUrl,
     @JsonKey(name: 'fecha_creacion') DateTime? fechaCreacion,
     @JsonKey(name: 'fecha_actualizacion') DateTime? fechaActualizacion,
@@ -133,11 +162,14 @@ class _$MaterialBibliotecaCopyWithImpl<$Res, $Val extends MaterialBiblioteca>
     Object? estado = null,
     Object? categoriaId = null,
     Object? autor = freezed,
+    Object? autores = null,
     Object? isbn = freezed,
     Object? editorial = freezed,
     Object? anioPublicacion = freezed,
     Object? numeroPaginas = freezed,
     Object? descripcion = freezed,
+    Object? tomo = freezed,
+    Object? totalTomos = freezed,
     Object? formato = freezed,
     Object? duracion = freezed,
     Object? marca = freezed,
@@ -149,6 +181,12 @@ class _$MaterialBibliotecaCopyWithImpl<$Res, $Val extends MaterialBiblioteca>
     Object? valorReferencial = freezed,
     Object? esPrestable = null,
     Object? plazoPrestamoHoras = freezed,
+    Object? cantidadTotal = null,
+    Object? cantidadReservada = null,
+    Object? cantidadPrestada = null,
+    Object? cantidadVencida = null,
+    Object? cantidadFueraServicio = null,
+    Object? cantidadDisponible = freezed,
     Object? imagenUrl = freezed,
     Object? fechaCreacion = freezed,
     Object? fechaActualizacion = freezed,
@@ -183,6 +221,10 @@ class _$MaterialBibliotecaCopyWithImpl<$Res, $Val extends MaterialBiblioteca>
                 ? _value.autor
                 : autor // ignore: cast_nullable_to_non_nullable
                       as String?,
+            autores: null == autores
+                ? _value.autores
+                : autores // ignore: cast_nullable_to_non_nullable
+                      as List<Autor>,
             isbn: freezed == isbn
                 ? _value.isbn
                 : isbn // ignore: cast_nullable_to_non_nullable
@@ -203,6 +245,14 @@ class _$MaterialBibliotecaCopyWithImpl<$Res, $Val extends MaterialBiblioteca>
                 ? _value.descripcion
                 : descripcion // ignore: cast_nullable_to_non_nullable
                       as String?,
+            tomo: freezed == tomo
+                ? _value.tomo
+                : tomo // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            totalTomos: freezed == totalTomos
+                ? _value.totalTomos
+                : totalTomos // ignore: cast_nullable_to_non_nullable
+                      as int?,
             formato: freezed == formato
                 ? _value.formato
                 : formato // ignore: cast_nullable_to_non_nullable
@@ -247,6 +297,30 @@ class _$MaterialBibliotecaCopyWithImpl<$Res, $Val extends MaterialBiblioteca>
                 ? _value.plazoPrestamoHoras
                 : plazoPrestamoHoras // ignore: cast_nullable_to_non_nullable
                       as int?,
+            cantidadTotal: null == cantidadTotal
+                ? _value.cantidadTotal
+                : cantidadTotal // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cantidadReservada: null == cantidadReservada
+                ? _value.cantidadReservada
+                : cantidadReservada // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cantidadPrestada: null == cantidadPrestada
+                ? _value.cantidadPrestada
+                : cantidadPrestada // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cantidadVencida: null == cantidadVencida
+                ? _value.cantidadVencida
+                : cantidadVencida // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cantidadFueraServicio: null == cantidadFueraServicio
+                ? _value.cantidadFueraServicio
+                : cantidadFueraServicio // ignore: cast_nullable_to_non_nullable
+                      as int,
+            cantidadDisponible: freezed == cantidadDisponible
+                ? _value.cantidadDisponible
+                : cantidadDisponible // ignore: cast_nullable_to_non_nullable
+                      as int?,
             imagenUrl: freezed == imagenUrl
                 ? _value.imagenUrl
                 : imagenUrl // ignore: cast_nullable_to_non_nullable
@@ -283,11 +357,14 @@ abstract class _$$MaterialBibliotecaImplCopyWith<$Res>
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) EstadoMaterial estado,
     @JsonKey(name: 'categoria_id') String categoriaId,
     String? autor,
+    List<Autor> autores,
     String? isbn,
     String? editorial,
     @JsonKey(name: 'anio_publicacion') int? anioPublicacion,
     @JsonKey(name: 'numero_paginas') int? numeroPaginas,
     String? descripcion,
+    String? tomo,
+    @JsonKey(name: 'total_tomos') int? totalTomos,
     String? formato,
     String? duracion,
     String? marca,
@@ -300,6 +377,12 @@ abstract class _$$MaterialBibliotecaImplCopyWith<$Res>
     @JsonKey(name: 'valor_referencial') double? valorReferencial,
     @JsonKey(name: 'es_prestable') bool esPrestable,
     @JsonKey(name: 'plazo_prestamo_horas') int? plazoPrestamoHoras,
+    @JsonKey(name: 'cantidad_total') int cantidadTotal,
+    @JsonKey(name: 'cantidad_reservada') int cantidadReservada,
+    @JsonKey(name: 'cantidad_prestada') int cantidadPrestada,
+    @JsonKey(name: 'cantidad_vencida') int cantidadVencida,
+    @JsonKey(name: 'cantidad_fuera_servicio') int cantidadFueraServicio,
+    @JsonKey(name: 'cantidad_disponible') int? cantidadDisponible,
     @JsonKey(name: 'imagen_url') String? imagenUrl,
     @JsonKey(name: 'fecha_creacion') DateTime? fechaCreacion,
     @JsonKey(name: 'fecha_actualizacion') DateTime? fechaActualizacion,
@@ -327,11 +410,14 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
     Object? estado = null,
     Object? categoriaId = null,
     Object? autor = freezed,
+    Object? autores = null,
     Object? isbn = freezed,
     Object? editorial = freezed,
     Object? anioPublicacion = freezed,
     Object? numeroPaginas = freezed,
     Object? descripcion = freezed,
+    Object? tomo = freezed,
+    Object? totalTomos = freezed,
     Object? formato = freezed,
     Object? duracion = freezed,
     Object? marca = freezed,
@@ -343,6 +429,12 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
     Object? valorReferencial = freezed,
     Object? esPrestable = null,
     Object? plazoPrestamoHoras = freezed,
+    Object? cantidadTotal = null,
+    Object? cantidadReservada = null,
+    Object? cantidadPrestada = null,
+    Object? cantidadVencida = null,
+    Object? cantidadFueraServicio = null,
+    Object? cantidadDisponible = freezed,
     Object? imagenUrl = freezed,
     Object? fechaCreacion = freezed,
     Object? fechaActualizacion = freezed,
@@ -377,6 +469,10 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
             ? _value.autor
             : autor // ignore: cast_nullable_to_non_nullable
                   as String?,
+        autores: null == autores
+            ? _value._autores
+            : autores // ignore: cast_nullable_to_non_nullable
+                  as List<Autor>,
         isbn: freezed == isbn
             ? _value.isbn
             : isbn // ignore: cast_nullable_to_non_nullable
@@ -397,6 +493,14 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
             ? _value.descripcion
             : descripcion // ignore: cast_nullable_to_non_nullable
                   as String?,
+        tomo: freezed == tomo
+            ? _value.tomo
+            : tomo // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        totalTomos: freezed == totalTomos
+            ? _value.totalTomos
+            : totalTomos // ignore: cast_nullable_to_non_nullable
+                  as int?,
         formato: freezed == formato
             ? _value.formato
             : formato // ignore: cast_nullable_to_non_nullable
@@ -441,6 +545,30 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
             ? _value.plazoPrestamoHoras
             : plazoPrestamoHoras // ignore: cast_nullable_to_non_nullable
                   as int?,
+        cantidadTotal: null == cantidadTotal
+            ? _value.cantidadTotal
+            : cantidadTotal // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cantidadReservada: null == cantidadReservada
+            ? _value.cantidadReservada
+            : cantidadReservada // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cantidadPrestada: null == cantidadPrestada
+            ? _value.cantidadPrestada
+            : cantidadPrestada // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cantidadVencida: null == cantidadVencida
+            ? _value.cantidadVencida
+            : cantidadVencida // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cantidadFueraServicio: null == cantidadFueraServicio
+            ? _value.cantidadFueraServicio
+            : cantidadFueraServicio // ignore: cast_nullable_to_non_nullable
+                  as int,
+        cantidadDisponible: freezed == cantidadDisponible
+            ? _value.cantidadDisponible
+            : cantidadDisponible // ignore: cast_nullable_to_non_nullable
+                  as int?,
         imagenUrl: freezed == imagenUrl
             ? _value.imagenUrl
             : imagenUrl // ignore: cast_nullable_to_non_nullable
@@ -459,7 +587,8 @@ class __$$MaterialBibliotecaImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
   const _$MaterialBibliotecaImpl({
     required this.id,
@@ -470,11 +599,14 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
     @JsonKey(unknownEnumValue: EstadoMaterial.disponible) required this.estado,
     @JsonKey(name: 'categoria_id') required this.categoriaId,
     this.autor,
+    final List<Autor> autores = const <Autor>[],
     this.isbn,
     this.editorial,
     @JsonKey(name: 'anio_publicacion') this.anioPublicacion,
     @JsonKey(name: 'numero_paginas') this.numeroPaginas,
     this.descripcion,
+    this.tomo,
+    @JsonKey(name: 'total_tomos') this.totalTomos,
     this.formato,
     this.duracion,
     this.marca,
@@ -487,10 +619,17 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
     @JsonKey(name: 'valor_referencial') this.valorReferencial,
     @JsonKey(name: 'es_prestable') this.esPrestable = true,
     @JsonKey(name: 'plazo_prestamo_horas') this.plazoPrestamoHoras,
+    @JsonKey(name: 'cantidad_total') this.cantidadTotal = 1,
+    @JsonKey(name: 'cantidad_reservada') this.cantidadReservada = 0,
+    @JsonKey(name: 'cantidad_prestada') this.cantidadPrestada = 0,
+    @JsonKey(name: 'cantidad_vencida') this.cantidadVencida = 0,
+    @JsonKey(name: 'cantidad_fuera_servicio') this.cantidadFueraServicio = 0,
+    @JsonKey(name: 'cantidad_disponible') this.cantidadDisponible,
     @JsonKey(name: 'imagen_url') this.imagenUrl,
     @JsonKey(name: 'fecha_creacion') this.fechaCreacion,
     @JsonKey(name: 'fecha_actualizacion') this.fechaActualizacion,
-  }) : super._();
+  }) : _autores = autores,
+       super._();
 
   factory _$MaterialBibliotecaImpl.fromJson(Map<String, dynamic> json) =>
       _$$MaterialBibliotecaImplFromJson(json);
@@ -511,8 +650,18 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
   @JsonKey(name: 'categoria_id')
   final String categoriaId;
   // Bibliográficos
+  /// Resumen en texto de los autores ("A, B"); la lista real está en [autores].
   @override
   final String? autor;
+  final List<Autor> _autores;
+  @override
+  @JsonKey()
+  List<Autor> get autores {
+    if (_autores is EqualUnmodifiableListView) return _autores;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_autores);
+  }
+
   @override
   final String? isbn;
   @override
@@ -525,6 +674,13 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
   final int? numeroPaginas;
   @override
   final String? descripcion;
+
+  /// Obras de varios tomos: cada tomo es un material con su código y sus ejemplares.
+  @override
+  final String? tomo;
+  @override
+  @JsonKey(name: 'total_tomos')
+  final int? totalTomos;
   // Medios
   @override
   final String? formato;
@@ -555,6 +711,26 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
   @override
   @JsonKey(name: 'plazo_prestamo_horas')
   final int? plazoPrestamoHoras;
+  // Ejemplares. Una respuesta antigua (o una copia guardada por una versión
+  // anterior de la app) no los trae: se asume un solo ejemplar.
+  @override
+  @JsonKey(name: 'cantidad_total')
+  final int cantidadTotal;
+  @override
+  @JsonKey(name: 'cantidad_reservada')
+  final int cantidadReservada;
+  @override
+  @JsonKey(name: 'cantidad_prestada')
+  final int cantidadPrestada;
+  @override
+  @JsonKey(name: 'cantidad_vencida')
+  final int cantidadVencida;
+  @override
+  @JsonKey(name: 'cantidad_fuera_servicio')
+  final int cantidadFueraServicio;
+  @override
+  @JsonKey(name: 'cantidad_disponible')
+  final int? cantidadDisponible;
   @override
   @JsonKey(name: 'imagen_url')
   final String? imagenUrl;
@@ -567,7 +743,7 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
 
   @override
   String toString() {
-    return 'MaterialBiblioteca(id: $id, codigo: $codigo, titulo: $titulo, tipoMaterial: $tipoMaterial, estado: $estado, categoriaId: $categoriaId, autor: $autor, isbn: $isbn, editorial: $editorial, anioPublicacion: $anioPublicacion, numeroPaginas: $numeroPaginas, descripcion: $descripcion, formato: $formato, duracion: $duracion, marca: $marca, modelo: $modelo, numeroSerie: $numeroSerie, ubicacion: $ubicacion, accesorios: $accesorios, condicion: $condicion, valorReferencial: $valorReferencial, esPrestable: $esPrestable, plazoPrestamoHoras: $plazoPrestamoHoras, imagenUrl: $imagenUrl, fechaCreacion: $fechaCreacion, fechaActualizacion: $fechaActualizacion)';
+    return 'MaterialBiblioteca(id: $id, codigo: $codigo, titulo: $titulo, tipoMaterial: $tipoMaterial, estado: $estado, categoriaId: $categoriaId, autor: $autor, autores: $autores, isbn: $isbn, editorial: $editorial, anioPublicacion: $anioPublicacion, numeroPaginas: $numeroPaginas, descripcion: $descripcion, tomo: $tomo, totalTomos: $totalTomos, formato: $formato, duracion: $duracion, marca: $marca, modelo: $modelo, numeroSerie: $numeroSerie, ubicacion: $ubicacion, accesorios: $accesorios, condicion: $condicion, valorReferencial: $valorReferencial, esPrestable: $esPrestable, plazoPrestamoHoras: $plazoPrestamoHoras, cantidadTotal: $cantidadTotal, cantidadReservada: $cantidadReservada, cantidadPrestada: $cantidadPrestada, cantidadVencida: $cantidadVencida, cantidadFueraServicio: $cantidadFueraServicio, cantidadDisponible: $cantidadDisponible, imagenUrl: $imagenUrl, fechaCreacion: $fechaCreacion, fechaActualizacion: $fechaActualizacion)';
   }
 
   @override
@@ -584,6 +760,7 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
             (identical(other.categoriaId, categoriaId) ||
                 other.categoriaId == categoriaId) &&
             (identical(other.autor, autor) || other.autor == autor) &&
+            const DeepCollectionEquality().equals(other._autores, _autores) &&
             (identical(other.isbn, isbn) || other.isbn == isbn) &&
             (identical(other.editorial, editorial) ||
                 other.editorial == editorial) &&
@@ -593,6 +770,9 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
                 other.numeroPaginas == numeroPaginas) &&
             (identical(other.descripcion, descripcion) ||
                 other.descripcion == descripcion) &&
+            (identical(other.tomo, tomo) || other.tomo == tomo) &&
+            (identical(other.totalTomos, totalTomos) ||
+                other.totalTomos == totalTomos) &&
             (identical(other.formato, formato) || other.formato == formato) &&
             (identical(other.duracion, duracion) ||
                 other.duracion == duracion) &&
@@ -612,6 +792,18 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
                 other.esPrestable == esPrestable) &&
             (identical(other.plazoPrestamoHoras, plazoPrestamoHoras) ||
                 other.plazoPrestamoHoras == plazoPrestamoHoras) &&
+            (identical(other.cantidadTotal, cantidadTotal) ||
+                other.cantidadTotal == cantidadTotal) &&
+            (identical(other.cantidadReservada, cantidadReservada) ||
+                other.cantidadReservada == cantidadReservada) &&
+            (identical(other.cantidadPrestada, cantidadPrestada) ||
+                other.cantidadPrestada == cantidadPrestada) &&
+            (identical(other.cantidadVencida, cantidadVencida) ||
+                other.cantidadVencida == cantidadVencida) &&
+            (identical(other.cantidadFueraServicio, cantidadFueraServicio) ||
+                other.cantidadFueraServicio == cantidadFueraServicio) &&
+            (identical(other.cantidadDisponible, cantidadDisponible) ||
+                other.cantidadDisponible == cantidadDisponible) &&
             (identical(other.imagenUrl, imagenUrl) ||
                 other.imagenUrl == imagenUrl) &&
             (identical(other.fechaCreacion, fechaCreacion) ||
@@ -631,11 +823,14 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
     estado,
     categoriaId,
     autor,
+    const DeepCollectionEquality().hash(_autores),
     isbn,
     editorial,
     anioPublicacion,
     numeroPaginas,
     descripcion,
+    tomo,
+    totalTomos,
     formato,
     duracion,
     marca,
@@ -647,6 +842,12 @@ class _$MaterialBibliotecaImpl extends _MaterialBiblioteca {
     valorReferencial,
     esPrestable,
     plazoPrestamoHoras,
+    cantidadTotal,
+    cantidadReservada,
+    cantidadPrestada,
+    cantidadVencida,
+    cantidadFueraServicio,
+    cantidadDisponible,
     imagenUrl,
     fechaCreacion,
     fechaActualizacion,
@@ -680,11 +881,14 @@ abstract class _MaterialBiblioteca extends MaterialBiblioteca {
     required final EstadoMaterial estado,
     @JsonKey(name: 'categoria_id') required final String categoriaId,
     final String? autor,
+    final List<Autor> autores,
     final String? isbn,
     final String? editorial,
     @JsonKey(name: 'anio_publicacion') final int? anioPublicacion,
     @JsonKey(name: 'numero_paginas') final int? numeroPaginas,
     final String? descripcion,
+    final String? tomo,
+    @JsonKey(name: 'total_tomos') final int? totalTomos,
     final String? formato,
     final String? duracion,
     final String? marca,
@@ -697,6 +901,12 @@ abstract class _MaterialBiblioteca extends MaterialBiblioteca {
     @JsonKey(name: 'valor_referencial') final double? valorReferencial,
     @JsonKey(name: 'es_prestable') final bool esPrestable,
     @JsonKey(name: 'plazo_prestamo_horas') final int? plazoPrestamoHoras,
+    @JsonKey(name: 'cantidad_total') final int cantidadTotal,
+    @JsonKey(name: 'cantidad_reservada') final int cantidadReservada,
+    @JsonKey(name: 'cantidad_prestada') final int cantidadPrestada,
+    @JsonKey(name: 'cantidad_vencida') final int cantidadVencida,
+    @JsonKey(name: 'cantidad_fuera_servicio') final int cantidadFueraServicio,
+    @JsonKey(name: 'cantidad_disponible') final int? cantidadDisponible,
     @JsonKey(name: 'imagen_url') final String? imagenUrl,
     @JsonKey(name: 'fecha_creacion') final DateTime? fechaCreacion,
     @JsonKey(name: 'fecha_actualizacion') final DateTime? fechaActualizacion,
@@ -721,8 +931,11 @@ abstract class _MaterialBiblioteca extends MaterialBiblioteca {
   @override
   @JsonKey(name: 'categoria_id')
   String get categoriaId; // Bibliográficos
+  /// Resumen en texto de los autores ("A, B"); la lista real está en [autores].
   @override
   String? get autor;
+  @override
+  List<Autor> get autores;
   @override
   String? get isbn;
   @override
@@ -734,7 +947,14 @@ abstract class _MaterialBiblioteca extends MaterialBiblioteca {
   @JsonKey(name: 'numero_paginas')
   int? get numeroPaginas;
   @override
-  String? get descripcion; // Medios
+  String? get descripcion;
+
+  /// Obras de varios tomos: cada tomo es un material con su código y sus ejemplares.
+  @override
+  String? get tomo;
+  @override
+  @JsonKey(name: 'total_tomos')
+  int? get totalTomos; // Medios
   @override
   String? get formato;
   @override
@@ -761,7 +981,26 @@ abstract class _MaterialBiblioteca extends MaterialBiblioteca {
   bool get esPrestable;
   @override
   @JsonKey(name: 'plazo_prestamo_horas')
-  int? get plazoPrestamoHoras;
+  int? get plazoPrestamoHoras; // Ejemplares. Una respuesta antigua (o una copia guardada por una versión
+  // anterior de la app) no los trae: se asume un solo ejemplar.
+  @override
+  @JsonKey(name: 'cantidad_total')
+  int get cantidadTotal;
+  @override
+  @JsonKey(name: 'cantidad_reservada')
+  int get cantidadReservada;
+  @override
+  @JsonKey(name: 'cantidad_prestada')
+  int get cantidadPrestada;
+  @override
+  @JsonKey(name: 'cantidad_vencida')
+  int get cantidadVencida;
+  @override
+  @JsonKey(name: 'cantidad_fuera_servicio')
+  int get cantidadFueraServicio;
+  @override
+  @JsonKey(name: 'cantidad_disponible')
+  int? get cantidadDisponible;
   @override
   @JsonKey(name: 'imagen_url')
   String? get imagenUrl;

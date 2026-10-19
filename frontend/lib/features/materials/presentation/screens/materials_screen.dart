@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/modelos/pagina_resultado.dart';
 import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/tipografia_app.dart';
+import 'package:frontend/features/authors/data/models/autor.dart';
 import 'package:frontend/features/categories/presentation/providers/categorias_provider.dart';
 import 'package:frontend/features/core/widgets/boton_exportar.dart';
 import 'package:frontend/features/core/widgets/chip_estado.dart';
@@ -15,6 +16,7 @@ import 'package:frontend/features/core/widgets/grilla_datos.dart';
 import 'package:frontend/features/core/widgets/valor_asincrono.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/materials/data/repositories/material_repository.dart';
 import 'package:frontend/features/materials/presentation/providers/inventario_provider.dart';
 import 'package:frontend/features/materials/presentation/providers/materiales_provider.dart';
@@ -26,14 +28,28 @@ enum _AccionMaterial { editar, eliminar }
 /// Inventario: grilla paginada de libros y equipos con búsqueda, filtros y
 /// exportación a Excel y PDF.
 class MaterialsScreen extends ConsumerStatefulWidget {
-  const MaterialsScreen({super.key});
+  const MaterialsScreen({super.key, this.autorInicial});
+
+  /// Autor por el que se filtra al abrir la pantalla (viene de la sección Autores).
+  final Autor? autorInicial;
 
   @override
   ConsumerState<MaterialsScreen> createState() => _MaterialsScreenState();
 }
 
 class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
-  ConsultaInventario _consulta = const ConsultaInventario();
+  late ConsultaInventario _consulta = ConsultaInventario(
+    autor: widget.autorInicial,
+  );
+
+  @override
+  void didUpdateWidget(MaterialsScreen anterior) {
+    super.didUpdateWidget(anterior);
+    // Llegar de nuevo desde Autores con otro autor cambia el filtro.
+    if (anterior.autorInicial?.id != widget.autorInicial?.id) {
+      _consulta = _consulta.conFiltros(autor: () => widget.autorInicial);
+    }
+  }
 
   /// Vuelve a pedir los datos: la grilla y el catálogo que ven otras pantallas.
   void _recargar() {
@@ -84,7 +100,7 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
           EncabezadoPagina(
             titulo: 'Materiales',
             subtitulo: materiales.whenOrNull(
-              data: (pagina) => '${pagina.total} unidades en el inventario',
+              data: (pagina) => '${pagina.total} materiales en el inventario',
             ),
             acciones: [
               BotonExportar(
@@ -97,6 +113,7 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
                       tipo: _consulta.tipo,
                       estado: _consulta.estado,
                       categoriaId: _consulta.categoriaId,
+                      autorId: _consulta.autor?.id,
                     ),
               ),
               FilledButton.icon(
@@ -170,6 +187,16 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
                 titulo: 'Ubicación',
                 celda: (m) => Text(m.ubicacion ?? '—'),
               ),
+              ColumnaGrilla(
+                titulo: 'Ejemplares',
+                celda: (m) => Tooltip(
+                  message:
+                      '${m.ejemplaresLibres} libres, ${m.cantidadReservada} reservados, '
+                      '${m.cantidadPrestada + m.cantidadVencida} prestados, '
+                      '${m.cantidadFueraServicio} fuera de servicio',
+                  child: Text(m.ejemplaresCorto),
+                ),
+              ),
               ColumnaGrilla(titulo: 'Estado', celda: _celdaEstado),
             ],
             acciones: _menuDeFila,
@@ -186,12 +213,15 @@ class _MaterialsScreenState extends ConsumerState<MaterialsScreen> {
     );
   }
 
-  /// Título con icono del tipo y una línea de detalle (autor, o marca y modelo).
+  /// Título con icono del tipo y una línea de detalle (autores, o marca y modelo).
   Widget _celdaMaterial(MaterialBiblioteca material) {
     final colores = context.colores;
     final textos = Theme.of(context).textTheme;
     final detalle = [
-      if (material.esBibliografico) material.autor,
+      if (material.esBibliografico) ...[
+        material.autoresTexto,
+        material.etiquetaTomo,
+      ],
       if (material.esEquipo) ...[material.marca, material.modelo],
       if (material.esMedio) material.formato,
     ].where((p) => p != null && p.isNotEmpty).join(' · ');

@@ -32,7 +32,12 @@ class ItemPrestamo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(material.titulo, style: textos.bodyMedium),
+                Text(
+                  material.tomo == null || material.tomo!.trim().isEmpty
+                      ? material.titulo
+                      : '${material.titulo} · Tomo ${material.tomo}',
+                  style: textos.bodyMedium,
+                ),
                 Text(
                   material.codigo,
                   style: TipografiaApp.codigo(colores.tintaSuave, tamano: 12),

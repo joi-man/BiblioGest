@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../core/local/modo_local.dart';
 import '../core/platform/plataforma.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../features/authors/data/models/autor.dart';
+import '../features/authors/presentation/screens/autores_screen.dart';
 import '../features/materials/presentation/screens/materials_screen.dart';
 import '../features/materials/presentation/screens/materiales_movil_screen.dart';
 import '../features/student/presentation/screens/perfil_screen.dart';
@@ -43,6 +45,7 @@ const _rutaSincronizacion = '/sync';
 const _rutasSoloEscritorio = [
   '/users',
   '/categories',
+  '/authors',
   '/reports',
   _rutaSincronizacion,
 ];
@@ -50,6 +53,14 @@ const _rutasSoloEscritorio = [
 /// Página sin animación de transición, usada dentro del marco de navegación.
 Page<void> _paginaSinTransicion(Widget pantalla) {
   return NoTransitionPage(child: pantalla);
+}
+
+/// Autor por el que se filtra el inventario: llega como `?autor=<id>&nombre=<nombre>`
+/// desde la sección Autores.
+Autor? _autorDeLaRuta(GoRouterState state) {
+  final id = state.uri.queryParameters['autor'];
+  if (id == null || id.isEmpty) return null;
+  return Autor(id: id, nombre: state.uri.queryParameters['nombre'] ?? 'Autor');
 }
 
 /// Decide a dónde debe ir cada persona según su sesión y rol.
@@ -153,8 +164,14 @@ final appRouter = GoRouter(
             // En el teléfono el inventario es solo de consulta.
             esDispositivoMovil
                 ? const MaterialesMovilScreen()
-                : const MaterialsScreen(),
+                : MaterialsScreen(autorInicial: _autorDeLaRuta(state)),
           ),
+        ),
+        GoRoute(
+          path: '/authors',
+          name: 'authors',
+          pageBuilder: (context, state) =>
+              _paginaSinTransicion(const AutoresScreen()),
         ),
         GoRoute(
           path: '/perfil',

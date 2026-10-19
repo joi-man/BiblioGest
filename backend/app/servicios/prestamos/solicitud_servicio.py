@@ -71,14 +71,15 @@ def cancelar(db: Session, prestamo_id: UUID, actor: Usuario) -> PrestamoCabecera
     maquina_estados.validar_transicion(prestamo.estado, PRESTAMO_CANCELADO)
     estaba_aprobado = prestamo.estado == PRESTAMO_APROBADO
 
+    materiales = []
     if estaba_aprobado:
         materiales = material_estado_servicio.bloquear_materiales(
             db, [d.material_id for d in prestamo.detalles]
         )
-        for material in materiales:
-            material_estado_servicio.liberar(material)
 
     prestamo.estado = PRESTAMO_CANCELADO
+    if estaba_aprobado:
+        material_estado_servicio.recalcular(db, materiales, reloj.ahora_utc())  # libera la reserva
     auditoria_prestamo.registrar(db, actor, "PRESTAMO_CANCELADO", prestamo)
     db.commit()
     return consulta_prestamo_servicio.obtener_prestamo(db, prestamo_id)

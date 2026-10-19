@@ -12,7 +12,7 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
   - `develop`: Rama por defecto e integración; los Pull Requests apuntan aquí.
   - `feature/*`, `fix/*`, `docs/*`: Ramas de trabajo que salen de `develop`.
   - Versiones `vX.Y.Z` etiquetadas en `main`. Ver [docs/versionado.md](docs/versionado.md).
-- **Versión actual:** 0.13.0
+- **Versión actual:** 0.14.0
 
 ---
 
@@ -132,6 +132,7 @@ Es la app de los estudiantes (catálogo de libros y revistas, reservas): funcion
 | Documento | Contenido |
 |---|---|
 | [docs/prestamos-devoluciones.md](docs/prestamos-devoluciones.md) | Inventario, flujo de préstamos, devoluciones, reglas, multas y API |
+| [docs/autores-y-ejemplares.md](docs/autores-y-ejemplares.md) | Autores (varios por libro y viceversa), cantidad de ejemplares y reservas coherentes, tomos y búsqueda por palabras |
 | [docs/listados-paginados-exportacion.md](docs/listados-paginados-exportacion.md) | Grillas paginadas con búsqueda, filtros y exportación a Excel/PDF |
 | [docs/ejecutable-offline.md](docs/ejecutable-offline.md) | Ejecutable de Windows: modo offline, sincronización, red privada e instalador |
 | [docs/reportes.md](docs/reportes.md) | Reportes de préstamos, vencidos por rango de fechas (RFC-G1) y devoluciones, con exportación a CSV, Excel y PDF |

@@ -19,7 +19,7 @@ from app.core import reloj
 from app.core.database import Base, obtener_db
 from app.core.seguridad import crear_token_acceso, hashear_contrasena
 from app.modelos import Categoria, Material, Usuario  # noqa: F401  (registra todos los modelos)
-from app.rutas import auth, categorias, dashboard, devoluciones, materiales, prestamos, reportes, solicitudes, usuarios
+from app.rutas import auth, autores, categorias, dashboard, devoluciones, materiales, prestamos, reportes, solicitudes, usuarios
 
 
 @compiles(JSONB, "sqlite")
@@ -71,7 +71,7 @@ def db():
 def cliente(db, reloj_prueba):
     """Cliente HTTP contra una app con todas las rutas, usando la base de prueba."""
     app = FastAPI()
-    for modulo in (auth, categorias, dashboard, devoluciones, materiales, prestamos, reportes, solicitudes, usuarios):
+    for modulo in (auth, autores, categorias, dashboard, devoluciones, materiales, prestamos, reportes, solicitudes, usuarios):
         app.include_router(modulo.router)
     app.dependency_overrides[obtener_db] = lambda: db
     return TestClient(app)
@@ -147,6 +147,16 @@ def crear_material(db):
             categoria_id=categoria.id,
         )
         datos.update(cambios)
+        # Un `estado` pedido se traduce al ejemplar (unico, salvo que se pida otra cantidad)
+        # que esta en ese estado, igual que lo dejarian los prestamos reales.
+        columna = {
+            "reservado": "cantidad_reservada",
+            "prestado": "cantidad_prestada",
+            "vencido": "cantidad_vencida",
+            "fuera_de_servicio": "cantidad_fuera_servicio",
+        }.get(datos.get("estado"))
+        if columna:
+            datos[columna] = 1
         material = Material(**datos)
         db.add(material)
         db.commit()

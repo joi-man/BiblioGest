@@ -3,6 +3,7 @@ import 'package:frontend/core/theme/colores_app.dart';
 import 'package:frontend/core/theme/tipografia_app.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_etiquetas.dart';
+import 'package:frontend/features/materials/data/models/material_presentacion.dart';
 import 'package:frontend/features/student/presentation/widgets/chip_estado_estudiante.dart';
 
 /// Hoja inferior con toda la información de un material y el botón para
@@ -24,7 +25,11 @@ class DetalleMaterialHoja extends StatelessWidget {
     final datos = <(String, String?)>[
       ('Tipo', material.tipoMaterial.etiqueta),
       if (material.esBibliografico) ...[
-        ('Autor', material.autor),
+        (
+          material.autores.length > 1 ? 'Autores' : 'Autor',
+          material.autoresTexto,
+        ),
+        ('Tomo', material.etiquetaTomo),
         ('Editorial', material.editorial),
         ('ISBN', material.isbn),
         ('Año', material.anioPublicacion?.toString()),
@@ -39,6 +44,7 @@ class DetalleMaterialHoja extends StatelessWidget {
         ('Modelo', material.modelo),
         ('Incluye', material.accesorios),
       ],
+      if (material.esPrestable) ('Ejemplares', material.ejemplaresDisponibles),
       ('Ubicación', material.ubicacion),
       ('Condición', material.condicion.etiqueta),
       if (material.plazoPrestamoHoras != null)

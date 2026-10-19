@@ -36,10 +36,11 @@ def _expirar_reservas(db: Session, ahora: datetime) -> int:
 
     for prestamo in reservas:
         maquina_estados.validar_transicion(prestamo.estado, PRESTAMO_CANCELADO)
-        for detalle in prestamo.detalles:
-            material_estado_servicio.liberar(detalle.material)
         prestamo.estado = PRESTAMO_CANCELADO
         prestamo.motivo_rechazo = MOTIVO_RESERVA_EXPIRADA
+        material_estado_servicio.recalcular(  # libera los ejemplares reservados
+            db, [d.material for d in prestamo.detalles], ahora
+        )
     return len(reservas)
 
 
@@ -57,10 +58,10 @@ def _marcar_vencidos(db: Session, ahora: datetime) -> int:
     prestamos = list(db.execute(consulta).scalars().all())
 
     for prestamo in prestamos:
-        for detalle in prestamo.detalles:
-            if not detalle.devuelto and detalle.fecha_devolucion_esperada < ahora:
-                material_estado_servicio.marcar_vencido(detalle.material)
         estado_prestamo_servicio.recalcular(prestamo, ahora)
+        material_estado_servicio.recalcular(  # prestados -> vencidos
+            db, [d.material for d in prestamo.detalles if not d.devuelto], ahora
+        )
     return len(prestamos)
 
 
