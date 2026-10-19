@@ -50,6 +50,23 @@ La versión se sube **en el mismo Pull Request** que trae el cambio, no después
 
 La etiqueta `v<versión>` es la misma en este repositorio y en el de releases.
 
+## Versiones publicadas
+
+Cada etiqueta apunta al commit que mejor representa esa versión. Hasta la 0.9 el código no llevaba número de versión (`pubspec.yaml` decía `1.0.0+1`), por eso las etiquetas de los hitos se asignaron a posteriori.
+
+| Etiqueta | Commit | Fecha | Contenido |
+|---|---|---|---|
+| `v0.1.0` | `edaf055` | 2026-09-14 | Línea base: repositorio, API, base de datos y prototipo Flutter con inicio de sesión |
+| `v0.5.0` | `389819f` | 2026-10-11 | MVP: usuarios, materiales, préstamos, devoluciones, búsqueda y filtros |
+| `v0.9.0` | `5b471dd` | 2026-10-11 | Ejecutable de Windows con modo sin conexión y sincronización |
+| `v0.10.0` | `61b468f` | 2026-10-11 | Actualizaciones desde la propia aplicación |
+| `v0.10.1` a `v0.10.5` | `ea92398`, `46749da`, `3a1eed4`, `31ec49d`, `0dee923` | 2026-10-11 | Ajustes del ejecutable (cierre de sesión, recuperación de contraseña, arranque) |
+| `v0.11.0` | `5ba9855` | 2026-10-12 | App móvil de Android para estudiantes |
+| `v0.11.1` | `4c0f8b4` | 2026-10-12 | Versión móvil reducida para el personal |
+| `v0.12.0` | `28f700a` | 2026-10-12 | Reportes y despliegue en la nube |
+| `v0.12.1` | `82c6ccb` | 2026-10-12 | El personal ve solicitudes nuevas sin cerrar sesión |
+| `v0.13.0` | `07ecaa1` | 2026-10-12 | Sesión en el navegador, suspensión de usuarios y hora de Paraguay |
+
 ## Qué no se versiona
 
 `backend/.env`, `credenciales.txt`, `frontend/android/key.properties`, el keystore y la clave privada de actualizaciones. Ver `.gitignore`.
