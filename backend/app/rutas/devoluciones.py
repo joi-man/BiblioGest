@@ -37,4 +37,11 @@ def registrar_devolucion(
     personal: Usuario = Depends(personal_requerido),
 ):
     """Registra la devolucion de uno o varios items del prestamo."""
-    return devolucion_servicio.devolver_items(db, prestamo_id, datos.items, personal)
+    return devolucion_servicio.devolver_items(
+        db,
+        prestamo_id,
+        datos.items,
+        personal,
+        fecha_devolucion=datos.fecha_devolucion,
+        motivo_fecha=datos.motivo_fecha,
+    )
