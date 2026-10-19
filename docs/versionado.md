@@ -70,7 +70,7 @@ Cada etiqueta apunta al commit que mejor representa esa versión. Hasta la 0.9 e
 | `v0.15.0` | `8876ab9` | 2026-10-19 | Fecha y hora de devolución elegibles al prestar, entregar y ceder |
 | `v0.16.0` | `b126d61` | 2026-10-19 | Fecha y hora reales de la devolución, con motivo y auditoría |
 | `v0.17.0` | `16b8647` | 2026-10-19 | Fecha y hora de retiro que propone el estudiante al reservar |
-| `v0.17.1` | (al publicar) | 2026-10-19 | Mensaje claro si se escribe la dirección de la web en lugar de la del servidor |
+| `v0.17.1` | `d749138` | 2026-10-19 | Mensaje claro si se escribe la dirección de la web en lugar de la del servidor |
 
 ## Qué no se versiona
 
