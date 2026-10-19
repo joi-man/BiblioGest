@@ -12,6 +12,18 @@ class FormatoFecha {
   static DateTime enParaguay(DateTime fecha) =>
       fecha.toUtc().subtract(const Duration(hours: 3));
 
+  /// Hora de pared de Paraguay -> instante en UTC (lo contrario de [enParaguay]).
+  ///
+  /// Sirve para convertir la fecha y la hora que elige una persona en pantalla,
+  /// que son de Paraguay aunque el dispositivo tenga otra zona horaria.
+  static DateTime desdeParaguay(DateTime paredParaguay) => DateTime.utc(
+    paredParaguay.year,
+    paredParaguay.month,
+    paredParaguay.day,
+    paredParaguay.hour,
+    paredParaguay.minute,
+  ).add(const Duration(hours: 3));
+
   static final DateFormat _fechaHora = DateFormat("d MMM yyyy, HH:mm", 'es');
   static final DateFormat _fecha = DateFormat("d MMM yyyy", 'es');
   static final DateFormat _hora = DateFormat('HH:mm', 'es');

@@ -104,6 +104,7 @@ class PrestamoRepository {
     String id, {
     required String usuarioId,
     required String motivo,
+    DateTime? fechaDevolucionEsperada,
     bool omitirValidacionesUsuario = false,
   }) async {
     final respuesta = await _dio.post(
@@ -111,6 +112,10 @@ class PrestamoRepository {
       data: {
         'usuario_id': usuarioId,
         'motivo': motivo,
+        if (fechaDevolucionEsperada != null)
+          'fecha_devolucion_esperada': fechaDevolucionEsperada
+              .toUtc()
+              .toIso8601String(),
         'omitir_validaciones_usuario': omitirValidacionesUsuario,
       },
     );
