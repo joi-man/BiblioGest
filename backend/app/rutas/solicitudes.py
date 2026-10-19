@@ -27,7 +27,11 @@ def crear_solicitud(
 ):
     """Solicita en prestamo o reserva uno o varios materiales."""
     return solicitud_servicio.crear_solicitud(
-        db, usuario, datos.material_ids, datos.observaciones
+        db,
+        usuario,
+        datos.material_ids,
+        datos.observaciones,
+        datos.fecha_retiro_solicitada,
     )
 
 

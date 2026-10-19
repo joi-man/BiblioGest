@@ -158,10 +158,7 @@ class _TarjetaMaterial extends StatelessWidget {
                     children: [
                       ChipEstado(estado: material.estado.valor),
                       const SizedBox(width: 8),
-                      Text(
-                        material.ejemplaresCorto,
-                        style: textos.labelMedium,
-                      ),
+                      Text(material.ejemplaresCorto, style: textos.labelMedium),
                       const SizedBox(width: 8),
                       Text(
                         material.codigo,

@@ -30,6 +30,8 @@ class PrestamoCabecera(Sincronizable, Base):
 
     # Fechas del ciclo de vida
     fecha_solicitud = Column(DateTime, nullable=False, default=datetime.utcnow)
+    # Cuando el usuario dice que ira a retirar el material (la propone al solicitar).
+    fecha_retiro_solicitada = Column(DateTime, nullable=True)
     fecha_retiro_limite = Column(DateTime, nullable=True)  # hasta cuando se puede retirar una reserva aprobada
     fecha_prestamo = Column(DateTime, nullable=True)  # momento de la entrega
     fecha_devolucion_esperada = Column(DateTime, nullable=True)  # la mas proxima entre los items pendientes

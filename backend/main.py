@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import configuracion
 from app.core.database import SesionLocal, engine, Base, es_modo_local
 from app.core.migracion_autores import actualizar_esquema_materiales
+from app.core.migracion_retiro import agregar_fecha_retiro_solicitada
 from app.rutas import (
     auth,
     autores,
@@ -33,6 +34,7 @@ Base.metadata.create_all(bind=engine)
 # si ya esta al dia). Tambien lo hace la migracion de Alembic en el servidor.
 with engine.begin() as _conexion:
     actualizar_esquema_materiales(_conexion)
+    agregar_fecha_retiro_solicitada(_conexion)
 
 
 @asynccontextmanager
