@@ -203,7 +203,9 @@ class _BuscadorAutoresState extends ConsumerState<BuscadorAutores> {
                     subtitle:
                         opcion.esNueva || opcion.autor!.cantidadMateriales == 0
                         ? null
-                        : Text('${opcion.autor!.cantidadMateriales} materiales'),
+                        : Text(
+                            '${opcion.autor!.cantidadMateriales} materiales',
+                          ),
                     onTap: () => alElegir(opcion),
                   );
                 },

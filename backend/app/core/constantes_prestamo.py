@@ -46,5 +46,7 @@ CONDICIONES_QUE_INHABILITAN = (CONDICION_DANO_MAYOR, CONDICION_PERDIDO)
 # No puede ser futura ni de hace mas de estos dias, y exige un motivo para la auditoria.
 MAX_DIAS_DEVOLUCION_RETROACTIVA = 30
 MIN_CARACTERES_MOTIVO_FECHA = 10
+# Hasta con cuantos dias de anticipacion se puede proponer la fecha de retiro de una reserva.
+MAX_DIAS_RETIRO_ANTICIPADO = 7
 # Margen para el desfase entre el reloj del equipo y el del servidor.
 TOLERANCIA_RELOJ_SEGUNDOS = 120
