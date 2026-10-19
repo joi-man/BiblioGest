@@ -10,6 +10,8 @@ BiblioGest para Windows es casi la misma aplicación que la web, pero **no depen
 | **Con servidor (internet)** | Varios equipos + la versión web comparten los datos | Primer inicio → "Conectar con un servidor" → `https://mi-servidor` |
 | **Con servidor (red privada)** | Varios equipos en una LAN sin internet | Igual, con la IP del servidor: `http://192.168.1.10:8000` |
 
+> **Dirección del servidor ≠ dirección de la página web.** Hay que escribir la dirección de la **API** (en producción, la de Render: `https://bibliogest-6j8f.onrender.com`), no la de la página web de Vercel. La web no tiene API: si se escribe esa dirección, el programa lo avisa («Esa dirección responde con el código 405 y no parece ser el servidor de BiblioGest…»).
+
 El servidor es el mismo backend de siempre (FastAPI + PostgreSQL, ver README). En una LAN se instala en una PC con Docker y los equipos apuntan a su IP.
 
 Un administrador puede cambiar de modo después desde **Sincronización** (menú lateral). Al unir un equipo que ya tiene datos propios a un servidor, esos datos se **reemplazan** por los del servidor (se pide confirmación) y la aplicación **cierra la sesión**: hay que volver a entrar con una cuenta del servidor, porque los usuarios locales ya no existen.
