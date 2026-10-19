@@ -17,6 +17,10 @@ class ErrorServidor(Exception):
     """El servidor respondio con un error."""
 
 
+class ErrorDireccionIncorrecta(ErrorServidor):
+    """La direccion responde, pero no es el servidor de BiblioGest (por ejemplo, la pagina web)."""
+
+
 class ClienteCentral:
     """Operaciones del servidor central que necesita la sincronizacion."""
 
@@ -47,6 +51,14 @@ class ClienteCentral:
 
         if respuesta.status_code == 401:
             raise ErrorCredenciales("El servidor rechazo las credenciales")
+        if respuesta.status_code in (404, 405) and not _es_error_de_la_api(respuesta):
+            # La API siempre explica sus errores con {"detail": ...}. Un 404 o 405 sin eso viene
+            # de otra cosa: tipicamente la pagina web, que no tiene API.
+            raise ErrorDireccionIncorrecta(
+                f"Esa direccion responde con el codigo {respuesta.status_code} y no parece ser el "
+                "servidor de BiblioGest. Si es la direccion de la pagina web, usa la del servidor "
+                "(la API), no la de la pagina."
+            )
         if respuesta.status_code >= 400:
             detalle = _detalle(respuesta)
             raise ErrorServidor(f"{respuesta.status_code}: {detalle}")
@@ -55,9 +67,13 @@ class ClienteCentral:
     def hay_conexion(self) -> bool:
         """True si el servidor contesta."""
         try:
-            self._llamar("GET", "/health")
-            return True
+            respuesta = self._llamar("GET", "/health")
         except (ErrorSinConexion, ErrorServidor):
+            return False
+        # La pagina web tambien contesta 200 a cualquier ruta, pero con HTML: no es el servidor.
+        try:
+            return respuesta.json().get("estado") == "ok"
+        except (ValueError, AttributeError):
             return False
 
     def enviar_codigo_recuperacion(self, correo: str, codigo: str) -> None:
@@ -96,6 +112,15 @@ class ClienteCentral:
     def obtener_filas(self, tabla: str, ids: List[str]) -> List[Dict[str, Any]]:
         respuesta = self._llamar("POST", "/api/sync/filas", json={"tabla": tabla, "ids": ids})
         return respuesta.json()["filas"]
+
+
+def _es_error_de_la_api(respuesta: httpx.Response) -> bool:
+    """True si la respuesta tiene la forma de un error de la API de BiblioGest."""
+    try:
+        cuerpo = respuesta.json()
+    except ValueError:
+        return False
+    return isinstance(cuerpo, dict) and "detail" in cuerpo
 
 
 def _detalle(respuesta: httpx.Response) -> str:
