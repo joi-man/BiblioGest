@@ -13,6 +13,7 @@ from app.sync import estado_local
 from app.sync.captura import aplicando_datos_del_servidor
 from app.sync.cliente_central import (
     ErrorCredenciales,
+    ErrorDireccionIncorrecta,
     ErrorServidor,
     ErrorSinConexion,
 )
@@ -97,6 +98,8 @@ def conectar_servidor(
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, "No se pudo conectar con el servidor")
     except ErrorCredenciales:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Usuario o contrasena incorrectos en el servidor")
+    except ErrorDireccionIncorrecta as error:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error))
     except ErrorServidor as error:
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"El servidor respondio con un error: {error}")
     finally:
