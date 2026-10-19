@@ -8,9 +8,11 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
 
 - **Repositorio GitHub:** [https://github.com/joi-man/BiblioGest](https://github.com/joi-man/BiblioGest)
 - **Ramas Git:**
-  - `main`: Entregables estables y producción.
-  - `develop`: Rama principal de integración.
-  - `feature/*`: Ramas de desarrollo por módulos.
+  - `main`: Producción (Render se redespliega al cambiar). Solo recibe versiones desde `develop`.
+  - `develop`: Rama por defecto e integración; los Pull Requests apuntan aquí.
+  - `feature/*`, `fix/*`, `docs/*`: Ramas de trabajo que salen de `develop`.
+  - Versiones `vX.Y.Z` etiquetadas en `main`. Ver [docs/versionado.md](docs/versionado.md).
+- **Versión actual:** 0.13.0
 
 ---
 
@@ -31,7 +33,7 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
 
 ### Despliegue
 - **Frontend Web:** Vercel (`flutter build web`)
-- **Backend & BD:** Railway (FastAPI Docker + PostgreSQL Administrado)
+- **Backend:** Render (FastAPI Docker) · **BD:** Neon (PostgreSQL administrado). Ver [docs/despliegue.md](docs/despliegue.md)
 
 ---
 
@@ -136,6 +138,7 @@ Es la app de los estudiantes (catálogo de libros y revistas, reservas): funcion
 | [docs/despliegue.md](docs/despliegue.md) | Render, Neon y Vercel: cómo se publica, correo con Brevo y orden de despliegue |
 | [docs/app-movil.md](docs/app-movil.md) | App de Android para estudiantes: reservas, cesión, avisos, reconexión, catálogo sin conexión, firma y distribución |
 | [docs/actualizaciones.md](docs/actualizaciones.md) | Actualizaciones desde la propia app (Windows y Android) y cómo publicar una versión |
+| [docs/versionado.md](docs/versionado.md) | Ramas, commits, numeración de versiones, etiquetas y cómo publicar una versión |
 | [docs/iconos.md](docs/iconos.md) | Iconos de todas las plataformas y cómo regenerarlos |
 | [docs/diseno-sistema.md](docs/diseno-sistema.md) | Sistema de diseño (paleta, tipografía, modo oscuro, componentes) |
 | [RECUPERACION_CONTRASENA.md](RECUPERACION_CONTRASENA.md) | Recuperación de contraseña por correo |

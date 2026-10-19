@@ -11,6 +11,8 @@ docs/*
 !docs/iconos.md
 !docs/reportes.md
 !docs/despliegue.md
+!docs/versionado.md
+!docs/despliegue.md
 *.docx
 
 # Environment and Secret files
