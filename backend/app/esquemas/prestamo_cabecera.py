@@ -55,6 +55,7 @@ class PrestamoRespuesta(BaseModel):
     usuario: UsuarioResumen
     detalles: List[PrestamoDetalleRespuesta]
     fecha_solicitud: FechaUTC
+    fecha_retiro_solicitada: Optional[FechaUTC] = None
     fecha_retiro_limite: Optional[FechaUTC] = None
     fecha_prestamo: Optional[FechaUTC] = None
     fecha_devolucion_esperada: Optional[FechaUTC] = None
@@ -73,6 +74,9 @@ class SolicitudCrear(BaseModel):
 
     material_ids: List[UUID] = Field(..., min_length=1, max_length=10)
     observaciones: Optional[str] = Field(None, max_length=500)
+    # Cuando pasara a retirar el material. Opcional por compatibilidad con aplicaciones
+    # anteriores; la app movil la pide siempre.
+    fecha_retiro_solicitada: Optional[FechaUTC] = None
 
 
 class PrestamoDirectoCrear(BaseModel):

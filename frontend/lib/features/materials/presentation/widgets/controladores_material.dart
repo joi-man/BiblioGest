@@ -36,7 +36,9 @@ class ControladoresMaterial {
         text: (material?.cantidadFueraServicio ?? 0).toString(),
       ),
       tomo = TextEditingController(text: material?.tomo),
-      totalTomos = TextEditingController(text: material?.totalTomos?.toString());
+      totalTomos = TextEditingController(
+        text: material?.totalTomos?.toString(),
+      );
 
   final TextEditingController codigo;
   final TextEditingController titulo;

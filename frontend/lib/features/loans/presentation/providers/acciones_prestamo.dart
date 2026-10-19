@@ -92,10 +92,17 @@ class AccionesPrestamo {
 
   // Acciones del propio usuario (app móvil del estudiante)
 
-  Future<void> solicitar(List<String> materialIds, {String? observaciones}) =>
-      _ejecutarYRefrescar(
-        () => _prestamos.solicitar(materialIds, observaciones: observaciones),
-      );
+  Future<void> solicitar(
+    List<String> materialIds, {
+    String? observaciones,
+    DateTime? fechaRetiro,
+  }) => _ejecutarYRefrescar(
+    () => _prestamos.solicitar(
+      materialIds,
+      observaciones: observaciones,
+      fechaRetiro: fechaRetiro,
+    ),
+  );
 
   Future<void> cancelarPropia(String id) =>
       _ejecutarYRefrescar(() => _prestamos.cancelarPropia(id));

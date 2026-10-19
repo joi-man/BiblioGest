@@ -28,6 +28,8 @@ mixin _$Prestamo {
   List<PrestamoDetalle> get detalles => throw _privateConstructorUsedError;
   @JsonKey(name: 'fecha_solicitud')
   DateTime get fechaSolicitud => throw _privateConstructorUsedError;
+  @JsonKey(name: 'fecha_retiro_solicitada')
+  DateTime? get fechaRetiroSolicitada => throw _privateConstructorUsedError;
   @JsonKey(name: 'fecha_retiro_limite')
   DateTime? get fechaRetiroLimite => throw _privateConstructorUsedError;
   @JsonKey(name: 'fecha_prestamo')
@@ -65,6 +67,7 @@ abstract class $PrestamoCopyWith<$Res> {
     UsuarioResumen usuario,
     List<PrestamoDetalle> detalles,
     @JsonKey(name: 'fecha_solicitud') DateTime fechaSolicitud,
+    @JsonKey(name: 'fecha_retiro_solicitada') DateTime? fechaRetiroSolicitada,
     @JsonKey(name: 'fecha_retiro_limite') DateTime? fechaRetiroLimite,
     @JsonKey(name: 'fecha_prestamo') DateTime? fechaPrestamo,
     @JsonKey(name: 'fecha_devolucion_esperada')
@@ -101,6 +104,7 @@ class _$PrestamoCopyWithImpl<$Res, $Val extends Prestamo>
     Object? usuario = null,
     Object? detalles = null,
     Object? fechaSolicitud = null,
+    Object? fechaRetiroSolicitada = freezed,
     Object? fechaRetiroLimite = freezed,
     Object? fechaPrestamo = freezed,
     Object? fechaDevolucionEsperada = freezed,
@@ -132,6 +136,10 @@ class _$PrestamoCopyWithImpl<$Res, $Val extends Prestamo>
                 ? _value.fechaSolicitud
                 : fechaSolicitud // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            fechaRetiroSolicitada: freezed == fechaRetiroSolicitada
+                ? _value.fechaRetiroSolicitada
+                : fechaRetiroSolicitada // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             fechaRetiroLimite: freezed == fechaRetiroLimite
                 ? _value.fechaRetiroLimite
                 : fechaRetiroLimite // ignore: cast_nullable_to_non_nullable
@@ -223,6 +231,7 @@ abstract class _$$PrestamoImplCopyWith<$Res>
     UsuarioResumen usuario,
     List<PrestamoDetalle> detalles,
     @JsonKey(name: 'fecha_solicitud') DateTime fechaSolicitud,
+    @JsonKey(name: 'fecha_retiro_solicitada') DateTime? fechaRetiroSolicitada,
     @JsonKey(name: 'fecha_retiro_limite') DateTime? fechaRetiroLimite,
     @JsonKey(name: 'fecha_prestamo') DateTime? fechaPrestamo,
     @JsonKey(name: 'fecha_devolucion_esperada')
@@ -261,6 +270,7 @@ class __$$PrestamoImplCopyWithImpl<$Res>
     Object? usuario = null,
     Object? detalles = null,
     Object? fechaSolicitud = null,
+    Object? fechaRetiroSolicitada = freezed,
     Object? fechaRetiroLimite = freezed,
     Object? fechaPrestamo = freezed,
     Object? fechaDevolucionEsperada = freezed,
@@ -292,6 +302,10 @@ class __$$PrestamoImplCopyWithImpl<$Res>
             ? _value.fechaSolicitud
             : fechaSolicitud // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        fechaRetiroSolicitada: freezed == fechaRetiroSolicitada
+            ? _value.fechaRetiroSolicitada
+            : fechaRetiroSolicitada // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         fechaRetiroLimite: freezed == fechaRetiroLimite
             ? _value.fechaRetiroLimite
             : fechaRetiroLimite // ignore: cast_nullable_to_non_nullable
@@ -338,6 +352,7 @@ class _$PrestamoImpl extends _Prestamo {
     required this.usuario,
     required final List<PrestamoDetalle> detalles,
     @JsonKey(name: 'fecha_solicitud') required this.fechaSolicitud,
+    @JsonKey(name: 'fecha_retiro_solicitada') this.fechaRetiroSolicitada,
     @JsonKey(name: 'fecha_retiro_limite') this.fechaRetiroLimite,
     @JsonKey(name: 'fecha_prestamo') this.fechaPrestamo,
     @JsonKey(name: 'fecha_devolucion_esperada') this.fechaDevolucionEsperada,
@@ -371,6 +386,9 @@ class _$PrestamoImpl extends _Prestamo {
   @JsonKey(name: 'fecha_solicitud')
   final DateTime fechaSolicitud;
   @override
+  @JsonKey(name: 'fecha_retiro_solicitada')
+  final DateTime? fechaRetiroSolicitada;
+  @override
   @JsonKey(name: 'fecha_retiro_limite')
   final DateTime? fechaRetiroLimite;
   @override
@@ -396,7 +414,7 @@ class _$PrestamoImpl extends _Prestamo {
 
   @override
   String toString() {
-    return 'Prestamo(id: $id, estado: $estado, usuario: $usuario, detalles: $detalles, fechaSolicitud: $fechaSolicitud, fechaRetiroLimite: $fechaRetiroLimite, fechaPrestamo: $fechaPrestamo, fechaDevolucionEsperada: $fechaDevolucionEsperada, fechaDevolucionReal: $fechaDevolucionReal, aprobadoPor: $aprobadoPor, entregadoPor: $entregadoPor, observaciones: $observaciones, motivoRechazo: $motivoRechazo)';
+    return 'Prestamo(id: $id, estado: $estado, usuario: $usuario, detalles: $detalles, fechaSolicitud: $fechaSolicitud, fechaRetiroSolicitada: $fechaRetiroSolicitada, fechaRetiroLimite: $fechaRetiroLimite, fechaPrestamo: $fechaPrestamo, fechaDevolucionEsperada: $fechaDevolucionEsperada, fechaDevolucionReal: $fechaDevolucionReal, aprobadoPor: $aprobadoPor, entregadoPor: $entregadoPor, observaciones: $observaciones, motivoRechazo: $motivoRechazo)';
   }
 
   @override
@@ -410,6 +428,8 @@ class _$PrestamoImpl extends _Prestamo {
             const DeepCollectionEquality().equals(other._detalles, _detalles) &&
             (identical(other.fechaSolicitud, fechaSolicitud) ||
                 other.fechaSolicitud == fechaSolicitud) &&
+            (identical(other.fechaRetiroSolicitada, fechaRetiroSolicitada) ||
+                other.fechaRetiroSolicitada == fechaRetiroSolicitada) &&
             (identical(other.fechaRetiroLimite, fechaRetiroLimite) ||
                 other.fechaRetiroLimite == fechaRetiroLimite) &&
             (identical(other.fechaPrestamo, fechaPrestamo) ||
@@ -440,6 +460,7 @@ class _$PrestamoImpl extends _Prestamo {
     usuario,
     const DeepCollectionEquality().hash(_detalles),
     fechaSolicitud,
+    fechaRetiroSolicitada,
     fechaRetiroLimite,
     fechaPrestamo,
     fechaDevolucionEsperada,
@@ -472,6 +493,8 @@ abstract class _Prestamo extends Prestamo {
     required final UsuarioResumen usuario,
     required final List<PrestamoDetalle> detalles,
     @JsonKey(name: 'fecha_solicitud') required final DateTime fechaSolicitud,
+    @JsonKey(name: 'fecha_retiro_solicitada')
+    final DateTime? fechaRetiroSolicitada,
     @JsonKey(name: 'fecha_retiro_limite') final DateTime? fechaRetiroLimite,
     @JsonKey(name: 'fecha_prestamo') final DateTime? fechaPrestamo,
     @JsonKey(name: 'fecha_devolucion_esperada')
@@ -500,6 +523,8 @@ abstract class _Prestamo extends Prestamo {
   @JsonKey(name: 'fecha_solicitud')
   DateTime get fechaSolicitud;
   @override
+  @JsonKey(name: 'fecha_retiro_solicitada')
+  DateTime? get fechaRetiroSolicitada;
   @JsonKey(name: 'fecha_retiro_limite')
   DateTime? get fechaRetiroLimite;
   @override

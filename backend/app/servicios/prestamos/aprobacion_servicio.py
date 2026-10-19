@@ -18,6 +18,18 @@ from app.servicios.prestamos import (
 )
 
 
+def _limite_de_retiro(prestamo: PrestamoCabecera, ahora: datetime) -> datetime:
+    """Hasta cuando se sostiene la reserva.
+
+    Si la persona indico cuando va a retirar, es esa hora (o ahora, si ya paso) mas
+    un margen corto; si no, el plazo general desde la aprobacion.
+    """
+    prevista = prestamo.fecha_retiro_solicitada
+    if prevista is None:
+        return ahora + timedelta(hours=configuracion.HORAS_RETIRO_RESERVA)
+    return max(prevista, ahora) + timedelta(hours=configuracion.HORAS_GRACIA_RETIRO_PROGRAMADO)
+
+
 def aplicar_aprobacion(
     db: Session,
     prestamo: PrestamoCabecera,
@@ -38,7 +50,7 @@ def aplicar_aprobacion(
 
     prestamo.estado = PRESTAMO_APROBADO
     prestamo.aprobado_por_id = personal.id
-    prestamo.fecha_retiro_limite = ahora + timedelta(hours=configuracion.HORAS_RETIRO_RESERVA)
+    prestamo.fecha_retiro_limite = _limite_de_retiro(prestamo, ahora)
     material_estado_servicio.recalcular(db, materiales, ahora)  # los ejemplares quedan reservados
 
 
