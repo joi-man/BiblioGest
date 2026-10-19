@@ -2,11 +2,11 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/theme/colores_app.dart';
-import 'package:frontend/core/utils/formato_fecha.dart';
 import 'package:frontend/features/auth/data/models/usuario.dart';
 import 'package:frontend/features/auth/presentation/providers/usuarios_provider.dart';
 import 'package:frontend/features/core/widgets/ejecutar_accion.dart';
 import 'package:frontend/features/loans/presentation/providers/acciones_prestamo.dart';
+import 'package:frontend/features/loans/presentation/widgets/campo_fecha_devolucion.dart';
 import 'package:frontend/core/utils/texto_busqueda.dart';
 import 'package:frontend/features/materials/data/models/material.dart';
 import 'package:frontend/features/materials/data/models/material_presentacion.dart';
@@ -14,9 +14,10 @@ import 'package:frontend/features/materials/presentation/providers/materiales_pr
 
 /// Registra un préstamo en el mostrador, sin solicitud previa.
 ///
-/// El personal elige a la persona y los materiales; el sistema calcula el
-/// plazo de cada uno. Opcionalmente puede fijar otra fecha límite o saltarse
-/// las validaciones del usuario (límite de items, préstamos vencidos).
+/// El personal elige a la persona y los materiales y confirma la fecha de
+/// devolución: por defecto el sistema calcula el plazo de cada material y, si
+/// hace falta, se fija otra fecha y hora. Opcionalmente puede saltarse las
+/// validaciones del usuario (límite de items, préstamos vencidos).
 class DialogoPrestamoDirecto extends ConsumerStatefulWidget {
   const DialogoPrestamoDirecto({super.key});
 
@@ -39,33 +40,6 @@ class _DialogoPrestamoDirectoState
   void dispose() {
     _observaciones.dispose();
     super.dispose();
-  }
-
-  Future<void> _elegirFechaLimite() async {
-    final ahora = DateTime.now();
-    final fecha = await showDatePicker(
-      context: context,
-      initialDate: _fechaLimite ?? ahora.add(const Duration(days: 1)),
-      firstDate: ahora,
-      lastDate: ahora.add(const Duration(days: 365)),
-    );
-    if (fecha == null || !mounted) return;
-
-    final hora = await showTimePicker(
-      context: context,
-      initialTime: const TimeOfDay(hour: 18, minute: 0),
-    );
-    if (hora == null) return;
-
-    setState(() {
-      _fechaLimite = DateTime(
-        fecha.year,
-        fecha.month,
-        fecha.day,
-        hora.hour,
-        hora.minute,
-      );
-    });
   }
 
   Future<void> _registrar() async {
@@ -211,6 +185,11 @@ class _DialogoPrestamoDirectoState
           decoration: const InputDecoration(labelText: 'Observaciones'),
         ),
         const SizedBox(height: 8),
+        CampoFechaDevolucion(
+          valor: _fechaLimite,
+          onChanged: (f) => setState(() => _fechaLimite = f),
+        ),
+        const SizedBox(height: 8),
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
           title: Text(
@@ -218,23 +197,6 @@ class _DialogoPrestamoDirectoState
             style: Theme.of(context).textTheme.titleSmall,
           ),
           children: [
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.event_outlined),
-              title: Text(
-                _fechaLimite == null
-                    ? 'Plazo automático según el material'
-                    : 'Devolver antes del ${FormatoFecha.fechaHora(_fechaLimite!)}',
-              ),
-              trailing: _fechaLimite == null
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.close),
-                      tooltip: 'Quitar fecha fija',
-                      onPressed: () => setState(() => _fechaLimite = null),
-                    ),
-              onTap: _elegirFechaLimite,
-            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Omitir validaciones de la persona'),

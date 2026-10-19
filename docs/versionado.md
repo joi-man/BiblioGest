@@ -66,6 +66,8 @@ Cada etiqueta apunta al commit que mejor representa esa versión. Hasta la 0.9 e
 | `v0.12.0` | `28f700a` | 2026-10-12 | Reportes y despliegue en la nube |
 | `v0.12.1` | `82c6ccb` | 2026-10-12 | El personal ve solicitudes nuevas sin cerrar sesión |
 | `v0.13.0` | `07ecaa1` | 2026-10-12 | Sesión en el navegador, suspensión de usuarios y hora de Paraguay |
+| `v0.14.0` | `d6843a7` | 2026-10-19 | Autores, ejemplares por material, tomos y búsqueda mejorada |
+| `v0.15.0` | (al publicar) | 2026-10-19 | Fecha y hora de devolución elegibles al prestar, entregar y ceder |
 
 ## Qué no se versiona
 
