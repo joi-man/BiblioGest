@@ -124,19 +124,19 @@ def crear_usuario(
     if obtener_usuario_por_username(db, username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El username ya esta en uso"
+            detail="El nombre de usuario ya está en uso"
         )
     
     if obtener_usuario_por_correo(db, correo_electronico):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo electronico ya esta en uso"
+            detail="El correo electrónico ya está en uso"
         )
     
     if obtener_usuario_por_documento(db, numero_documento):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El numero de documento ya esta registrado"
+            detail="El número de documento ya está registrado"
         )
     
     usuario = Usuario(
@@ -190,7 +190,7 @@ def actualizar_usuario(
         if obtener_usuario_por_correo(db, correo_electronico):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El correo electronico ya esta en uso"
+                detail="El correo electrónico ya está en uso"
             )
         usuario.correo_electronico = correo_electronico
     
@@ -198,7 +198,7 @@ def actualizar_usuario(
         if obtener_usuario_por_documento(db, numero_documento):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El numero de documento ya esta registrado"
+                detail="El número de documento ya está registrado"
             )
         usuario.numero_documento = numero_documento
     
