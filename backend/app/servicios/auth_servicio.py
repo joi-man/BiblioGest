@@ -9,7 +9,7 @@ from app.core.config import configuracion
 from app.servicios import bitacora_servicio
 
 
-MENSAJE_SUSPENDIDO = "Tu cuenta esta suspendida. Contacta al administrador de la biblioteca."
+MENSAJE_SUSPENDIDO = "Tu cuenta está suspendida. Contacta al administrador de la biblioteca."
 
 
 def autenticar_usuario(

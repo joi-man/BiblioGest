@@ -86,19 +86,21 @@ class TarjetaCatalogo extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
-                    Row(
+                    // Wrap: en pantallas angostas el código baja a la línea siguiente
+                    // en lugar de desbordar la tarjeta.
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         ChipEstadoEstudiante(estado: material.estado),
-                        const SizedBox(width: 8),
                         if (material.esPrestable &&
                             material.ejemplaresLibres > 0 &&
-                            material.cantidadTotal > 1) ...[
+                            material.cantidadTotal > 1)
                           Text(
                             material.ejemplaresDisponibles,
                             style: textos.labelMedium,
                           ),
-                          const SizedBox(width: 8),
-                        ],
                         Text(
                           material.codigo,
                           style: TipografiaApp.codigo(

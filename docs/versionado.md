@@ -71,6 +71,7 @@ Cada etiqueta apunta al commit que mejor representa esa versión. Hasta la 0.9 e
 | `v0.16.0` | `b126d61` | 2026-10-19 | Fecha y hora reales de la devolución, con motivo y auditoría |
 | `v0.17.0` | `16b8647` | 2026-10-19 | Fecha y hora de retiro que propone el estudiante al reservar |
 | `v0.17.1` | `d749138` | 2026-10-19 | Mensaje claro si se escribe la dirección de la web en lugar de la del servidor |
+| `v0.18.0` | _por asignar_ | 2026-10-26 | Bloqueo temporal por intentos fallidos, bloqueo por inactividad y tope de 10 días para registrar una devolución con fecha pasada |
 
 ## Qué no se versiona
 

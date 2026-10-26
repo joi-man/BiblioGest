@@ -90,7 +90,7 @@ Solo las registra el personal, desde la pantalla **Devoluciones** (separada de P
 Lo normal es registrar la devolución en el momento: no hay nada que elegir (se anota «ahora»). Si el material se recibió **antes** de anotarlo (por ejemplo, lo trajo ayer y no estaba el bibliotecario), en el diálogo de devolución se puede elegir la fecha y hora reales (hora de Paraguay). Como cambia datos que se auditan (días de retraso, multa, vencimientos), tiene condiciones:
 
 - **Motivo obligatorio** (mínimo 10 caracteres).
-- **No puede ser futura**, ni **anterior a la entrega** del préstamo, ni de **hace más de 30 días**.
+- **No puede ser futura**, ni **anterior a la entrega** del préstamo, ni de **hace más de 10 días**. El tope evita ventanas de tiempo excesivas: una carga tardía de más de diez días ya no es un olvido o una falla de carga, sino un asunto que debe resolver el administrador.
 - Los **días de retraso y la multa se calculan con esa fecha**, y el préstamo completo guarda como devolución real la fecha indicada.
 - La **bitácora** (`DEVOLUCION_REGISTRADA`) guarda quién lo hizo, la fecha indicada, el motivo y la hora en que realmente se registró.
 

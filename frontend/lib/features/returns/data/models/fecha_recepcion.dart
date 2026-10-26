@@ -10,7 +10,7 @@ class FechaRecepcion {
   FechaRecepcion._();
 
   /// Hasta cuántos días atrás se puede anotar una devolución.
-  static const maxDiasAtras = 30;
+  static const maxDiasAtras = 10;
 
   /// Largo mínimo del motivo.
   static const minCaracteresMotivo = 10;

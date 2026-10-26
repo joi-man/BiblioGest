@@ -56,13 +56,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.mostrarExito('Bienvenido ${estado.value!.usuario.nombre}');
       context.go('/');
     } else if (estado.hasError) {
-      // Si el servidor explica el motivo (cuenta suspendida) se muestra; si no, mensaje general.
+      // Si el servidor explica el motivo (cuenta suspendida o bloqueada, intentos que
+      // quedan) se muestra; si no, mensaje general.
       final error = estado.error;
       final detalle = error is DioException && error.response?.data is Map
           ? (error.response!.data as Map)['detail']
           : null;
       context.mostrarError(
-        detalle is String && detalle.contains('suspendida')
+        detalle is String &&
+                const [401, 403, 429].contains(
+                  (error as DioException).response?.statusCode,
+                )
             ? detalle
             : 'Credenciales incorrectas',
       );
@@ -101,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               obscureText: _ocultarContrasena,
               onFieldSubmitted: (_) => _iniciarSesion(),
               decoration: InputDecoration(
-                labelText: 'Contrasena',
+                labelText: 'Contraseña',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -114,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               validator: (valor) => (valor == null || valor.isEmpty)
-                  ? 'La contrasena es obligatoria'
+                  ? 'La contraseña es obligatoria'
                   : null,
             ),
             const SizedBox(height: 24),
@@ -126,12 +130,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Iniciar Sesion'),
+                  : const Text('Iniciar sesión'),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => context.go('/forgot-password'),
-              child: const Text('¿Olvidaste tu contrasena?'),
+              child: const Text('¿Olvidaste tu contraseña?'),
             ),
             const DescargasAplicaciones(),
           ],

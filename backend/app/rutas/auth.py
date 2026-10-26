@@ -17,7 +17,7 @@ from app.esquemas.auth import (
 )
 from app.modelos.usuario import Usuario
 from app.servicios import auth_servicio, email_servicio, recuperacion_servicio
-from app.servicios.limitador import LimitadorPorClave
+from app.servicios.limitador import BloqueoPorIntentos, LimitadorPorClave
 from app.servicios.usuario_servicio import obtener_usuario_por_correo
 from app.sync import estado_local
 from app.sync.cliente_central import ClienteCentral
@@ -32,6 +32,10 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticacion"])
 # Limites del envio de codigos pedidos por equipos con el ejecutable: por correo y en total.
 _limite_por_correo = LimitadorPorClave(maximo=3, segundos=15 * 60)
 _limite_global = LimitadorPorClave(maximo=60, segundos=60 * 60)
+# Fallos seguidos al iniciar sesion, por correo o usuario escrito (exista o no la cuenta).
+_bloqueo_login = BloqueoPorIntentos(
+    maximo=configuracion.LOGIN_MAX_INTENTOS, minutos=configuracion.LOGIN_BLOQUEO_MINUTOS
+)
 # Intentos de cambio de contrasena por usuario (frena adivinar la actual con una sesion robada).
 _limite_cambio_contrasena = LimitadorPorClave(maximo=10, segundos=15 * 60)
 
@@ -60,6 +64,18 @@ def _enviar_codigo_por_servidor(url: str, correo: str, codigo: str) -> None:
         cliente.cerrar()
 
 
+def _error_bloqueado(segundos: int) -> HTTPException:
+    minutos = -(-segundos // 60)
+    return HTTPException(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        detail=(
+            "Demasiados intentos fallidos. Tu acceso está bloqueado temporalmente: "
+            f"intenta de nuevo en {minutos} {'minuto' if minutos == 1 else 'minutos'}."
+        ),
+        headers={"Retry-After": str(segundos)},
+    )
+
+
 @router.post("/login", response_model=LoginResponse)
 def login(
     datos: LoginRequest,
@@ -70,7 +86,11 @@ def login(
     """Iniciar sesion con correo o username y contrasena."""
     ip_address = request.client.host if request.client else None
     user_agent = request.headers.get("user-agent")
-    
+    clave = datos.correo_o_usuario.strip().lower()
+
+    if _bloqueo_login.segundos_restantes(clave):
+        raise _error_bloqueado(_bloqueo_login.segundos_restantes(clave))
+
     usuario = auth_servicio.autenticar_usuario(
         db=db,
         correo_o_usuario=datos.correo_o_usuario,
@@ -80,12 +100,20 @@ def login(
     )
     
     if usuario is None:
+        bloqueo = _bloqueo_login.registrar_fallo(clave)
+        if bloqueo:
+            raise _error_bloqueado(bloqueo)
+        quedan = _bloqueo_login.intentos_restantes(clave)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo/usuario o contrasena incorrectos",
+            detail=(
+                "Correo/usuario o contraseña incorrectos. "
+                f"Te quedan {quedan} {'intento' if quedan == 1 else 'intentos'}."
+            ),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
+    _bloqueo_login.limpiar(clave)
     token = auth_servicio.crear_token_usuario(usuario)
 
     if es_modo_local():
@@ -203,7 +231,7 @@ def restablecer_contrasena(
     if not ok:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Codigo invalido o expirado",
+            detail="Código inválido o expirado",
         )
     return MensajeRespuesta(mensaje="Contrasena actualizada correctamente")
 
