@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.config import configuracion
-from app.core.database import es_modo_local, obtener_db
+from app.core.database import CLAVE_MODO_LOCAL, es_modo_local, obtener_db
 from app.core.dependencias import obtener_usuario_actual
 from app.esquemas.auth import (
     CambiarContrasenaRequest,
@@ -99,6 +99,19 @@ def login(
         user_agent=user_agent,
     )
     
+    if usuario is None and db.info.get(CLAVE_MODO_LOCAL):
+        # La contrasena pudo cambiarse en el servidor (web) y la copia local estar vieja.
+        if servicio_local.actualizar_contrasena_desde_servidor(
+            db, motor, datos.correo_o_usuario, datos.contrasena
+        ):
+            usuario = auth_servicio.autenticar_usuario(
+                db=db,
+                correo_o_usuario=datos.correo_o_usuario,
+                contrasena=datos.contrasena,
+                ip_address=ip_address,
+                user_agent=user_agent,
+            )
+
     if usuario is None:
         bloqueo = _bloqueo_login.registrar_fallo(clave)
         if bloqueo:
