@@ -49,12 +49,12 @@ void main() {
       expect(mensaje, contains('anterior a la entrega'));
     });
 
-    test('más de 30 días atrás se rechaza', () {
+    test('más de 10 días atrás se rechaza', () {
       final mensaje = FechaRecepcion.validar(
-        ahora.subtract(const Duration(days: 31)),
+        ahora.subtract(const Duration(days: 11)),
         ahora: ahora,
       );
-      expect(mensaje, contains('más de 30 días'));
+      expect(mensaje, contains('más de 10 días'));
     });
 
     test('los mensajes no exponen detalles técnicos', () {
@@ -94,14 +94,14 @@ void main() {
     });
 
     test(
-      'el primero no pasa de hace 30 días aunque la entrega sea anterior',
+      'el primero no pasa de hace 10 días aunque la entrega sea anterior',
       () {
         expect(
           FechaRecepcion.primerDia(
             entrega: DateTime.utc(2026, 8, 1),
             ahora: ahora,
           ),
-          DateTime(2026, 9, 20),
+          DateTime(2026, 10, 10),
         );
       },
     );

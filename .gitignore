@@ -13,6 +13,7 @@ docs/*
 !docs/despliegue.md
 !docs/versionado.md
 !docs/autores-y-ejemplares.md
+!docs/seguridad-de-acceso.md
 !docs/despliegue.md
 *.docx
 

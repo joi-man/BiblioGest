@@ -5,6 +5,7 @@ import '../core/theme/modo_tema_provider.dart';
 import '../features/actualizaciones/presentation/widgets/guardia_actualizacion.dart';
 import '../core/theme/tema_app.dart';
 import '../features/auth/presentation/widgets/guardia_cierre_ventana.dart';
+import '../features/auth/presentation/widgets/guardia_inactividad.dart';
 import 'router.dart';
 
 /// Raíz de la aplicación: conecta el router, el tema y la localización.
@@ -24,7 +25,9 @@ class BiblioGestApp extends ConsumerWidget {
       routerConfig: appRouter,
       builder: (context, child) => GuardiaCierreVentana(
         navegadorKey: navegadorRaizKey,
-        child: GuardiaActualizacion(child: child ?? const SizedBox.shrink()),
+        child: GuardiaInactividad(
+          child: GuardiaActualizacion(child: child ?? const SizedBox.shrink()),
+        ),
       ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

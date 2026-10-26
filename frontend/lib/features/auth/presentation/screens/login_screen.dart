@@ -56,13 +56,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.mostrarExito('Bienvenido ${estado.value!.usuario.nombre}');
       context.go('/');
     } else if (estado.hasError) {
-      // Si el servidor explica el motivo (cuenta suspendida) se muestra; si no, mensaje general.
+      // Si el servidor explica el motivo (cuenta suspendida o bloqueada, intentos que
+      // quedan) se muestra; si no, mensaje general.
       final error = estado.error;
       final detalle = error is DioException && error.response?.data is Map
           ? (error.response!.data as Map)['detail']
           : null;
       context.mostrarError(
-        detalle is String && detalle.contains('suspendida')
+        detalle is String &&
+                const [401, 403, 429].contains(
+                  (error as DioException).response?.statusCode,
+                )
             ? detalle
             : 'Credenciales incorrectas',
       );

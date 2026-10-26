@@ -27,6 +27,9 @@ class Configuracion(BaseSettings):
     # Recuperacion de contrasena
     CODIGO_RESET_EXPIRACION_MINUTOS: int = 15
     CODIGO_RESET_MAX_INTENTOS: int = 5
+    # Inicio de sesion: tras tantos fallos seguidos la cuenta se bloquea unos minutos.
+    LOGIN_MAX_INTENTOS: int = 5
+    LOGIN_BLOQUEO_MINUTOS: int = 15
 
     # Reglas de prestamo
     PLAZO_PRESTAMO_HORAS_DEFECTO: int = 168  # 7 dias, si ni el material ni la categoria definen plazo

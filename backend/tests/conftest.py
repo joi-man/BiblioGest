@@ -19,6 +19,7 @@ from app.core import reloj
 from app.core.database import Base, obtener_db
 from app.core.seguridad import crear_token_acceso, hashear_contrasena
 from app.modelos import Categoria, Material, Usuario  # noqa: F401  (registra todos los modelos)
+from app.servicios.limitador import BloqueoPorIntentos
 from app.rutas import auth, autores, categorias, dashboard, devoluciones, materiales, prestamos, reportes, solicitudes, usuarios
 
 
@@ -65,6 +66,14 @@ def db():
     yield sesion
     sesion.close()
     motor.dispose()
+
+
+@pytest.fixture(autouse=True)
+def bloqueo_login_limpio(monkeypatch):
+    """Cada prueba empieza con el contador de fallos de inicio de sesion en cero."""
+    monkeypatch.setattr(
+        auth, "_bloqueo_login", BloqueoPorIntentos(maximo=5, minutos=15, reloj=lambda: 0.0)
+    )
 
 
 @pytest.fixture()
