@@ -105,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               obscureText: _ocultarContrasena,
               onFieldSubmitted: (_) => _iniciarSesion(),
               decoration: InputDecoration(
-                labelText: 'Contrasena',
+                labelText: 'Contraseña',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -118,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               validator: (valor) => (valor == null || valor.isEmpty)
-                  ? 'La contrasena es obligatoria'
+                  ? 'La contraseña es obligatoria'
                   : null,
             ),
             const SizedBox(height: 24),
@@ -130,12 +130,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Iniciar Sesion'),
+                  : const Text('Iniciar sesión'),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => context.go('/forgot-password'),
-              child: const Text('¿Olvidaste tu contrasena?'),
+              child: const Text('¿Olvidaste tu contraseña?'),
             ),
             const DescargasAplicaciones(),
           ],

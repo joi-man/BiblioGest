@@ -96,3 +96,45 @@ def test_un_usuario_eliminado_no_aparece_en_ningun_listado(cliente, admin, estud
     assert estudiante.username not in [u["username"] for u in lista]
     assert login(cliente, estudiante).status_code == 401
     assert exportar.status_code == 200 and estudiante.username.encode() not in exportar.content
+
+
+def nuevo(**cambios):
+    datos = {
+        "username": "nuevo.usuario",
+        "correo_electronico": "nuevo@prueba.com",
+        "contrasena": "Clave12345",
+        "numero_documento": "9988776",
+        "nombre": "Nuevo",
+        "apellido": "Usuario",
+        "rol": "estudiante",
+    }
+    datos.update(cambios)
+    return datos
+
+
+def crear(cliente, admin, **cambios):
+    return cliente.post("/api/usuarios/", json=nuevo(**cambios), headers=encabezados(admin))
+
+
+def test_el_administrador_da_de_alta_un_usuario(cliente, admin):
+    respuesta = crear(cliente, admin)
+
+    assert respuesta.status_code == 201
+    assert respuesta.json()["username"] == "nuevo.usuario"
+
+
+def test_no_se_repiten_usuario_correo_ni_documento(cliente, admin, estudiante):
+    repetido_usuario = crear(cliente, admin, username=estudiante.username)
+    repetido_correo = crear(cliente, admin, correo_electronico=estudiante.correo_electronico)
+    repetido_documento = crear(cliente, admin, numero_documento=estudiante.numero_documento)
+
+    assert [r.status_code for r in (repetido_usuario, repetido_correo, repetido_documento)] == [400, 400, 400]
+    assert "usuario" in repetido_usuario.json()["detail"]
+    assert "correo" in repetido_correo.json()["detail"]
+    assert "documento" in repetido_documento.json()["detail"]
+
+
+def test_un_estudiante_no_puede_crear_usuarios(cliente, estudiante):
+    respuesta = crear(cliente, estudiante)
+
+    assert respuesta.status_code == 403

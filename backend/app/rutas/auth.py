@@ -69,7 +69,7 @@ def _error_bloqueado(segundos: int) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
         detail=(
-            "Demasiados intentos fallidos. Tu acceso esta bloqueado temporalmente: "
+            "Demasiados intentos fallidos. Tu acceso está bloqueado temporalmente: "
             f"intenta de nuevo en {minutos} {'minuto' if minutos == 1 else 'minutos'}."
         ),
         headers={"Retry-After": str(segundos)},
@@ -107,7 +107,7 @@ def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=(
-                "Correo/usuario o contrasena incorrectos. "
+                "Correo/usuario o contraseña incorrectos. "
                 f"Te quedan {quedan} {'intento' if quedan == 1 else 'intentos'}."
             ),
             headers={"WWW-Authenticate": "Bearer"},
@@ -231,7 +231,7 @@ def restablecer_contrasena(
     if not ok:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Codigo invalido o expirado",
+            detail="Código inválido o expirado",
         )
     return MensajeRespuesta(mensaje="Contrasena actualizada correctamente")
 

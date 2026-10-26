@@ -145,7 +145,7 @@ void main() {
       modoLocalNotifier.configuracionTerminada();
       await tester.pumpAndSettle();
 
-      expect(find.text('Iniciar Sesion'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Iniciar sesión'), findsOneWidget);
     });
   });
 

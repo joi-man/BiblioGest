@@ -36,7 +36,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       await ref.read(authRepositoryProvider).solicitarRecuperacion(correo);
       if (!mounted) return;
       context.mostrarInfo(
-        'Si el correo esta registrado, recibiras un codigo de 6 digitos',
+        'Si el correo está registrado, recibirás un código de 6 dígitos',
       );
       context.go('/reset-password', extra: correo);
     } catch (error) {
@@ -58,7 +58,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return PanelAutenticacion(
-      titulo: 'Recuperar contrasena',
+      titulo: 'Recuperar contraseña',
       subtitulo: 'Ingresa tu correo y te enviaremos un código de 6 dígitos.',
       hijo: Form(
         key: _formKey,
@@ -72,14 +72,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               autocorrect: false,
               enableSuggestions: false,
               decoration: const InputDecoration(
-                labelText: 'Correo electronico',
+                labelText: 'Correo electrónico',
                 prefixIcon: Icon(Icons.mail_outline),
               ),
               validator: (valor) {
                 final texto = valor?.trim() ?? '';
                 if (texto.isEmpty) return 'El correo es obligatorio';
                 if (!texto.contains('@') || !texto.contains('.')) {
-                  return 'Ingresa un correo valido';
+                  return 'Ingresa un correo válido';
                 }
                 return null;
               },
@@ -93,12 +93,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Enviar codigo'),
+                  : const Text('Enviar código'),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => context.go('/login'),
-              child: const Text('Volver al inicio de sesion'),
+              child: const Text('Volver al inicio de sesión'),
             ),
           ],
         ),

@@ -177,7 +177,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Za-z-]')),
                   ],
                   decoration: const InputDecoration(
-                    labelText: 'Numero de documento * (sin puntos)',
+                    labelText: 'Número de documento * (sin puntos)',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -193,7 +193,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   maxLength: 20,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
-                    labelText: 'Telefono',
+                    labelText: 'Teléfono',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -229,8 +229,8 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                 const SizedBox(height: 12),
                 Text(
                   esEdicion
-                      ? 'Dejar vacio para no cambiar contrasena'
-                      : 'Contrasena *',
+                      ? 'Dejar vacío para no cambiar contraseña'
+                      : 'Contraseña *',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -242,8 +242,8 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   obscureText: !_mostrarContrasena,
                   decoration: InputDecoration(
                     labelText: esEdicion
-                        ? 'Nueva contrasena (opcional)'
-                        : 'Contrasena',
+                        ? 'Nueva contraseña (opcional)'
+                        : 'Contraseña',
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -260,7 +260,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   ),
                   validator: (value) {
                     if (!esEdicion && (value == null || value.isEmpty)) {
-                      return 'La contrasena es obligatoria';
+                      return 'La contraseña es obligatoria';
                     }
                     if (value != null && value.isNotEmpty && value.length < 6) {
                       return 'Minimo 6 caracteres';
@@ -273,16 +273,16 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                   controller: _confirmarContrasenaController,
                   obscureText: !_mostrarContrasena,
                   decoration: const InputDecoration(
-                    labelText: 'Confirmar contrasena',
+                    labelText: 'Confirmar contraseña',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (!esEdicion && (value == null || value.isEmpty)) {
-                      return 'Confirma la contrasena';
+                      return 'Confirma la contraseña';
                     }
                     if (_contrasenaController.text.isNotEmpty &&
                         value != _contrasenaController.text) {
-                      return 'Las contrasenas no coinciden';
+                      return 'Las contraseñas no coinciden';
                     }
                     return null;
                   },
