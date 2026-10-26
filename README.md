@@ -12,7 +12,7 @@ Sistema multiplataforma (**Web, Windows Desktop y Android Mobile**) desarrollado
   - `develop`: Rama por defecto e integración; los Pull Requests apuntan aquí.
   - `feature/*`, `fix/*`, `docs/*`: Ramas de trabajo que salen de `develop`.
   - Versiones `vX.Y.Z` etiquetadas en `main`. Ver [docs/versionado.md](docs/versionado.md).
-- **Versión actual:** 0.17.1
+- **Versión actual:** 0.18.0
 
 ---
 

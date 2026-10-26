@@ -116,18 +116,18 @@ def test_una_fecha_anterior_a_la_entrega_se_rechaza(
     assert "anterior a la entrega" in respuesta.json()["detail"]
 
 
-def test_no_se_acepta_una_fecha_de_hace_mas_de_treinta_dias(
+def test_no_se_acepta_una_fecha_de_hace_mas_de_diez_dias(
     cliente, estudiante, bibliotecario, categoria_libros, crear_material, reloj_prueba
 ):
     prestamo = prestar_directo(cliente, bibliotecario, estudiante, crear_material(categoria_libros, "L-1"))
-    reloj_prueba.avanzar(days=45)
+    reloj_prueba.avanzar(days=15)
 
     respuesta = devolver_con(
         cliente, bibliotecario, prestamo, fecha=INSTANTE_BASE + timedelta(days=2), motivo=MOTIVO
     )
 
     assert respuesta.status_code == 400
-    assert "mas de 30 dias" in respuesta.json()["detail"]
+    assert "mas de 10 dias" in respuesta.json()["detail"]
 
 
 def test_un_pequeno_adelanto_del_reloj_del_equipo_no_cuenta_como_futuro(
