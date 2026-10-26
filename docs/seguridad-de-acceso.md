@@ -14,8 +14,8 @@ El botón **Cerrar sesión** (menú lateral, o *Perfil* en el móvil) borra el t
 | Duración del bloqueo | 15 minutos | `LOGIN_BLOQUEO_MINUTOS` |
 
 - Se cuenta por el **correo o usuario escrito** (sin distinguir mayúsculas), exista o no la cuenta: así no se revela si existe.
-- Cada fallo responde 401 con el mensaje «Correo/usuario o contrasena incorrectos. Te quedan N intentos.».
-- El quinto fallo responde **429** con «Demasiados intentos fallidos. Tu acceso esta bloqueado temporalmente: intenta de nuevo en 15 minutos.» y la cabecera `Retry-After`.
+- Cada fallo responde 401 con el mensaje «Correo/usuario o contraseña incorrectos. Te quedan N intentos.».
+- El quinto fallo responde **429** con «Demasiados intentos fallidos. Tu acceso está bloqueado temporalmente: intenta de nuevo en 15 minutos.» y la cabecera `Retry-After`.
 - Mientras dura el bloqueo se rechaza todo intento, **incluso con la contraseña correcta**. Al vencer, la cuenta vuelve a tener sus 5 intentos.
 - Un inicio de sesión correcto borra el conteo de fallos.
 - Cada fallo queda en la bitácora (`LOGIN_FALLIDO`).

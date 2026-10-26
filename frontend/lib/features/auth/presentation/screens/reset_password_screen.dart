@@ -56,19 +56,19 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             nuevaContrasena: _contrasenaController.text,
           );
       if (!mounted) return;
-      context.mostrarExito('Contrasena actualizada. Inicia sesion');
+      context.mostrarExito('Contraseña actualizada. Inicia sesión');
       context.go('/login');
     } on DioException catch (e) {
       if (!mounted) return;
       context.mostrarError(
         e.response?.statusCode == 400
-            ? 'Codigo invalido o expirado'
-            : 'No se pudo cambiar la contrasena. Intenta de nuevo',
+            ? 'Código inválido o expirado'
+            : 'No se pudo cambiar la contraseña. Intenta de nuevo',
       );
     } catch (_) {
       if (mounted) {
         context.mostrarError(
-          'No se pudo cambiar la contrasena. Intenta de nuevo',
+          'No se pudo cambiar la contraseña. Intenta de nuevo',
         );
       }
     } finally {
@@ -79,7 +79,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return PanelAutenticacion(
-      titulo: 'Nueva contrasena',
+      titulo: 'Nueva contraseña',
       subtitulo:
           'Ingresa el código que recibiste por correo (vence en 15 minutos).',
       hijo: Form(
@@ -94,14 +94,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               autocorrect: false,
               enableSuggestions: false,
               decoration: const InputDecoration(
-                labelText: 'Correo electronico',
+                labelText: 'Correo electrónico',
                 prefixIcon: Icon(Icons.mail_outline),
               ),
               validator: (valor) {
                 final texto = valor?.trim() ?? '';
                 if (texto.isEmpty) return 'El correo es obligatorio';
                 if (!texto.contains('@') || !texto.contains('.')) {
-                  return 'Ingresa un correo valido';
+                  return 'Ingresa un correo válido';
                 }
                 return null;
               },
@@ -113,12 +113,12 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               maxLength: 6,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
-                labelText: 'Codigo de 6 digitos',
+                labelText: 'Código de 6 dígitos',
                 prefixIcon: Icon(Icons.pin_outlined),
                 counterText: '',
               ),
               validator: (valor) => (valor == null || valor.length != 6)
-                  ? 'El codigo debe tener 6 digitos'
+                  ? 'El código debe tener 6 dígitos'
                   : null,
             ),
             const SizedBox(height: 16),
@@ -126,7 +126,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               controller: _contrasenaController,
               obscureText: _ocultar,
               decoration: InputDecoration(
-                labelText: 'Nueva contrasena',
+                labelText: 'Nueva contraseña',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -146,11 +146,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               controller: _confirmarController,
               obscureText: _ocultar,
               decoration: const InputDecoration(
-                labelText: 'Confirmar contrasena',
+                labelText: 'Confirmar contraseña',
                 prefixIcon: Icon(Icons.lock_outline),
               ),
               validator: (valor) => valor != _contrasenaController.text
-                  ? 'Las contrasenas no coinciden'
+                  ? 'Las contraseñas no coinciden'
                   : null,
             ),
             const SizedBox(height: 24),
@@ -162,16 +162,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Cambiar contrasena'),
+                  : const Text('Cambiar contraseña'),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => context.go('/forgot-password'),
-              child: const Text('Reenviar codigo'),
+              child: const Text('Reenviar código'),
             ),
             TextButton(
               onPressed: () => context.go('/login'),
-              child: const Text('Volver al inicio de sesion'),
+              child: const Text('Volver al inicio de sesión'),
             ),
           ],
         ),

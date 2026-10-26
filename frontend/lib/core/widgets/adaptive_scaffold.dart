@@ -96,7 +96,7 @@ class AdaptiveScaffold extends StatelessWidget {
       NavigationRailDestination(
         icon: Icon(Icons.assignment_outlined),
         selectedIcon: Icon(Icons.assignment),
-        label: Text('Prestamos'),
+        label: Text('Préstamos'),
       ),
       NavigationRailDestination(
         icon: Icon(Icons.people_outlined),
@@ -121,7 +121,7 @@ class AdaptiveScaffold extends StatelessWidget {
       NavigationDestination(
         icon: Icon(Icons.assignment_outlined),
         selectedIcon: Icon(Icons.assignment),
-        label: 'Prestamos',
+        label: 'Préstamos',
       ),
       NavigationDestination(
         icon: Icon(Icons.people_outlined),
