@@ -2,7 +2,7 @@
 from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, status
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core import reloj
@@ -137,3 +137,38 @@ def recordar_inicio_de_sesion(
     """Guarda (en memoria) las credenciales de quien inicio sesion, para sincronizar con ellas."""
     if estado_local.servidor_url(db) and usuario.rol in PERSONAL:
         motor.credenciales.recordar(identificador, contrasena)
+
+
+def actualizar_contrasena_desde_servidor(
+    db: Session, motor: MotorSincronizacion, identificador: str, contrasena: str
+) -> bool:
+    """Si el servidor acepta estas credenciales, pone la contrasena en la copia local del usuario.
+
+    Sirve cuando la contrasena se cambio en otro lado (por ejemplo, la web) y la copia local quedo
+    vieja. Devuelve True si cambio el hash local. Sin conexion o con credenciales que el servidor
+    tampoco acepta no hace nada.
+    """
+    url = estado_local.servidor_url(db)
+    if not url:
+        return False
+    cliente = motor.crear_cliente(url)
+    try:
+        cliente.iniciar_sesion(identificador, contrasena)
+    except (ErrorSinConexion, ErrorCredenciales, ErrorServidor):
+        return False
+    finally:
+        cliente.cerrar()
+
+    clave = identificador.strip().lower()
+    usuario = db.execute(
+        select(Usuario).where(
+            or_(func.lower(Usuario.correo_electronico) == clave, Usuario.username == identificador),
+            Usuario.eliminado == False,  # noqa: E712
+        )
+    ).scalars().first()
+    if usuario is None or usuario.rol not in PERSONAL:
+        return False
+    with aplicando_datos_del_servidor(db):
+        usuario.contrasena_hash = hashear_contrasena(contrasena)
+        db.commit()
+    return True
