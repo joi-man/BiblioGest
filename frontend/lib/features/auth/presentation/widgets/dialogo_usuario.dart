@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/network/mensaje_error.dart';
 import 'package:frontend/features/auth/data/models/usuario.dart';
 import 'package:frontend/features/auth/data/repositories/usuario_repository.dart';
 import 'package:frontend/features/auth/presentation/providers/auth_provider.dart';
@@ -366,7 +367,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
         );
       }
     } catch (e) {
-      if (mounted) context.mostrarError('Error: $e');
+      if (mounted) context.mostrarError(mensajeDeError(e));
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
