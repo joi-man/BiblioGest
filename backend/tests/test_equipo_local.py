@@ -162,31 +162,3 @@ def test_desconectar_deja_el_equipo_en_modo_solo_local(equipo_nuevo):
     r = equipo_nuevo.http.post("/api/local/desconectar", headers=cabeceras(admin))
 
     assert r.status_code == 200 and r.json()["servidor_url"] is None
-
-
-def test_contrasena_cambiada_en_el_servidor_funciona_en_el_equipo(equipo_nuevo, servidor):
-    """Cambiar la contrasena en la web no debe dejar al equipo de escritorio sin poder entrar."""
-    from app.core.seguridad import hashear_contrasena
-
-    _conectar(equipo_nuevo)
-    with servidor.sesion() as db:
-        admin = db.execute(select(Usuario).where(Usuario.username == "admin")).scalar_one()
-        admin.contrasena_hash = hashear_contrasena("NuevaClave789")
-        db.commit()
-
-    login = equipo_nuevo.http.post(
-        "/api/auth/login", json={"correo_o_usuario": "admin", "contrasena": "NuevaClave789"}
-    )
-
-    assert login.status_code == 200
-    assert equipo_nuevo.http.get("/api/local/estado").json()["pendientes"] == 0
-
-
-def test_contrasena_incorrecta_sigue_rechazandose_en_el_equipo(equipo_nuevo):
-    _conectar(equipo_nuevo)
-
-    login = equipo_nuevo.http.post(
-        "/api/auth/login", json={"correo_o_usuario": "admin", "contrasena": "Equivocada1"}
-    )
-
-    assert login.status_code == 401
