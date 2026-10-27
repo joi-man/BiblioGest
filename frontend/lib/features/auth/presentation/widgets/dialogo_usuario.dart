@@ -33,6 +33,9 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
   late TextEditingController _confirmarContrasenaController;
   String _rol = 'estudiante';
   bool _guardando = false;
+  final _scroll = ScrollController();
+  // Motivo por el que el servidor rechazó el formulario; se muestra dentro del diálogo.
+  String? _error;
   bool _mostrarContrasena = false;
 
   @override
@@ -65,6 +68,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
 
   @override
   void dispose() {
+    _scroll.dispose();
     _usernameController.dispose();
     _correoController.dispose();
     _nombreController.dispose();
@@ -84,6 +88,7 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
         child: SingleChildScrollView(
+          controller: _scroll,
           padding: const EdgeInsets.all(24),
           child: Form(
             key: _formKey,
@@ -288,6 +293,35 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
                     return null;
                   },
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -322,7 +356,10 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _guardando = true);
+    setState(() {
+      _guardando = true;
+      _error = null;
+    });
 
     try {
       final token = ref.read(authProvider).value?.accessToken;
@@ -367,7 +404,18 @@ class _DialogoUsuarioState extends ConsumerState<DialogoUsuario> {
         );
       }
     } catch (e) {
-      if (mounted) context.mostrarError(mensajeDeError(e));
+      if (mounted) {
+        setState(() => _error = mensajeDeError(e));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scroll.hasClients) {
+            _scroll.animateTo(
+              _scroll.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
     } finally {
       if (mounted) setState(() => _guardando = false);
     }
